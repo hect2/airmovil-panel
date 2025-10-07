@@ -15,7 +15,7 @@
                 <span class="text-sm leading-6 capitalize">{{ $t('menu.dashboard') }}</span>
             </router-link>
 
-            <router-link :to="{ name: 'frontend.myOrder' }"
+            <!-- <router-link :to="{ name: 'frontend.myOrder' }"
                          class="paper-link transition w-full flex items-center gap-3.5 py-2.5 border-b last:border-none border-[#EFF0F6]">
                 <i class="lab lab-reserve-line lab-font-size-17"></i>
                 <span class="text-sm leading-6 capitalize">{{ $t('button.my_orders') }}</span>
@@ -43,7 +43,7 @@
                          class="paper-link transition w-full flex items-center gap-3.5 py-2.5 border-b last:border-none border-[#EFF0F6]">
                 <i class="lab lab-key lab-font-size-17"></i>
                 <span class="text-sm leading-6 capitalize">{{ $t('button.change_password') }}</span>
-            </router-link>
+            </router-link> -->
         </div>
     </div>
 </template>

@@ -7,6 +7,7 @@ use App\Http\Requests\DiningTableRequest;
 use App\Http\Requests\PaginateRequest;
 use App\Models\DiningTable;
 use App\Models\Branch;
+use App\Models\CategoryCar;
 use Exception;
 use Illuminate\Support\Facades\Log;
 use Smartisan\Settings\Facades\Settings;
@@ -40,12 +41,13 @@ class DiningTableService
     {
         try {
             $requests    = $request->all();
+            \Log::info($requests);
             $method      = $request->get('paginate', 0) == 1 ? 'paginate' : 'get';
             $methodValue = $request->get('paginate', 0) == 1 ? $request->get('per_page', 10) : '*';
             $orderColumn = $request->get('order_column') ?? 'id';
             $orderType   = $request->get('order_type') ?? 'desc';
 
-            return DiningTable::with('branch')->where(function ($query) use ($requests) {
+            return CategoryCar::where(function ($query) use ($requests) {
                 foreach ($requests as $key => $request) {
                     if (in_array($key, $this->diningTableFilter)) {
                         if ($key == "except") {
@@ -79,18 +81,26 @@ class DiningTableService
     public function store(DiningTableRequest $request)
     {
         try {
-            $branch      = Branch::find($request->branch_id);           
-            $branch_name = $branch ? $branch->name : "";
+            // $branch      = Branch::find($request->branch_id);           
+            // $branch_name = $branch ? $branch->name : "";
 
-            $filename = Str::random(10) . '.png';
-            $slug     = Str::slug($branch_name.'-'.$request->name);
-            $url      = URL::to('/') . "/menu/" . $slug;
+            // $filename = Str::random(10) . '.png';
+            // $slug     = Str::slug($branch_name.'-'.$request->name);
+            // $url      = URL::to('/') . "/menu/" . $slug;
 
-            if (!File::exists(storage_path('app/public/qr_codes/'))) {
-                File::makeDirectory(storage_path('app/public/qr_codes/'));
-            }
-            QrCode::format('png')->size(200)->generate($url, storage_path('app/public/qr_codes/' . $filename));
-            return DiningTable::create($request->validated() + ['qr_code' => 'storage/qr_codes/' . $filename, 'slug' => $slug]);
+            // if (!File::exists(storage_path('app/public/qr_codes/'))) {
+            //     File::makeDirectory(storage_path('app/public/qr_codes/'));
+            // }
+            // QrCode::format('png')->size(200)->generate($url, storage_path('app/public/qr_codes/' . $filename));
+            // return DiningTable::create($request->validated() + ['qr_code' => 'storage/qr_codes/' . $filename, 'slug' => $slug]);
+            return CategoryCar::create([
+                'name' => $request->name,
+                'description' => $request->description,
+                'category' => $request->category,
+                'status' => $request->status,
+                'image' => 'storage/image/pruebas.png'
+            ]);
+
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
@@ -100,27 +110,33 @@ class DiningTableService
     /**
      * @throws Exception
      */
-    public function update(DiningTableRequest $request, DiningTable $diningTable)
+    public function update(DiningTableRequest $request, CategoryCar $diningTable)
     {
         try {
-            $branch      = Branch::find($request->branch_id);           
-            $branch_name = $branch ? $branch->name : "";
+            // $branch      = Branch::find($request->branch_id);           
+            // $branch_name = $branch ? $branch->name : "";
 
-            $filename = Str::random(10) . '.png';
-            $slug     = Str::slug($branch_name.'-'.$request->name);
-            $url      = URL::to('/') . "/menu/" . $slug;
+            // $filename = Str::random(10) . '.png';
+            // $slug     = Str::slug($branch_name.'-'.$request->name);
+            // $url      = URL::to('/') . "/menu/" . $slug;
 
-            if (!File::exists(storage_path('app/public/qr_codes/'))) {
-                File::makeDirectory(storage_path('app/public/qr_codes/'));
-            }
+            // if (!File::exists(storage_path('app/public/qr_codes/'))) {
+            //     File::makeDirectory(storage_path('app/public/qr_codes/'));
+            // }
 
-            if(File::exists($diningTable->qr_code) && !$this->envService->getValue('DEMO')){
-                File::delete($diningTable->qr_code);
-            }
+            // if(File::exists($diningTable->qr_code) && !$this->envService->getValue('DEMO')){
+            //     File::delete($diningTable->qr_code);
+            // }
 
-            QrCode::format('png')->size(200)->generate($url, storage_path('app/public/qr_codes/' . $filename));
+            // QrCode::format('png')->size(200)->generate($url, storage_path('app/public/qr_codes/' . $filename));
 
-            return tap($diningTable)->update($request->validated() + ['qr_code' => 'storage/qr_codes/' . $filename, 'slug' => $slug]);
+            return tap($diningTable)->update([
+                'name' => $request->name,
+                'description' => $request->description,
+                'category' => $request->category,
+                'status' => $request->status,
+                'image' => 'storage/image/pruebas.png'
+            ]);
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
@@ -130,11 +146,11 @@ class DiningTableService
     /**
      * @throws Exception
      */
-    public function destroy(DiningTable $diningTable): void
+    public function destroy(CategoryCar $diningTable): void
     {
         try {
-            if(File::exists($diningTable->qr_code) && !$this->envService->getValue('DEMO')){
-                File::delete($diningTable->qr_code);
+            if(File::exists($diningTable->image) && !$this->envService->getValue('DEMO')){
+                File::delete($diningTable->image);
             }
             $diningTable->delete();
         } catch (Exception $exception) {
@@ -146,7 +162,7 @@ class DiningTableService
     /**
      * @throws Exception
      */
-    public function show(DiningTable $diningTable): DiningTable
+    public function show(CategoryCar $diningTable): CategoryCar
     {
         try {
             return $diningTable;

@@ -18,6 +18,7 @@ class MenuTableSeeder extends Seeder
     {
         Menu::truncate();
         $menus = [
+            // Tablero
             [
                 'name'       => 'Dashboard',
                 'language'   => 'dashboard',
@@ -28,6 +29,7 @@ class MenuTableSeeder extends Seeder
                 'created_at' => now(),
                 'updated_at' => now()
             ],
+            // Banners
             [
                 'name'       => 'Items',
                 'language'   => 'items',
@@ -39,6 +41,7 @@ class MenuTableSeeder extends Seeder
                 'updated_at' => now()
 
             ],
+            // Categorias de Carro
             [
                 'name'       => 'Pastry Tables',
                 'language'   => 'dining_tables',
@@ -51,150 +54,183 @@ class MenuTableSeeder extends Seeder
 
             ],
             [
-                'name'       => 'Pos & Orders',
-                'language'   => 'pos_and_orders',
-                'url'        => '#',
-                'icon'       => 'lab lab-pos',
+                'name'       => 'Marcas',
+                'language'   => 'marcas',
+                'url'        => 'marcas',
+                'icon'       => 'lab lab-dining-table',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),
-                'updated_at' => now(),
-                'children'   => [
-                    [
-                        'name'       => 'POS',
-                        'url'        => 'pos',
-                        'language'   => 'pos',
-                        'icon'       => 'lab lab-pos',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
+                'updated_at' => now()
 
-                    ],
-                    [
-                        'name'       => 'POS Orders',
-                        'language'   => 'pos_orders',
-                        'url'        => 'pos-orders',
-                        'icon'       => 'lab lab-pos-orders',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ],
-                    [
-                        'name'       => 'Online Orders',
-                        'language'   => 'online_orders',
-                        'url'        => 'online-orders',
-                        'icon'       => 'lab lab-online-orders',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-
-                    ],
-                    [
-                        'name'       => 'Table Orders',
-                        'language'   => 'table_orders',
-                        'url'        => 'table-orders',
-                        'icon'       => 'lab lab-reserve-line',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-
-                    ],
-                    [
-                        'name'       => 'transactions_sales',
-                        'language'   => 'transactions_sales',
-                        'url'        => 'transactionsSales',
-                        'icon'       => 'lab lab-transactions',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-
-                    ]
-                ],
             ],
             [
-                'name'       => 'Promo',
-                'language'   => 'promo',
-                'url'        => '#',
-                'icon'       => 'lab ',
+                'name'       => 'Tipos de Carro',
+                'language'   => 'types_cars',
+                'url'        => 'types_cars',
+                'icon'       => 'lab lab-dining-table',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),
-                'updated_at' => now(),
-                'children'   => [
-                    [
-                        'name'       => 'Coupons',
-                        'language'   => 'coupons',
-                        'url'        => 'coupons',
-                        'icon'       => 'lab lab-coupons',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
+                'updated_at' => now()
 
-                    ],
-                    [
-                        'name'       => 'Offers',
-                        'language'   => 'offers',
-                        'url'        => 'offers',
-                        'icon'       => 'lab lab-offers',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-
-                    ]
-                ]
             ],
             [
-                'name'       => 'Communications',
-                'language'   => 'communications',
-                'url'        => '#',
-                'icon'       => 'lab ',
+                'name'       => 'Politicas',
+                'language'   => 'policies',
+                'url'        => 'policies',
+                'icon'       => 'lab lab-dining-table',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),
-                'updated_at' => now(),
-                'children'   => [
-                    [
-                        'name'       => 'Push Notifications',
-                        'language'   => 'push_notifications',
-                        'url'        => 'push-notifications',
-                        'icon'       => 'lab lab-push-notification',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
+                'updated_at' => now()
 
-                    ],
-                    [
-                        'name'       => 'Messages',
-                        'language'   => 'messages',
-                        'url'        => 'messages',
-                        'icon'       => 'lab lab-messages',
-                        'priority'   => 100,
-                        'status'     => 0,
-                        'created_at' => now(),
-                        'updated_at' => now()
-
-                    ],
-                    [
-                        'name'       => 'Subscribers',
-                        'language'   => 'subscribers',
-                        'url'        => 'subscribers',
-                        'icon'       => 'lab lab-subscribers',
-                        'priority'   => 100,
-                        'status'     => 0,
-                        'created_at' => now(),
-                        'updated_at' => now()
-
-                    ]
-                ]
             ],
+            // [
+            //     'name'       => 'Pos & Orders',
+            //     'language'   => 'pos_and_orders',
+            //     'url'        => '#',
+            //     'icon'       => 'lab lab-pos',
+            //     'priority'   => 100,
+            //     'status'     => 1,
+            //     'created_at' => now(),
+            //     'updated_at' => now(),
+            //     'children'   => [
+            //         [
+            //             'name'       => 'POS',
+            //             'url'        => 'pos',
+            //             'language'   => 'pos',
+            //             'icon'       => 'lab lab-pos',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ],
+            //         [
+            //             'name'       => 'POS Orders',
+            //             'language'   => 'pos_orders',
+            //             'url'        => 'pos-orders',
+            //             'icon'       => 'lab lab-pos-orders',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+            //         ],
+            //         [
+            //             'name'       => 'Online Orders',
+            //             'language'   => 'online_orders',
+            //             'url'        => 'online-orders',
+            //             'icon'       => 'lab lab-online-orders',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ],
+            //         [
+            //             'name'       => 'Table Orders',
+            //             'language'   => 'table_orders',
+            //             'url'        => 'table-orders',
+            //             'icon'       => 'lab lab-reserve-line',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ],
+            //         [
+            //             'name'       => 'transactions_sales',
+            //             'language'   => 'transactions_sales',
+            //             'url'        => 'transactionsSales',
+            //             'icon'       => 'lab lab-transactions',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ]
+            //     ],
+            // ],
+            // [
+            //     'name'       => 'Promo',
+            //     'language'   => 'promo',
+            //     'url'        => '#',
+            //     'icon'       => 'lab ',
+            //     'priority'   => 100,
+            //     'status'     => 1,
+            //     'created_at' => now(),
+            //     'updated_at' => now(),
+            //     'children'   => [
+            //         [
+            //             'name'       => 'Coupons',
+            //             'language'   => 'coupons',
+            //             'url'        => 'coupons',
+            //             'icon'       => 'lab lab-coupons',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ],
+            //         [
+            //             'name'       => 'Offers',
+            //             'language'   => 'offers',
+            //             'url'        => 'offers',
+            //             'icon'       => 'lab lab-offers',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ]
+            //     ]
+            // ],
+            // [
+            //     'name'       => 'Communications',
+            //     'language'   => 'communications',
+            //     'url'        => '#',
+            //     'icon'       => 'lab ',
+            //     'priority'   => 100,
+            //     'status'     => 1,
+            //     'created_at' => now(),
+            //     'updated_at' => now(),
+            //     'children'   => [
+            //         [
+            //             'name'       => 'Push Notifications',
+            //             'language'   => 'push_notifications',
+            //             'url'        => 'push-notifications',
+            //             'icon'       => 'lab lab-push-notification',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ],
+            //         [
+            //             'name'       => 'Messages',
+            //             'language'   => 'messages',
+            //             'url'        => 'messages',
+            //             'icon'       => 'lab lab-messages',
+            //             'priority'   => 100,
+            //             'status'     => 0,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ],
+            //         [
+            //             'name'       => 'Subscribers',
+            //             'language'   => 'subscribers',
+            //             'url'        => 'subscribers',
+            //             'icon'       => 'lab lab-subscribers',
+            //             'priority'   => 100,
+            //             'status'     => 0,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
+
+            //         ]
+            //     ]
+            // ],
             [
                 'name'       => 'Users',
                 'language'   => 'users',

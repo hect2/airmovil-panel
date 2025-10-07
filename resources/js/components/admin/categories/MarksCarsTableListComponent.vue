@@ -4,7 +4,7 @@
     <div class="col-12">
         <div class="db-card">
             <div class="db-card-header border-none">
-                <h3 class="db-card-title">{{ $t('menu.dining_tables') }}</h3>
+                <h3 class="db-card-title">{{ $t('menu.marcas') }}</h3>
                 <div class="db-card-filter">
                     <TableLimitComponent :method="list" :search="props.search" :page="paginationPage" />
                     <FilterComponent />
@@ -15,7 +15,7 @@
                             <ExcelComponent :method="xls" />
                         </div>
                     </div>
-                    <DiningTableCreateComponent :props="props" />
+                    <MarksCarsTableCreateComponent :props="props" />
                 </div>
             </div>
 
@@ -116,7 +116,7 @@
 </template>
 <script>
 import LoadingComponent from "../components/LoadingComponent";
-import DiningTableCreateComponent from "./DiningTableCreateComponent";
+import MarksCarsTableCreateComponent from "./MarksCarsTableCreateComponent";
 import alertService from "../../../services/alertService";
 import PaginationTextComponent from "../components/pagination/PaginationTextComponent";
 import PaginationBox from "../components/pagination/PaginationBox";
@@ -135,13 +135,13 @@ import FilterComponent from "../components/buttons/collapse/FilterComponent";
 import ENV from "../../../config/env";
 
 export default {
-    name: "DiningTableListComponent",
+    name: "MarksCarsTableListComponent",
     components: {
         TableLimitComponent,
         PaginationSMBox,
         PaginationBox,
         PaginationTextComponent,
-        DiningTableCreateComponent,
+        MarksCarsTableCreateComponent,
         LoadingComponent,
         SmIconDeleteComponent,
         SmIconSidebarModalEditComponent,
@@ -160,7 +160,7 @@ export default {
             printLoading: true,
             printObj: {
                 id: "print",
-                popTitle: this.$t("menu.dining_tables"),
+                popTitle: this.$t("menu.marcas"),
             },
             enums: {
                 statusEnum: statusEnum,
@@ -262,7 +262,7 @@ export default {
                     this.loading.isActive = true;
                     this.$store.dispatch('diningTable/destroy', { id: id, search: this.props.search }).then((res) => {
                         this.loading.isActive = false;
-                        alertService.successFlip(null, this.$t('menu.dining_tables'));
+                        alertService.successFlip(null, this.$t('menu.marcas'));
                     }).catch((err) => {
                         this.loading.isActive = false;
                         alertService.error(err.response.data.message);
@@ -284,7 +284,7 @@ export default {
                 });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
-                link.download = this.$t("menu.dining_tables");
+                link.download = this.$t("menu.marcas");
                 link.click();
                 URL.revokeObjectURL(link.href);
             }).catch((err) => {

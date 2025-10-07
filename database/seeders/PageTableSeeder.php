@@ -21,7 +21,7 @@ class PageTableSeeder extends Seeder
                 [
                     'title'           => 'Cookies Policy',
                     'slug'            => 'cookies-policy',
-                    'description'     => "This Cookies Policy explains how FoodKing (“us”, “we” or “our”) collects, uses, stores, shares and uses cookies on its website. We provide information on how cookies and similar technologies work, their purpose, use, and duration, how We process and store them, and how you can control them. You can also find all the necessary information regarding your rights on the use of Cookies on this website and how you can exercise them.
+                    'description'     => "This Cookies Policy explains how Airmovil (“us”, “we” or “our”) collects, uses, stores, shares and uses cookies on its website. We provide information on how cookies and similar technologies work, their purpose, use, and duration, how We process and store them, and how you can control them. You can also find all the necessary information regarding your rights on the use of Cookies on this website and how you can exercise them.
 
 COOKIES AND SIMILAR TECHNOLOGIES
 
@@ -60,7 +60,7 @@ Session cookies are temporary cookies and are automatically deleted when the use
 
 HOW TO CONTROL COOKIES ON THIS WEBSITE
 
-FoodKing will only set cookies after you have provided your consent to the use of cookies through the cookies banner upon your visit to our website. For Necessary cookies, we do not need your consent.
+Airmovil will only set cookies after you have provided your consent to the use of cookies through the cookies banner upon your visit to our website. For Necessary cookies, we do not need your consent.
 
 You have the right to withdraw your consent or change your preferences regarding the use of cookies at any time. You can do this by accessing our Cookies banner through the “Cookie Settings” button.
 
@@ -88,7 +88,7 @@ If you have a concern about the way we are collecting or using cookies, you shou
                 [
                     'title'           => 'Contact Us',
                     'slug'            => 'contact-us',
-                    'description'     => "Every day, more than 1000 guests visit FoodKing restaurants around the city. And they do so because our restaurants are known for serving high-quality, great-tasting, and affordable food. Our commitment to premium ingredients, signature recipes, and friendly dining experiences is what has defined our brand for more than 5 successful years.",
+                    'description'     => "Every day, more than 1000 guests visit Airmovil restaurants around the city. And they do so because our restaurants are known for serving high-quality, great-tasting, and affordable food. Our commitment to premium ingredients, signature recipes, and friendly dining experiences is what has defined our brand for more than 5 successful years.",
                     'menu_section_id' => 2,
                     'template_id'     => 1,
                     'status'          => Status::ACTIVE,

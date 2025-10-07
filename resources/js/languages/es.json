@@ -11,7 +11,7 @@
         "offers": "Ofertas",
         "order": "Pedido",
         "item": "Artículo",
-        "items": "Artículos",
+        "items": "Banners",
         "taxes": "Impuestos",
         "currencies": "Monedas",
         "mail": "Correo",
@@ -76,10 +76,14 @@
         "reports": "Reportes",
         "setup": "Configuración",
         "home": "Inicio",
-        "dining_tables": "Mesa de Pastelería",
+        "dining_tables": "Categoría de Carro",
         "table_orders": "Pedidos de Mesa",
         "subscribers": "Suscriptores",
-        "transactions_sales": "Ventas"
+        "transactions_sales": "Ventas",
+        "marcas": "Marcas de Vehiculos",
+        "types_cars": "Tipos de Vehiculos",
+        "policies": "Políticas",
+        "maks_tables": "Marcas de Vehiculos"
     },
     "label": {
         "previous": "Anterior",
@@ -551,7 +555,8 @@
         "pesapal_consumer_secret": "Secreto de Consumidor de Pesapal",
         "pesapal_ipn_id": "ID de IPN de Pesapal",
         "pesapal_mode": "Modo de Pesapal",
-        "pesapal_status": "Estado de Pesapal"
+        "pesapal_status": "Estado de Pesapal",
+        "categoria": "Categoria"
     },
     "button": {
         "add": "Agregar",
@@ -582,7 +587,7 @@
         "add_item_attribute": "Agregar Atributo de Ítem",
         "add_slider": "Agregar Slider",
         "add_offer": "Agregar Oferta",
-        "add_item": "Agregar Ítem",
+        "add_item": "Agregar Banner",
         "add_tax": "Agregar Impuesto",
         "add_customer": "Agregar Cliente",
         "add_employee": "Agregar Empleado",
@@ -635,7 +640,7 @@
         "go_home": "Ir a Inicio",
         "get_file_content": "Obtener Contenido del Archivo",
         "let_me_check": "Déjame Revisar",
-        "add_dining_table": "Agregar Mesas",
+        "add_dining_table": "Agregar Categoria",
         "add_token": "Agregar Token",
         "qr": "QR",
         "send_mail": "Enviar Correo",

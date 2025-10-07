@@ -5,7 +5,8 @@
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-6">
                 <div>
                     <router-link :to="{ name: 'frontend.home' }">
-                        <img class="mb-8 w-36" :src="setting.theme_footer_logo" alt="logo">
+                        <!-- <img class="mb-8 w-36" :src="setting.theme_footer_logo" alt="logo"> -->
+                        <h1>AIRMOVIL</h1>
                     </router-link>
                     <p class="text-xs mb-3 text-white">{{ $t('label.subscribe_short_text') }}</p>
                     <form @submit.prevent="saveSubscription"

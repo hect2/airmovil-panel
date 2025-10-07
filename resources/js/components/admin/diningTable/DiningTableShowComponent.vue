@@ -16,18 +16,18 @@
             <div class="db-card-body" id="print">
                 <img class="w-36 mx-auto mb-1" :src="setting.theme_logo" alt="logo">
                 <p class="text-center">
-                    <span class="block capitalize mt-4">{{ diningTable.branch_name }}</span>
-                    <span class="block">{{ diningTable.branch_phone }}</span>
-                    <span class="block capitalize mb-6">{{ diningTable.branch_address }}</span>
+                    <span class="block capitalize mt-4">{{ diningTable.name }}</span>
+                    <span class="block">{{ diningTable.category }}</span>
+                    <span class="block capitalize mb-6">{{ diningTable.status }}</span>
                 </p>
-                <img class="w-48 sm:w-60 mx-auto my-4" :src="diningTable.qr_code" alt="qrcode">
-                <p class="text-center mb-6">
+                <img class="w-48 sm:w-60 mx-auto my-4" :src="diningTable.description" alt="qrcode">
+                <!-- <p class="text-center mb-6">
                     <span class="block capitalize">{{ diningTable.name }}</span>
-                </p>
+                </p> -->
 
                 <p class="text-center">
-                    <span class="block font-medium">{{ $t('message.table_scan') }}</span>
-                    <span class="block text-lg font-semibold capitalize">{{ $t('message.thank_you') }}</span>
+                    <!-- <span class="block font-medium">{{ $t('message.table_scan') }}</span> -->
+                    <!-- <span class="block text-lg font-semibold capitalize">{{ $t('message.thank_you') }}</span> -->
                 </p>
             </div>
         </div>

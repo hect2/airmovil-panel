@@ -25,18 +25,34 @@ class DiningTableRequest extends FormRequest
     public function rules(): array
     {
 
+        // return [
+        //     'name'      => [
+        //         'required',
+        //         'string',
+        //         'max:190',
+        //         Rule::unique('dining_tables', 'name')->where(function ($query) {
+        //             return $query->where('branch_id', $this->input('branch_id'));
+        //         })->ignore($this->route('diningTable.id')),
+        //     ],
+        //     'size'      => ['numeric'],
+        //     'branch_id' => ['required', 'numeric'],
+        //     'status'    => ['required', 'numeric', 'max:24'],
+        // ];
+
         return [
             'name'      => [
                 'required',
                 'string',
                 'max:190',
-                Rule::unique('dining_tables', 'name')->where(function ($query) {
-                    return $query->where('branch_id', $this->input('branch_id'));
-                })->ignore($this->route('diningTable.id')),
+            //     Rule::unique('dining_tables', 'name')->where(function ($query) {
+            //         return $query->where('branch_id', $this->input('branch_id'));
+            //     })->ignore($this->route('diningTable.id')),
             ],
-            'size'      => ['numeric'],
-            'branch_id' => ['required', 'numeric'],
+            'category'      => ['required', 'string', 'max:190'],
+            // 'description' => ['required', 'numeric'],
             'status'    => ['required', 'numeric', 'max:24'],
+            'image'            => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'description' => ['nullable', 'string', 'max:500'],
         ];
     }
 }

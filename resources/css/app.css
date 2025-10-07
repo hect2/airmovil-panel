@@ -5,8 +5,8 @@
 
 @layer base {
     :root {
-        /* --primary: 103 198 227; */
-        --primary: 219 79 55;
+        --primary: 103 198 227;
+        /* --primary: 255, 10, 10; */
         --primary-slate: 255 59 142;
         --primary-light: 255 237 244;
         --client-font: 'Rubik', sans-serif;

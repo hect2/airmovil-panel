@@ -610,6 +610,15 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
         Route::get('/', [PosCategoryController::class, 'index']);
     });
 
+    // Route::prefix('dining-table')->name('dining-table.')->group(function () {
+    //     Route::get('/', [DiningTableController::class, 'index']);
+    //     Route::get('/show/{diningTable}', [DiningTableController::class, 'show']);
+    //     Route::post('/', [DiningTableController::class, 'store']);
+    //     Route::match(['post', 'put', 'patch'], '/{diningTable}', [DiningTableController::class, 'update']);
+    //     Route::delete('/{diningTable}', [DiningTableController::class, 'destroy']);
+    //     Route::get('/export', [DiningTableController::class, 'export']);
+    // });
+
     Route::prefix('dining-table')->name('dining-table.')->group(function () {
         Route::get('/', [DiningTableController::class, 'index']);
         Route::get('/show/{diningTable}', [DiningTableController::class, 'show']);

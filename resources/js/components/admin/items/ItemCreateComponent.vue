@@ -17,12 +17,13 @@
                         <small class="db-field-alert" v-if="errors.name">{{ errors.name[0] }}</small>
                     </div>
 
-                    <div class="form-col-12 sm:form-col-6">
+                    <!-- <div class="form-col-12 sm:form-col-6">
                         <label for="price" class="db-field-title required">{{ $t("label.price") }}</label>
                         <input v-model="props.form.price" v-bind:class="errors.price ? 'invalid' : ''" type="text"
                             id="price" class="db-field-control">
                         <small class="db-field-alert" v-if="errors.price">{{ errors.price[0] }}</small>
-                    </div>
+                    </div> -->
+
 
                     <div class="form-col-12 sm:form-col-6">
                         <label for="item_category_id" class="db-field-title required">{{ $t("label.category") }}</label>
@@ -35,7 +36,7 @@
                         }}</small>
                     </div>
 
-                    <div class="form-col-12 sm:form-col-6">
+                    <!-- <div class="form-col-12 sm:form-col-6">
                         <label for="tax_id" class="db-field-title">{{ $t("label.tax") }} ({{ $t("label.including")
                         }})</label>
                         <vue-select class="db-field-control f-b-custom-select" id="tax_id"
@@ -43,7 +44,7 @@
                             label-by="code" value-by="id" :closeOnSelect="true" :searchable="true" :clearOnClose="true"
                             placeholder="--" search-placeholder="--" />
                         <small class="db-field-alert" v-if="errors.tax_id">{{ errors.tax_id[0] }}</small>
-                    </div>
+                    </div> -->
 
                     <div class="form-col-12 sm:form-col-6">
                         <label class="db-field-title">{{ $t("label.image") }}</label>
@@ -96,14 +97,14 @@
                         </div>
                     </div>
 
-                    <div class="form-col-12">
+                    <!-- <div class="form-col-12">
                         <label for="caution" class="db-field-title">{{ $t("label.caution") }}</label>
                         <textarea v-model="props.form.caution" v-bind:class="errors.caution ? 'invalid' : ''" id="caution"
                             rows="2" class="db-field-control"></textarea>
                         <small class="db-field-alert" v-if="errors.caution">{{
                             errors.caution[0]
                         }}</small>
-                    </div>
+                    </div> -->
 
                     <div class="form-col-12">
                         <label for="description" class="db-field-title">{{ $t("label.description") }}</label>

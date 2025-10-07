@@ -40,7 +40,7 @@ class SiteTableSeeder extends Seeder
             'site_ios_app_link'              => $envService->getValue('DEMO') ? 'http://ios.com' : '',
             'site_copyright'                 => $envService->getValue(
                 'DEMO'
-            ) ? '© FoodKing by iNiLabs 2024, All Rights Reserved' : '',
+            ) ? '© Airmovil by iNiLabs 2024, All Rights Reserved' : '',
             'site_language_switch'           => Activity::ENABLE,
             'site_app_debug'                 => Activity::DISABLE,
             'site_auto_update'               => Activity::DISABLE,

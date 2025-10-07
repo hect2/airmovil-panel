@@ -31,11 +31,11 @@ class NotificationTableSeeder extends Seeder
             ) ? 'AIzaSyDg1xBSwmHKV0usIKxTFL5a6fFTb4s3XVM' : '',
             'notification_fcm_auth_domain'         => $envService->getValue(
                 'DEMO'
-            ) ? 'foodking-inilabs.firebaseapp.com' : '',
-            'notification_fcm_project_id'          => $envService->getValue('DEMO') ? 'foodking-inilabs' : '',
+            ) ? 'airmovil-inilabs.firebaseapp.com' : '',
+            'notification_fcm_project_id'          => $envService->getValue('DEMO') ? 'airmovil-inilabs' : '',
             'notification_fcm_storage_bucket'      => $envService->getValue(
                 'DEMO'
-            ) ? 'foodking-inilabs.appspot.com' : '',
+            ) ? 'airmovil-inilabs.appspot.com' : '',
             'notification_fcm_messaging_sender_id' => $envService->getValue('DEMO') ? '843456771665' : '',
             'notification_fcm_app_id'              => $envService->getValue(
                 'DEMO'

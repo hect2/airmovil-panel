@@ -33,15 +33,15 @@ class ItemRequest extends FormRequest
                 Rule::unique("items", "name")->whereNull('deleted_at')->ignore($this->route('item.id'))
             ],
             'item_category_id' => ['required', 'numeric', 'not_in:0'],
-            'tax_id'           => ['nullable', 'numeric', 'not_in:0'],
+            // 'tax_id'           => ['nullable', 'numeric', 'not_in:0'],
             'item_type'        => ['required', 'numeric', 'not_in:0'],
-            'price'            => ['required', new IniAmount()],
-            'is_featured'      => ['required', 'numeric', 'not_in:0'],
+            //'price'            => ['required', new IniAmount()],
+            // 'is_featured'      => ['required', 'numeric', 'not_in:0'],
             'description'      => ['nullable', 'string', 'max:5000'],
-            'caution'          => ['nullable', 'string', 'max:5000'],
+            // 'caution'          => ['nullable', 'string', 'max:5000'],
             'status'           => ['required', 'numeric', 'max:24'],
             'order'            => ['required', 'numeric'],
-            'variations'       => ['nullable', 'json'],
+            // 'variations'       => ['nullable', 'json'],
             'image'            => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
         ];
     }

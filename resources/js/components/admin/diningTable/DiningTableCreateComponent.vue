@@ -19,10 +19,17 @@
                         </div>
 
                         <div class="form-col-12 sm:form-col-6">
-                            <label for="size" class="db-field-title required">{{ $t("label.size") }}</label>
-                            <input v-model="props.form.size" v-bind:class="errors.size ? 'invalid' : ''" type="number"
-                                id="size" class="db-field-control">
-                            <small class="db-field-alert" v-if="errors.size">{{ errors.size[0] }}</small>
+                            <label for="category" class="db-field-title required">{{ $t("label.categoria") }}</label>
+                            <input v-model="props.form.category" v-bind:class="errors.category ? 'invalid' : ''" type="text"
+                                id="category" class="db-field-control">
+                            <small class="db-field-alert" v-if="errors.category">{{ errors.category[0] }}</small>
+                        </div>
+
+                        <div class="form-col-12 sm:form-col-6">
+                            <label class="db-field-title">{{ $t("label.image") }}</label>
+                            <input @change="changeImage" v-bind:class="errors.image ? 'invalid' : ''" id="image" type="file"
+                                class="db-field-control" ref="imageProperty" accept="image/png, image/jpeg, image/jpg">
+                            <small class="db-field-alert" v-if="errors.image">{{ errors.image[0] }}</small>
                         </div>
 
                         <div class="form-col-12 sm:form-col-6">
@@ -47,6 +54,14 @@
                             </div>
                         </div>
 
+                        <div class="form-col-12 sm:form-col-6">
+                            <label for="description" class="db-field-title">{{ $t("label.description") }}</label>
+                            <textarea v-model="props.form.description" v-bind:class="errors.description ? 'invalid' : ''"
+                                id="description" class="db-field-control"></textarea>
+                            <small class="db-field-alert" v-if="errors.description">{{
+                                errors.description[0]
+                            }}</small>
+                        </div>
 
                         <div class="form-col-12">
                             <div class="flex flex-wrap gap-3 mt-4">
@@ -104,7 +119,7 @@ export default {
         try {
             this.loading.isActive = true;
             this.$store.dispatch("defaultAccess/show").then((res) => {
-                this.props.form.branch_id = res.data.data.branch_id;
+                // this.props.form.branch_id = res.data.data.branch_id;
                 this.loading.isActive = false;
             }).catch((err) => {
                 this.loading.isActive = false;
@@ -115,29 +130,51 @@ export default {
     },
 
     methods: {
+        changeImage: function (e) {
+            this.image = e.target.files[0];
+        },
         reset: function () {
             appService.sideDrawerHide();
             this.$store.dispatch('diningTable/reset').then().catch();
             this.errors = {};
             this.$props.props.form = {
                 name: "",
-                size: "",
-                status: statusEnum.ACTIVE
+                category: "",
+                status: statusEnum.ACTIVE,
+                image: "",
+                description: "",
+            };
+            if (this.image) {
+                this.image = "";
+                this.$refs.imageProperty.value = null;
             }
         },
 
         save: function () {
+            console.log('PRUEBAS_SAE', this.props.form);
             try {
+                const formData = new FormData();
+                formData.append('name', this.props.form.name);
+                formData.append('category', this.props.form.category);
+                formData.append('status', this.props.form.status);
+                formData.append('description', this.props.form.description);
+
+                console.log("formData", this.props.form);
+                if (this.image) {
+                    formData.append('image', this.image);
+                }
+
                 const tempId = this.$store.getters['diningTable/temp'].temp_id;
                 this.loading.isActive = true;
-                this.$store.dispatch('diningTable/save', this.props).then((res) => {
+                this.$store.dispatch('diningTable/save', {form: formData}).then((res) => {
                     appService.sideDrawerHide();
                     this.loading.isActive = false;
                     alertService.successFlip((tempId === null ? 0 : 1), this.$t('menu.dining_tables'));
                     this.props.form.name = "";
-                    this.props.form.size = "";
-                    this.props.form.branch_id = this.props.form.branch_id;
+                    this.props.form.category = "";
                     this.props.form.status = statusEnum.ACTIVE;
+                    this.props.form.description = "";
+                    this.image = null;
                     this.errors = {};
                 }).catch((err) => {
                     this.loading.isActive = false;

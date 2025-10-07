@@ -25,6 +25,9 @@ class RolePermissionTableSeeder extends Seeder
             $branchManagerPermissions = [
                 ['name' => 'dashboard'],
                 ['name' => 'dining-tables'],
+                ['name' => 'marcas'],
+                ['name' => 'tipos-de-carros'],
+                ['name' => 'politicas'],
                 ['name' => 'pos'],
                 ['name' => 'pos-orders'],
                 ['name' => 'online-orders'],

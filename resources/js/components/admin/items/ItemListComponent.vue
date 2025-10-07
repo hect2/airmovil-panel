@@ -117,9 +117,9 @@
                             <th class="db-table-head-th">
                                 {{ $t('label.category') }}
                             </th>
-                            <th class="db-table-head-th">
+                            <!-- <th class="db-table-head-th">
                                 {{ $t('label.price') }}
-                            </th>
+                            </th> -->
                             <th class="db-table-head-th">
                                 {{ $t('label.status') }}
                             </th>
@@ -135,7 +135,7 @@
                                 {{ textShortener(item.name, 40) }}
                             </td>
                             <td class="db-table-body-td">{{ item.category_name }}</td>
-                            <td class="db-table-body-td">{{ item.flat_price }}</td>
+                            <!-- <td class="db-table-body-td">{{ item.flat_price }}</td> -->
                             <td class="db-table-body-td">
                                 <span :class="statusClass(item.status)">
                                     {{ enums.statusEnumArray[item.status] }}

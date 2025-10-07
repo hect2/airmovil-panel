@@ -31,8 +31,9 @@ module.exports = {
           colors: {
               "heading": "#1F1F39",
               "paragraph": "#6E7191",
+            //   "paragraph": "#FF0A0A",
               "placeholder": "#A0A3BD",
-              "primary": "rgb(60 187 187 / <alpha-value>)",
+              "primary": "rgb(255 10 10 / <alpha-value>)",
               "primary-light": "rgb(220 234 255 / <alpha-value>)",
           },
           boxShadow: {

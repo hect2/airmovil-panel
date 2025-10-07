@@ -11,6 +11,7 @@ use Maatwebsite\Excel\Facades\Excel;
 use App\Http\Requests\PaginateRequest;
 use App\Http\Requests\DiningTableRequest;
 use App\Http\Resources\DiningTableResource;
+use App\Models\CategoryCar;
 
 class DiningTableController extends AdminController
 {
@@ -48,7 +49,8 @@ class DiningTableController extends AdminController
     }
 
     public function show(
-        DiningTable $diningTable
+        // DiningTable $diningTable
+        CategoryCar $diningTable
     ): \Illuminate\Http\Response | DiningTableResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory {
         try {
             return new DiningTableResource($this->diningTableService->show($diningTable));
@@ -59,7 +61,7 @@ class DiningTableController extends AdminController
 
     public function update(
         DiningTableRequest $request,
-        DiningTable $diningTable
+        CategoryCar $diningTable
     ): \Illuminate\Http\Response | DiningTableResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory {
         try {
             return new DiningTableResource($this->diningTableService->update($request, $diningTable));
@@ -69,7 +71,7 @@ class DiningTableController extends AdminController
     }
 
     public function destroy(
-        DiningTable $diningTable
+        CategoryCar $diningTable
     ): \Illuminate\Http\Response | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory {
         try {
             $this->diningTableService->destroy($diningTable);

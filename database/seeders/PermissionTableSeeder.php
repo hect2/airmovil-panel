@@ -109,6 +109,132 @@ class PermissionTableSeeder extends Seeder
                 ]
             ],
             [
+                'title'      => 'Marcas',
+                'name'       => 'marcas',
+                'guard_name'   => 'sanctum',
+                'url'        => 'marcas',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'children'   => [
+                    [
+                        'title'      => 'Marcas Create',
+                        'name'       => 'marcas_create',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'marcas/create',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Marcas Edit',
+                        'name'       => 'marcas_edit',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'marcas/edit',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Marcas Delete',
+                        'name'       => 'marcas_delete',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'marcas/delete',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Marcas Show',
+                        'name'       => 'marcas_show',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'marcas/show',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                ]
+            ],
+            [
+                'title'      => 'Tipos de Carro',
+                'name'       => 'tipos-de-Carro',
+                'guard_name'   => 'sanctum',
+                'url'        => 'types_cars',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'children'   => [
+                    [
+                        'title'      => 'Tipos Create',
+                        'name'       => 'tipos_create',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'types_cars/create',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Tipos Edit',
+                        'name'       => 'tipos_edit',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'types_cars/edit',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Tipos Delete',
+                        'name'       => 'tipos_delete',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'types_cars/delete',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Tipos Show',
+                        'name'       => 'tipos_show',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'types_cars/show',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                ]
+            ],
+            [
+                'title'      => 'Politicas',
+                'name'       => 'politicas',
+                'guard_name'   => 'sanctum',
+                'url'        => 'policies',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'children'   => [
+                    [
+                        'title'      => 'Politicas Create',
+                        'name'       => 'policies_create',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'policies/create',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Politicas Edit',
+                        'name'       => 'policies_edit',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'policies/edit',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Politicas Delete',
+                        'name'       => 'policies_delete',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'policies/delete',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Politicas Show',
+                        'name'       => 'policies_show',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'policies/show',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                ]
+            ],
+            [
                 'title'      => 'POS',
                 'name'       => 'pos',
                 'guard_name' => 'sanctum',
