@@ -95,6 +95,7 @@ use App\Http\Controllers\Frontend\DeliveryBoyOrderController as FrontendDelivery
 use App\Http\Controllers\Table\ItemCategoryController as TableItemCategoryController;
 use App\Http\Controllers\Table\OrderController as TableOrderController;
 use App\Http\Controllers\Admin\TableOrderController as AdminTableOrderController;
+use App\Http\Controllers\Admin\TypesVehiclesController;
 use App\Http\Controllers\Table\DiningTableController as TableDiningTableController;
 
 
@@ -611,15 +612,6 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
         Route::get('/', [PosCategoryController::class, 'index']);
     });
 
-    Route::prefix('marks')->name('marks.')->group(function () {
-        Route::get('/', [MarksController::class, 'index']);
-        Route::get('/show/{diningTable}', [MarksController::class, 'show']);
-        Route::post('/', [MarksController::class, 'store']);
-        Route::match(['post', 'put', 'patch'], '/{diningTable}', [MarksController::class, 'update']);
-        Route::delete('/{diningTable}', [MarksController::class, 'destroy']);
-        Route::get('/export', [MarksController::class, 'export']);
-    });
-
     Route::prefix('dining-table')->name('dining-table.')->group(function () {
         Route::get('/', [DiningTableController::class, 'index']);
         Route::get('/show/{diningTable}', [DiningTableController::class, 'show']);
@@ -628,6 +620,16 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
         Route::delete('/{diningTable}', [DiningTableController::class, 'destroy']);
         Route::get('/export', [DiningTableController::class, 'export']);
     });
+
+    Route::prefix('type-vehicles')->name('type-vehicles.')->group(function () {
+        Route::get('/', [TypesVehiclesController::class, 'index']);
+        Route::get('/show/{vehicles}', [TypesVehiclesController::class, 'show']);
+        Route::post('/', [TypesVehiclesController::class, 'store']);
+        Route::match(['post', 'put', 'patch'], '/{vehicles}', [TypesVehiclesController::class, 'update']);
+        Route::delete('/{vehicles}', [TypesVehiclesController::class, 'destroy']);
+        Route::get('/export', [TypesVehiclesController::class, 'export']);
+    });
+
 });
 
 Route::prefix('frontend')->name('frontend.')->middleware(['installed', 'apiKey', 'localization'])->group(function () {

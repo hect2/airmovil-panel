@@ -81,9 +81,9 @@
         "subscribers": "Suscriptores",
         "transactions_sales": "Ventas",
         "marcas": "Marcas de Vehiculos",
-        "types_cars": "Tipos de Vehiculos",
         "policies": "Políticas",
-        "marksCars": "Marcas de Vehiculos"
+        "marksCars": "Marcas de Vehiculos",
+        "typesVehicles": "Tipos de Vehiculos"
     },
     "label": {
         "previous": "Anterior",
@@ -645,7 +645,8 @@
         "qr": "QR",
         "send_mail": "Enviar Correo",
         "change_language": "Cambiar Idioma",
-        "add_marksCars": "Nueva marca"
+        "add_marksCars": "Nueva marca",
+        "add_vehicles": "Nuevo vehiculo"
     },
     "number": {
         "10": "10",

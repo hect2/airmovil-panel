@@ -11,7 +11,7 @@ export default [
         meta: {
             isFrontend: false,
             auth: true,
-            permissionUrl: "marksCars",
+            permissionUrl: "settings",
             breadcrumb: "marksCars",
         },
         children: [
@@ -22,7 +22,7 @@ export default [
                 meta: {
                     isFrontend: false,
                     auth: true,
-                    permissionUrl: "marksCars",
+                    permissionUrl: "settings",
                     breadcrumb: "",
                 },
             },
@@ -33,7 +33,7 @@ export default [
                 meta: {
                     isFrontend: false,
                     auth: true,
-                    permissionUrl: "marksCars",
+                    permissionUrl: "settings",
                     breadcrumb: "view",
                 },
             },

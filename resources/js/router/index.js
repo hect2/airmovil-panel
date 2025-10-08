@@ -31,6 +31,7 @@ import adminTableOrderRoutes from "./modules/adminTableOrderRoutes";
 import diningTableRoutes from "./modules/diningTableRoutes";
 import subscriberRoutes from "./modules/subscriberRoutes";
 import marksCarsTableRoutes from "./modules/marksCarsTableRoutes";
+import typesVehiclesRoutes from "./modules/typesVehiclesRoutes";
 
 
 const baseRoutes = [
@@ -92,6 +93,7 @@ const routes = baseRoutes.concat(
     diningTableRoutes,
     subscriberRoutes,
     marksCarsTableRoutes,
+    typesVehiclesRoutes
 );
 
 const permission = store.getters.authPermission;

@@ -4,7 +4,7 @@
 
         <div class="db-card">
             <div class="db-card-header">
-                <h3 class="db-card-title">{{ $t('menu.marksCars') }}</h3>
+                <h3 class="db-card-title">{{ $t('menu.typesVehicles') }}</h3>
 
                 <div class="db-card-filter">
                     <button v-print="printObj" class="db-btn h-[37px] text-white bg-primary">
@@ -16,12 +16,12 @@
             <div class="db-card-body" id="print">
                 <!-- <img class="w-36 mx-auto mb-1" :src="setting.theme_logo" alt="logo"> -->
                 <p class="text-center">
-                    <span class="block capitalize mt-4">{{ marks.name }}</span>
-                    <span class="block">{{ marks.description }}</span>
+                    <span class="block capitalize mt-4">{{ typesVehicles.name }}</span>
+                    <span class="block">{{ typesVehicles.description }}</span>
                 </p>
-                <img class="w-48 sm:w-60 mx-auto my-4" :src="marks.image" alt="Marca">
+                <img class="w-48 sm:w-60 mx-auto my-4" :src="typesVehicles.image" alt="Marca">
                 <!-- <p class="text-center mb-6">
-                    <span class="block capitalize">{{ marks.name }}</span>
+                    <span class="block capitalize">{{ typesVehicles.name }}</span>
                 </p> -->
 
                 <p class="text-center">
@@ -41,7 +41,7 @@ import PrintComponent from "../components/buttons/export/PrintComponent";
 import print from "vue3-print-nb";
 
 export default {
-    name: "MarksCarsTableShowComponent",
+    name: "TypesVehicleShowComponent",
     components: {
         LoadingComponent,
         PrintComponent
@@ -63,13 +63,13 @@ export default {
             },
             printObj: {
                 id: "print",
-                popTitle: this.$t("menu.marksCars"),
+                popTitle: this.$t("menu.typesVehicles"),
             },
         }
     },
     computed: {
-        marks: function () {
-            return this.$store.getters['marks/show'];
+        typesVehicles: function () {
+            return this.$store.getters['typesVehicles/show'];
         },
         setting: function () {
             return this.$store.getters['frontendSetting/lists'];
@@ -77,7 +77,7 @@ export default {
     },
     mounted() {
         this.loading.isActive = true;
-        this.$store.dispatch('marks/show', this.$route.params.id).then(res => {
+        this.$store.dispatch('typesVehicles/show', this.$route.params.id).then(res => {
             this.loading.isActive = false;
         }).catch((error) => {
             this.loading.isActive = false;

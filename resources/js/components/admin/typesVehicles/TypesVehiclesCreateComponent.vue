@@ -5,7 +5,7 @@
     <div id="sidebar" class="drawer">
         <div class="drawer-dialog">
             <div class="drawer-header">
-                <h3 class="drawer-title">{{ $t('menu.marksCars') }}</h3>
+                <h3 class="drawer-title">{{ $t('menu.typesVehicles') }}</h3>
                 <button class="fa-solid fa-xmark close-btn" @click="reset"></button>
             </div>
             <div class="drawer-body">
@@ -86,7 +86,7 @@ import alertService from "../../../services/alertService";
 import appService from "../../../services/appService";
 
 export default {
-    name: "MarksCarsCreateComponent",
+    name: "TypesVehiclesCreateComponent",
     components: { SmSidebarModalCreateComponent, LoadingComponent },
     props: ['props'],
     data() {
@@ -107,7 +107,7 @@ export default {
     },
     computed: {
         addButton() {
-            return { title: this.$t('button.add_marksCars') };
+            return { title: this.$t('button.add_vehicles') };
         }
     },
     mounted() {
@@ -119,7 +119,7 @@ export default {
         },
         reset() {
             appService.sideDrawerHide();
-            this.$store.dispatch('marks/reset').then().catch();
+            this.$store.dispatch('typesVehicles/reset').then().catch();
             this.errors = {};
             // Reiniciar formulario
             this.$props.props.form = {
@@ -142,13 +142,13 @@ export default {
                     formData.append('image', this.image);
                 }
 
-                const tempId = this.$store.getters['marks/temp'].temp_id;
+                const tempId = this.$store.getters['typesVehicles/temp'].temp_id;
                 this.loading.isActive = true;
-                this.$store.dispatch('marks/save', { form: formData, search: this.props.search })
+                this.$store.dispatch('typesVehicles/save', { form: formData, search: this.props.search })
                     .then(res => {
                         appService.sideDrawerHide();
                         this.loading.isActive = false;
-                        alertService.successFlip((tempId === null ? 0 : 1), this.$t('menu.marksCars'));
+                        alertService.successFlip((tempId === null ? 0 : 1), this.$t('menu.typesVehicles'));
                         // Reset formulario local
                         this.props.form.name = "";
                         this.props.form.description = "";

@@ -110,7 +110,7 @@ class PermissionTableSeeder extends Seeder
             ],
             [
                 'title'      => 'Marcas',
-                'name'       => 'marcas',
+                'name'       => 'marksCars',
                 'guard_name'   => 'sanctum',
                 'url'        => 'marcas',
                 'created_at' => now(),
@@ -118,7 +118,7 @@ class PermissionTableSeeder extends Seeder
                 'children'   => [
                     [
                         'title'      => 'Marcas Create',
-                        'name'       => 'marcas_create',
+                        'name'       => 'marksCars_create',
                         'guard_name' => 'sanctum',
                         'url'        => 'marcas/create',
                         'created_at' => now(),
@@ -126,7 +126,7 @@ class PermissionTableSeeder extends Seeder
                     ],
                     [
                         'title'      => 'Marcas Edit',
-                        'name'       => 'marcas_edit',
+                        'name'       => 'marksCars_edit',
                         'guard_name' => 'sanctum',
                         'url'        => 'marcas/edit',
                         'created_at' => now(),
@@ -134,7 +134,7 @@ class PermissionTableSeeder extends Seeder
                     ],
                     [
                         'title'      => 'Marcas Delete',
-                        'name'       => 'marcas_delete',
+                        'name'       => 'marksCars_delete',
                         'guard_name' => 'sanctum',
                         'url'        => 'marcas/delete',
                         'created_at' => now(),
@@ -142,7 +142,7 @@ class PermissionTableSeeder extends Seeder
                     ],
                     [
                         'title'      => 'Marcas Show',
-                        'name'       => 'marcas_show',
+                        'name'       => 'marksCars_show',
                         'guard_name' => 'sanctum',
                         'url'        => 'marcas/show',
                         'created_at' => now(),
@@ -152,41 +152,41 @@ class PermissionTableSeeder extends Seeder
             ],
             [
                 'title'      => 'Tipos de Carro',
-                'name'       => 'tipos-de-Carro',
+                'name'       => 'types-of-cars',
                 'guard_name'   => 'sanctum',
-                'url'        => 'types_cars',
+                'url'        => 'types-of-cars',
                 'created_at' => now(),
                 'updated_at' => now(),
                 'children'   => [
                     [
                         'title'      => 'Tipos Create',
-                        'name'       => 'tipos_create',
+                        'name'       => 'types_of_cars_create',
                         'guard_name' => 'sanctum',
-                        'url'        => 'types_cars/create',
+                        'url'        => 'types-of-cars/create',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ],
                     [
                         'title'      => 'Tipos Edit',
-                        'name'       => 'tipos_edit',
+                        'name'       => 'types_of_cars_edit',
                         'guard_name' => 'sanctum',
-                        'url'        => 'types_cars/edit',
+                        'url'        => 'types-of-cars/edit',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ],
                     [
                         'title'      => 'Tipos Delete',
-                        'name'       => 'tipos_delete',
+                        'name'       => 'types_of_cars_delete',
                         'guard_name' => 'sanctum',
-                        'url'        => 'types_cars/delete',
+                        'url'        => 'types-of-cars/delete',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ],
                     [
                         'title'      => 'Tipos Show',
-                        'name'       => 'tipos_show',
+                        'name'       => 'types_of_cars_show',
                         'guard_name' => 'sanctum',
-                        'url'        => 'types_cars/show',
+                        'url'        => 'types-of-cars/show',
                         'created_at' => now(),
                         'updated_at' => now(),
                     ]

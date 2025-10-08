@@ -3,16 +3,16 @@
 namespace App\Services;
 
 use Exception;
-use App\Models\Mark;
-use App\Http\Requests\MarkRequest;
+use App\Models\TypeVehicle;
+use App\Http\Requests\TypeVehicleRequest;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\File;
 use Dipokhalder\EnvEditor\EnvEditor;
 use App\Http\Requests\PaginateRequest;
 
-class MarkService
+class TypeVehicleService
 {
-    protected array $markFilter = [
+    protected array $filterableFields = [
         'name',
         'description',
         'image'
@@ -26,7 +26,7 @@ class MarkService
     }
 
     /**
-     * Listar marcas con filtros y paginación
+     * Listar tipos de vehículos con filtros y paginación
      *
      * @throws Exception
      */
@@ -40,9 +40,9 @@ class MarkService
             $orderColumn = $request->get('order_column', 'id');
             $orderType = $request->get('order_type', 'desc');
 
-            return Mark::where(function ($query) use ($requests) {
+            return TypeVehicle::where(function ($query) use ($requests) {
                 foreach ($requests as $key => $value) {
-                    if (in_array($key, $this->markFilter) && $value !== null && $value !== '') {
+                    if (in_array($key, $this->filterableFields) && $value !== null && $value !== '') {
                         $query->where($key, 'like', '%' . $value . '%');
                     }
                 }
@@ -55,17 +55,17 @@ class MarkService
     }
 
     /**
-     * Crear nueva marca
+     * Crear un nuevo tipo de vehículo
      *
      * @throws Exception
      */
-    public function store(MarkRequest $request)
+    public function store(TypeVehicleRequest $request)
     {
         try {
-            return Mark::create([
+            return TypeVehicle::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'image' => 'storage/image/pruebas.png' // imagen dummy por defecto
+                'image' => 'storage/image/placeholder.png' // cambiar por manejo real de imágenes si aplica
             ]);
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
@@ -74,17 +74,17 @@ class MarkService
     }
 
     /**
-     * Actualizar marca
+     * Actualizar tipo de vehículo
      *
      * @throws Exception
      */
-    public function update(MarkRequest $request, Mark $mark)
+    public function update(TypeVehicleRequest $request, TypeVehicle $typeVehicle)
     {
         try {
-            return tap($mark)->update([
+            return tap($typeVehicle)->update([
                 'name' => $request->name,
                 'description' => $request->description,
-                'image' => 'storage/image/pruebas.png' // cambiar si soportas carga real
+                'image' => 'storage/image/placeholder.png' // actualizar lógica si se maneja subida real
             ]);
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
@@ -93,17 +93,18 @@ class MarkService
     }
 
     /**
-     * Eliminar marca
+     * Eliminar tipo de vehículo
      *
      * @throws Exception
      */
-    public function destroy(Mark $mark): void
+    public function destroy(TypeVehicle $typeVehicle): void
     {
         try {
-            if (File::exists($mark->image) && !$this->envService->getValue('DEMO')) {
-                File::delete($mark->image);
+            if (File::exists($typeVehicle->image) && !$this->envService->getValue('DEMO')) {
+                File::delete($typeVehicle->image);
             }
-            $mark->delete();
+
+            $typeVehicle->delete();
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
@@ -111,14 +112,14 @@ class MarkService
     }
 
     /**
-     * Mostrar marca individual
+     * Mostrar tipo de vehículo individual
      *
      * @throws Exception
      */
-    public function show(Mark $mark): Mark
+    public function show(TypeVehicle $typeVehicle): TypeVehicle
     {
         try {
-            return $mark;
+            return $typeVehicle;
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);

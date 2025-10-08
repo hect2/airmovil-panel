@@ -66,8 +66,8 @@ class MenuTableSeeder extends Seeder
             ],
             [
                 'name'       => 'Tipos de Carro',
-                'language'   => 'types_cars',
-                'url'        => 'types_cars',
+                'language'   => 'typesVehicles',
+                'url'        => 'types-of-cars',
                 'icon'       => 'lab lab-dining-table',
                 'priority'   => 100,
                 'status'     => 1,

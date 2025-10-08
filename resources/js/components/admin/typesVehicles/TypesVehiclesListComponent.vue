@@ -4,7 +4,7 @@
     <div class="col-12">
         <div class="db-card">
             <div class="db-card-header border-none">
-                <h3 class="db-card-title">{{ $t('menu.marksCars') }}</h3>
+                <h3 class="db-card-title">{{ $t('menu.typesVehicles') }}</h3>
                 <div class="db-card-filter">
                     <TableLimitComponent :method="list" :search="props.search" :page="paginationPage" />
                     <FilterComponent />
@@ -15,7 +15,7 @@
                             <ExcelComponent :method="xls" />
                         </div>
                     </div>
-                    <MarksCarsTableCreateComponent :props="props" />
+                    <TypesVehiclesCreateComponent :props="props" />
                 </div>
             </div>
 
@@ -60,28 +60,28 @@
                             <th class="db-table-head-th">{{ $t('label.description') }}</th>
                             <th class="db-table-head-th">{{ $t('label.image') }}</th>
                             <th class="db-table-head-th hidden-print"
-                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
+                                v-if="permissionChecker('types_of_cars_show') || permissionChecker('types_of_cars_edit') || permissionChecker('types_of_cars_delete')">
                                 {{ $t('label.action') }}
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="db-table-body" v-if="marks.length > 0">
-                        <tr class="db-table-body-tr" v-for="mark in marks" :key="mark">
-                            <td class="db-table-body-td">{{ mark.name }}</td>
-                            <td class="db-table-body-td">{{ mark.description }}</td>
+                    <tbody class="db-table-body" v-if="typesVehicles.length > 0">
+                        <tr class="db-table-body-tr" v-for="vehicle in typesVehicles" :key="vehicle">
+                            <td class="db-table-body-td">{{ vehicle.name }}</td>
+                            <td class="db-table-body-td">{{ vehicle.description }}</td>
                             <td class="db-table-body-td">
                                 <!-- Quitar esta parte -->
                             </td>
                             <td class="db-table-body-td hidden-print"
-                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
+                                v-if="permissionChecker('types_of_cars_show') || permissionChecker('types_of_cars_edit') || permissionChecker('types_of_cars_delete')">
                                 <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
-                                    <!-- <SmIconQrCodeComponent :link="mark.qr" /> -->
-                                    <SmIconViewComponent :link="'admin.marks.show'" :id="mark.id"
-                                        v-if="permissionChecker('marksCars_show')" />
-                                    <SmIconSidebarModalEditComponent @click="edit(mark)"
-                                        v-if="permissionChecker('marksCars_edit')" />
-                                    <SmIconDeleteComponent @click="destroy(mark.id)"
-                                        v-if="permissionChecker('marksCars_delete') && demoChecker(mark.id)" />
+                                    <!-- <SmIconQrCodeComponent :link="vehicle.qr" /> -->
+                                    <SmIconViewComponent :link="'admin.typesVehicles.show'" :id="vehicle.id"
+                                        v-if="permissionChecker('types_of_cars_show')" />
+                                    <SmIconSidebarModalEditComponent @click="edit(vehicle)"
+                                        v-if="permissionChecker('types_of_cars_edit')" />
+                                    <SmIconDeleteComponent @click="destroy(vehicle.id)"
+                                        v-if="permissionChecker('types_of_cars_delete') && demoChecker(vehicle.id)" />
                                 </div>
                             </td>
                         </tr>
@@ -101,7 +101,7 @@
 </template>
 <script>
 import LoadingComponent from "../components/LoadingComponent";
-import MarksCarsTableCreateComponent from "./MarksCarsTableCreateComponent";
+import TypesVehiclesCreateComponent from "./TypesVehiclesCreateComponent";
 import alertService from "../../../services/alertService";
 import PaginationTextComponent from "../components/pagination/PaginationTextComponent";
 import PaginationBox from "../components/pagination/PaginationBox";
@@ -120,13 +120,13 @@ import FilterComponent from "../components/buttons/collapse/FilterComponent";
 import ENV from "../../../config/env";
 
 export default {
-    name: "MarksCarsTableListComponent",
+    name: "TypesVehiclesListComponent",
     components: {
         TableLimitComponent,
         PaginationSMBox,
         PaginationBox,
         PaginationTextComponent,
-        MarksCarsTableCreateComponent,
+        TypesVehiclesCreateComponent,
         LoadingComponent,
         SmIconDeleteComponent,
         SmIconSidebarModalEditComponent,
@@ -145,7 +145,7 @@ export default {
             printLoading: true,
             printObj: {
                 id: "print",
-                popTitle: this.$t("menu.marksCars"),
+                popTitle: this.$t("menu.typesVehicles"),
             },
             enums: {
                 statusEnum: statusEnum,
@@ -177,14 +177,14 @@ export default {
         }
     },
     computed: {
-        marks: function () {
-            return this.$store.getters['marks/lists'];
+        typesVehicles: function () {
+            return this.$store.getters['typesVehicles/lists'];
         },
         pagination: function () {
-            return this.$store.getters['marks/pagination'];
+            return this.$store.getters['typesVehicles/pagination'];
         },
         paginationPage: function () {
-            return this.$store.getters['marks/page'];
+            return this.$store.getters['typesVehicles/page'];
         }
     },
     mounted() {
@@ -210,7 +210,7 @@ export default {
         list: function (page = 1) {
             this.loading.isActive = true;
             this.props.search.page = page;
-            this.$store.dispatch('marks/lists', this.props.search).then(res => {
+            this.$store.dispatch('typesVehicles/lists', this.props.search).then(res => {
                 this.loading.isActive = false;
             }).catch((err) => {
                 this.loading.isActive = false;
@@ -228,16 +228,16 @@ export default {
             this.props.description = "";
             this.list();
         },
-        edit: function (mark) {
+        edit: function (vehicle) {
             appService.sideDrawerShow();
             this.loading.isActive = true;
-            this.$store.dispatch('marks/edit', mark.id);
+            this.$store.dispatch('typesVehicles/edit', vehicle.id);
             this.props.form = {
-                // branch_id: marks.branch_id,
-                name: mark.name,
-                category: mark.category,
-                status: mark.status,
-                description: mark.description,
+                // branch_id: typesVehicles.branch_id,
+                name: vehicle.name,
+                category: vehicle.category,
+                status: vehicle.status,
+                description: vehicle.description,
             };
             this.loading.isActive = false;
         },
@@ -245,9 +245,9 @@ export default {
             appService.destroyConfirmation().then((res) => {
                 try {
                     this.loading.isActive = true;
-                    this.$store.dispatch('marks/destroy', { id: id, search: this.props.search }).then((res) => {
+                    this.$store.dispatch('typesVehicles/destroy', { id: id, search: this.props.search }).then((res) => {
                         this.loading.isActive = false;
-                        alertService.successFlip(null, this.$t('menu.marksCars'));
+                        alertService.successFlip(null, this.$t('menu.typesVehicles'));
                     }).catch((err) => {
                         this.loading.isActive = false;
                         alertService.error(err.response.data.message);
@@ -262,14 +262,14 @@ export default {
         },
         xls: function () {
             this.loading.isActive = true;
-            this.$store.dispatch("marks/export", this.props.search).then((res) => {
+            this.$store.dispatch("typesVehicles/export", this.props.search).then((res) => {
                 this.loading.isActive = false;
                 const blob = new Blob([res.data], {
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
-                link.download = this.$t("menu.marksCars");
+                link.download = this.$t("menu.typesVehicles");
                 link.click();
                 URL.revokeObjectURL(link.href);
             }).catch((err) => {
