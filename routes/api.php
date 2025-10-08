@@ -63,6 +63,7 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\DeliveryBoyOrderController;
 use App\Http\Controllers\Admin\ItemAddonController;
 use App\Http\Controllers\Admin\ItemsReportController;
+use App\Http\Controllers\Admin\MarksController;
 use App\Http\Controllers\Admin\MyOrderDetailsController;
 use App\Http\Controllers\Admin\NotificationAlertController;
 use App\Http\Controllers\Admin\OfferItemController;
@@ -610,14 +611,14 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
         Route::get('/', [PosCategoryController::class, 'index']);
     });
 
-    // Route::prefix('dining-table')->name('dining-table.')->group(function () {
-    //     Route::get('/', [DiningTableController::class, 'index']);
-    //     Route::get('/show/{diningTable}', [DiningTableController::class, 'show']);
-    //     Route::post('/', [DiningTableController::class, 'store']);
-    //     Route::match(['post', 'put', 'patch'], '/{diningTable}', [DiningTableController::class, 'update']);
-    //     Route::delete('/{diningTable}', [DiningTableController::class, 'destroy']);
-    //     Route::get('/export', [DiningTableController::class, 'export']);
-    // });
+    Route::prefix('marks')->name('marks.')->group(function () {
+        Route::get('/', [MarksController::class, 'index']);
+        Route::get('/show/{diningTable}', [MarksController::class, 'show']);
+        Route::post('/', [MarksController::class, 'store']);
+        Route::match(['post', 'put', 'patch'], '/{diningTable}', [MarksController::class, 'update']);
+        Route::delete('/{diningTable}', [MarksController::class, 'destroy']);
+        Route::get('/export', [MarksController::class, 'export']);
+    });
 
     Route::prefix('dining-table')->name('dining-table.')->group(function () {
         Route::get('/', [DiningTableController::class, 'index']);

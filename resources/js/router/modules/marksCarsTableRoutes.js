@@ -1,6 +1,6 @@
-import MarksCarsTableListComponent from "../../components/admin/categories/MarksCarsTableListComponent";
-import MarksCarsTableComponent from "../../components/admin/categories/MarksCarsTableComponent";
-import MarksCarsTableShowComponent from "../../components/admin/categories/MarksCarsTableShowComponent";
+import MarksCarsTableListComponent from "../../components/admin/markscars/MarksCarsTableListComponent.vue";
+import MarksCarsTableComponent from "../../components/admin/markscars/MarksCarsTableComponent.vue";
+import MarksCarsTableShowComponent from "../../components/admin/markscars/MarksCarsTableShowComponent.vue";
 
 export default [
     {
@@ -11,8 +11,8 @@ export default [
         meta: {
             isFrontend: false,
             auth: true,
-            permissionUrl: "settings",
-            breadcrumb: "dining_tables",
+            permissionUrl: "marksCars",
+            breadcrumb: "marksCars",
         },
         children: [
             {
@@ -22,7 +22,7 @@ export default [
                 meta: {
                     isFrontend: false,
                     auth: true,
-                    permissionUrl: "settings",
+                    permissionUrl: "marksCars",
                     breadcrumb: "",
                 },
             },
@@ -33,7 +33,7 @@ export default [
                 meta: {
                     isFrontend: false,
                     auth: true,
-                    permissionUrl: "settings",
+                    permissionUrl: "marksCars",
                     breadcrumb: "view",
                 },
             },

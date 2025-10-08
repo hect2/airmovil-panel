@@ -83,7 +83,7 @@
         "marcas": "Marcas de Vehiculos",
         "types_cars": "Tipos de Vehiculos",
         "policies": "Políticas",
-        "maks_tables": "Marcas de Vehiculos"
+        "marksCars": "Marcas de Vehiculos"
     },
     "label": {
         "previous": "Anterior",
@@ -644,7 +644,8 @@
         "add_token": "Agregar Token",
         "qr": "QR",
         "send_mail": "Enviar Correo",
-        "change_language": "Cambiar Idioma"
+        "change_language": "Cambiar Idioma",
+        "add_marksCars": "Nueva marca"
     },
     "number": {
         "10": "10",

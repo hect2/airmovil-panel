@@ -41,7 +41,7 @@ class DiningTableService
     {
         try {
             $requests    = $request->all();
-            \Log::info($requests);
+
             $method      = $request->get('paginate', 0) == 1 ? 'paginate' : 'get';
             $methodValue = $request->get('paginate', 0) == 1 ? $request->get('per_page', 10) : '*';
             $orderColumn = $request->get('order_column') ?? 'id';

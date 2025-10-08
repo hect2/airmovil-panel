@@ -4,7 +4,7 @@
     <div class="col-12">
         <div class="db-card">
             <div class="db-card-header border-none">
-                <h3 class="db-card-title">{{ $t('menu.marcas') }}</h3>
+                <h3 class="db-card-title">{{ $t('menu.marksCars') }}</h3>
                 <div class="db-card-filter">
                     <TableLimitComponent :method="list" :search="props.search" :page="paginationPage" />
                     <FilterComponent />
@@ -69,34 +69,31 @@
                     <thead class="db-table-head">
                         <tr class="db-table-head-tr">
                             <th class="db-table-head-th">{{ $t('label.name') }}</th>
-                            <!-- <th class="db-table-head-th">{{ $t('label.size') }}</th> -->
-                            <th class="db-table-head-th">categoria</th>
-                            <th class="db-table-head-th">{{ $t('label.status') }}</th>
+                            <th class="db-table-head-th">{{ $t('label.description') }}</th>
+                            <th class="db-table-head-th">{{ $t('label.image') }}</th>
                             <th class="db-table-head-th hidden-print"
-                                v-if="permissionChecker('dining_tables_show') || permissionChecker('dining_tables_edit') || permissionChecker('dining_tables_delete')">
+                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
                                 {{ $t('label.action') }}
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="db-table-body" v-if="diningTables.length > 0">
-                        <tr class="db-table-body-tr" v-for="diningTable in diningTables" :key="diningTable">
-                            <td class="db-table-body-td">{{ diningTable.name }}</td>
-                            <td class="db-table-body-td">{{ diningTable.category }}</td>
+                    <tbody class="db-table-body" v-if="marks.length > 0">
+                        <tr class="db-table-body-tr" v-for="mark in marks" :key="mark">
+                            <td class="db-table-body-td">{{ mark.name }}</td>
+                            <td class="db-table-body-td">{{ mark.description }}</td>
                             <td class="db-table-body-td">
-                                <span :class="statusClass(diningTable.status)">
-                                    {{ enums.statusEnumArray[diningTable.status] }}
-                                </span>
+                                <!-- Quitar esta parte -->
                             </td>
                             <td class="db-table-body-td hidden-print"
-                                v-if="permissionChecker('dining_tables_show') || permissionChecker('dining_tables_edit') || permissionChecker('dining_tables_delete')">
+                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
                                 <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
-                                    <SmIconQrCodeComponent :link="diningTable.qr" />
-                                    <SmIconViewComponent :link="'admin.diningTable.show'" :id="diningTable.id"
-                                        v-if="permissionChecker('dining_tables_show')" />
-                                    <SmIconSidebarModalEditComponent @click="edit(diningTable)"
-                                        v-if="permissionChecker('dining_tables_edit')" />
-                                    <SmIconDeleteComponent @click="destroy(diningTable.id)"
-                                        v-if="permissionChecker('dining_tables_delete') && demoChecker(diningTable.id)" />
+                                    <SmIconQrCodeComponent :link="mark.qr" />
+                                    <SmIconViewComponent :link="'admin.marks.show'" :id="mark.id"
+                                        v-if="permissionChecker('marksCars_show')" />
+                                    <SmIconSidebarModalEditComponent @click="edit(mark)"
+                                        v-if="permissionChecker('marksCars_edit')" />
+                                    <SmIconDeleteComponent @click="destroy(mark.id)"
+                                        v-if="permissionChecker('marksCars_delete') && demoChecker(mark.id)" />
                                 </div>
                             </td>
                         </tr>
@@ -160,7 +157,7 @@ export default {
             printLoading: true,
             printObj: {
                 id: "print",
-                popTitle: this.$t("menu.marcas"),
+                popTitle: this.$t("menu.marksCars"),
             },
             enums: {
                 statusEnum: statusEnum,
@@ -192,14 +189,14 @@ export default {
         }
     },
     computed: {
-        diningTables: function () {
-            return this.$store.getters['diningTable/lists'];
+        marks: function () {
+            return this.$store.getters['marks/lists'];
         },
         pagination: function () {
-            return this.$store.getters['diningTable/pagination'];
+            return this.$store.getters['marks/pagination'];
         },
         paginationPage: function () {
-            return this.$store.getters['diningTable/page'];
+            return this.$store.getters['marks/page'];
         }
     },
     mounted() {
@@ -225,7 +222,7 @@ export default {
         list: function (page = 1) {
             this.loading.isActive = true;
             this.props.search.page = page;
-            this.$store.dispatch('diningTable/lists', this.props.search).then(res => {
+            this.$store.dispatch('marks/lists', this.props.search).then(res => {
                 this.loading.isActive = false;
             }).catch((err) => {
                 this.loading.isActive = false;
@@ -243,16 +240,16 @@ export default {
             this.props.description = "";
             this.list();
         },
-        edit: function (diningTable) {
+        edit: function (mark) {
             appService.sideDrawerShow();
             this.loading.isActive = true;
-            this.$store.dispatch('diningTable/edit', diningTable.id);
+            this.$store.dispatch('marks/edit', mark.id);
             this.props.form = {
-                // branch_id: diningTable.branch_id,
-                name: diningTable.name,
-                category: diningTable.category,
-                status: diningTable.status,
-                description: diningTable.description,
+                // branch_id: marks.branch_id,
+                name: mark.name,
+                category: mark.category,
+                status: mark.status,
+                description: mark.description,
             };
             this.loading.isActive = false;
         },
@@ -260,9 +257,9 @@ export default {
             appService.destroyConfirmation().then((res) => {
                 try {
                     this.loading.isActive = true;
-                    this.$store.dispatch('diningTable/destroy', { id: id, search: this.props.search }).then((res) => {
+                    this.$store.dispatch('marks/destroy', { id: id, search: this.props.search }).then((res) => {
                         this.loading.isActive = false;
-                        alertService.successFlip(null, this.$t('menu.marcas'));
+                        alertService.successFlip(null, this.$t('menu.marksCars'));
                     }).catch((err) => {
                         this.loading.isActive = false;
                         alertService.error(err.response.data.message);
@@ -277,14 +274,14 @@ export default {
         },
         xls: function () {
             this.loading.isActive = true;
-            this.$store.dispatch("diningTable/export", this.props.search).then((res) => {
+            this.$store.dispatch("marks/export", this.props.search).then((res) => {
                 this.loading.isActive = false;
                 const blob = new Blob([res.data], {
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
-                link.download = this.$t("menu.marcas");
+                link.download = this.$t("menu.marksCars");
                 link.click();
                 URL.revokeObjectURL(link.href);
             }).catch((err) => {
