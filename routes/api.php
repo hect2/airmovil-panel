@@ -630,6 +630,15 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
         Route::get('/export', [TypesVehiclesController::class, 'export']);
     });
 
+    Route::prefix('marks')->name('marks.')->group(function () {
+        Route::get('/', [MarksController::class, 'index']);
+        Route::get('/show/{vehicles}', [MarksController::class, 'show']);
+        Route::post('/', [MarksController::class, 'store']);
+        Route::match(['post', 'put', 'patch'], '/{vehicles}', [MarksController::class, 'update']);
+        Route::delete('/{vehicles}', [MarksController::class, 'destroy']);
+        Route::get('/export', [MarksController::class, 'export']);
+    });
+
 });
 
 Route::prefix('frontend')->name('frontend.')->middleware(['installed', 'apiKey', 'localization'])->group(function () {

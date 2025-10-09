@@ -20,7 +20,7 @@
     <title>{{ Settings::group('company')->get('company_name') }}</title>
 
     <!-- FAV ICON -->
-    <link rel="icon" type="image" href="{{ $favicon }}">
+    <!-- <link rel="icon" type="image/x-icon" href="favicon.ico"> -->
 
 
     @if (!blank($analytics))
