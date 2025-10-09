@@ -36,7 +36,7 @@ services:
             MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
             # Remove MYSQL_USER and MYSQL_PASSWORD for root user
         ports:
-            - "3306:3306"
+            - "3307:3306"
         volumes:
             - dbdata:/var/lib/mysql
         networks:
