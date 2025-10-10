@@ -76,7 +76,7 @@
                                 v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
                                 <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
                                     <!-- <SmIconQrCodeComponent :link="mark.qr" /> -->
-                                    <SmIconViewComponent :link="'admin.marks.show'" :id="mark.id"
+                                    <SmIconViewComponent :link="'admin.marksCars.show'" :id="mark.id"
                                         v-if="permissionChecker('marksCars_show')" />
                                     <SmIconSidebarModalEditComponent @click="edit(mark)"
                                         v-if="permissionChecker('marksCars_edit')" />

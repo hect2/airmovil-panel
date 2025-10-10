@@ -251,16 +251,16 @@ class MenuTableSeeder extends Seeder
                         'created_at' => now(),
                         'updated_at' => now()
                     ],
-                    [
-                        'name'       => 'Delivery Boys',
-                        'language'   => 'delivery_boys',
-                        'url'        => 'delivery-boys',
-                        'icon'       => 'lab lab-delivery-boys',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ],
+                    // [
+                    //     'name'       => 'Delivery Boys',
+                    //     'language'   => 'delivery_boys',
+                    //     'url'        => 'delivery-boys',
+                    //     'icon'       => 'lab lab-delivery-boys',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
+                    // ],
                     [
                         'name'       => 'Customers',
                         'language'   => 'customers',

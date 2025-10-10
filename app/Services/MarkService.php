@@ -6,9 +6,10 @@ use Exception;
 use App\Models\Mark;
 use App\Http\Requests\MarkRequest;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 use Dipokhalder\EnvEditor\EnvEditor;
+use Illuminate\Support\Facades\File;
 use App\Http\Requests\PaginateRequest;
+use Illuminate\Support\Facades\Storage;
 
 class MarkService
 {
@@ -62,10 +63,15 @@ class MarkService
     public function store(MarkRequest $request)
     {
         try {
+
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('marks', 'public');
+            }
+
             return Mark::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'image' => 'storage/image/pruebas.png' // imagen dummy por defecto
+                'image' => $path ?? ""
             ]);
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
@@ -81,10 +87,23 @@ class MarkService
     public function update(MarkRequest $request, Mark $mark)
     {
         try {
+
+            if( $request->hasFile('image') ){
+                
+                if( !empty($mark->image) ){
+                    Storage::delete($mark->image);
+                }
+
+                $mark->fill($request->validated());
+
+                $path = $request->file('image')->store('marks', 'public');
+
+            }
+
             return tap($mark)->update([
                 'name' => $request->name,
                 'description' => $request->description,
-                'image' => 'storage/image/pruebas.png' // cambiar si soportas carga real
+                'image' => $path ?? $mark->image
             ]);
         } catch (Exception $exception) {
             Log::error($exception->getMessage());

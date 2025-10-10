@@ -151,7 +151,7 @@ export default {
         },
 
         save: function () {
-            console.log('PRUEBAS_SAE', this.props.form);
+
             try {
                 const formData = new FormData();
                 formData.append('name', this.props.form.name);

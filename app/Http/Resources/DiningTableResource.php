@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class DiningTableResource extends JsonResource
@@ -27,6 +28,7 @@ class DiningTableResource extends JsonResource
             // "qr"             => $this->qr,
             // "branch_address" => $this->branch->address,
             "description"   => $this->resource->description,
+            "image"        => Str::startsWith('/storage', $this->resource->image) ? $this->resource->image : "/storage/".$this->resource->image
         ];
     }
 }

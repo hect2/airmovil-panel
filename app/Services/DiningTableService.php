@@ -3,19 +3,20 @@
 namespace App\Services;
 
 
-use App\Http\Requests\DiningTableRequest;
-use App\Http\Requests\PaginateRequest;
-use App\Models\DiningTable;
+use Exception;
 use App\Models\Branch;
 use App\Models\CategoryCar;
-use Exception;
-use Illuminate\Support\Facades\Log;
-use Smartisan\Settings\Facades\Settings;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use App\Models\DiningTable;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\URL;
-use Illuminate\Support\Facades\File;
 use Dipokhalder\EnvEditor\EnvEditor;
+use Illuminate\Support\Facades\File;
+use App\Http\Requests\PaginateRequest;
+use Illuminate\Support\Facades\Storage;
+use Smartisan\Settings\Facades\Settings;
+use App\Http\Requests\DiningTableRequest;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class DiningTableService
 {
@@ -81,24 +82,17 @@ class DiningTableService
     public function store(DiningTableRequest $request)
     {
         try {
-            // $branch      = Branch::find($request->branch_id);           
-            // $branch_name = $branch ? $branch->name : "";
 
-            // $filename = Str::random(10) . '.png';
-            // $slug     = Str::slug($branch_name.'-'.$request->name);
-            // $url      = URL::to('/') . "/menu/" . $slug;
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('categoryCars', 'public');
+            }
 
-            // if (!File::exists(storage_path('app/public/qr_codes/'))) {
-            //     File::makeDirectory(storage_path('app/public/qr_codes/'));
-            // }
-            // QrCode::format('png')->size(200)->generate($url, storage_path('app/public/qr_codes/' . $filename));
-            // return DiningTable::create($request->validated() + ['qr_code' => 'storage/qr_codes/' . $filename, 'slug' => $slug]);
             return CategoryCar::create([
                 'name' => $request->name,
                 'description' => $request->description,
                 'category' => $request->category,
                 'status' => $request->status,
-                'image' => 'storage/image/pruebas.png'
+                'image' => $path ?? ""
             ]);
 
         } catch (Exception $exception) {
@@ -113,29 +107,25 @@ class DiningTableService
     public function update(DiningTableRequest $request, CategoryCar $diningTable)
     {
         try {
-            // $branch      = Branch::find($request->branch_id);           
-            // $branch_name = $branch ? $branch->name : "";
 
-            // $filename = Str::random(10) . '.png';
-            // $slug     = Str::slug($branch_name.'-'.$request->name);
-            // $url      = URL::to('/') . "/menu/" . $slug;
+            if( $request->hasFile('image') ){
 
-            // if (!File::exists(storage_path('app/public/qr_codes/'))) {
-            //     File::makeDirectory(storage_path('app/public/qr_codes/'));
-            // }
+                if( !empty($diningTable->image) ){
+                    Storage::delete($diningTable->image);
+                }
 
-            // if(File::exists($diningTable->qr_code) && !$this->envService->getValue('DEMO')){
-            //     File::delete($diningTable->qr_code);
-            // }
+                $diningTable->fill($request->validated());
 
-            // QrCode::format('png')->size(200)->generate($url, storage_path('app/public/qr_codes/' . $filename));
+                $path = $request->file('image')->store('categoryCars', 'public');
+
+            }
 
             return tap($diningTable)->update([
                 'name' => $request->name,
                 'description' => $request->description,
                 'category' => $request->category,
                 'status' => $request->status,
-                'image' => 'storage/image/pruebas.png'
+                'image' => $path ?? $diningTable->image
             ]);
         } catch (Exception $exception) {
             Log::info($exception->getMessage());

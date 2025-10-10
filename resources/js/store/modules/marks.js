@@ -22,7 +22,6 @@ export const marks = {
     },
     actions: {
         lists({ commit }, payload) {
-            console.log('ENTRO_AQUI');
             return new Promise((resolve, reject) => {
                 let url = '/admin/marks';
                 if (payload) {
@@ -41,7 +40,6 @@ export const marks = {
             });
         },
         save({ dispatch, commit, state }, payload) {
-            console.log('ENVIANDO_AQUI_POST');
             return new Promise((resolve, reject) => {
                 let method = axios.post;
                 let url = '/admin/marks';

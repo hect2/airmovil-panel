@@ -90,7 +90,7 @@
                             <td class="db-table-body-td hidden-print"
                                 v-if="permissionChecker('dining_tables_show') || permissionChecker('dining_tables_edit') || permissionChecker('dining_tables_delete')">
                                 <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
-                                    <SmIconQrCodeComponent :link="diningTable.qr" />
+                                    <!-- <SmIconQrCodeComponent :link="diningTable.qr" /> -->
                                     <SmIconViewComponent :link="'admin.diningTable.show'" :id="diningTable.id"
                                         v-if="permissionChecker('dining_tables_show')" />
                                     <SmIconSidebarModalEditComponent @click="edit(diningTable)"

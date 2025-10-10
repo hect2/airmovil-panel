@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use Illuminate\Support\Str;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class MarkResource extends JsonResource
@@ -15,10 +16,10 @@ class MarkResource extends JsonResource
     public function toArray($request)
     {
         return [
-            'id' => $this->id,
-            'name' => $this->name,
-            'description' => $this->description,
-            'image' => $this->image
+            'id' => $this->resource->id,
+            'name' => $this->resource->name,
+            'description' => $this->resource->description,
+            'image' => Str::startsWith('/storage', $this->resource->image) ? $this->resource->image : "/storage/".$this->resource->image
         ];
     }
 }
