@@ -89,7 +89,7 @@ class MarkService
         try {
 
             if( $request->hasFile('image') ){
-                
+
                 if( !empty($mark->image) ){
                     Storage::delete($mark->image);
                 }
@@ -97,7 +97,6 @@ class MarkService
                 $mark->fill($request->validated());
 
                 $path = $request->file('image')->store('marks', 'public');
-
             }
 
             return tap($mark)->update([

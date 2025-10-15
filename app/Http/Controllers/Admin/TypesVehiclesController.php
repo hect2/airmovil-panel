@@ -45,28 +45,28 @@ class TypesVehiclesController extends AdminController
         }
     }
 
-    public function show(TypeVehicle $typeVehicle)
+    public function show(TypeVehicle $vehicles)
     {
         try {
-            return new TypeVehicleResource($this->typeVehicleService->show($typeVehicle));
+            return new TypeVehicleResource($this->typeVehicleService->show($vehicles));
         } catch (Exception $exception) {
             return response(['status' => false, 'message' => $exception->getMessage()], 422);
         }
     }
 
-    public function update(TypeVehicleRequest $request, TypeVehicle $typeVehicle)
+    public function update(TypeVehicleRequest $request, TypeVehicle $vehicles)
     {
         try {
-            return new TypeVehicleResource($this->typeVehicleService->update($request, $typeVehicle));
+            return new TypeVehicleResource($this->typeVehicleService->update($request, $vehicles));
         } catch (Exception $exception) {
             return response(['status' => false, 'message' => $exception->getMessage()], 422);
         }
     }
 
-    public function destroy(TypeVehicle $typeVehicle)
+    public function destroy(TypeVehicle $vehicles)
     {
         try {
-            $this->typeVehicleService->destroy($typeVehicle);
+            $this->typeVehicleService->destroy($vehicles);
             return response('', 202);
         } catch (Exception $exception) {
             return response(['status' => false, 'message' => $exception->getMessage()], 422);

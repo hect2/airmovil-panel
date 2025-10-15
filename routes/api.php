@@ -632,10 +632,10 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
 
     Route::prefix('marks')->name('marks.')->group(function () {
         Route::get('/', [MarksController::class, 'index']);
-        Route::get('/show/{vehicles}', [MarksController::class, 'show']);
+        Route::get('/show/{mark}', [MarksController::class, 'show']);
         Route::post('/', [MarksController::class, 'store']);
-        Route::match(['post', 'put', 'patch'], '/{vehicles}', [MarksController::class, 'update']);
-        Route::delete('/{vehicles}', [MarksController::class, 'destroy']);
+        Route::match(['post', 'put', 'patch'], '/{mark}', [MarksController::class, 'update']);
+        Route::delete('/{mark}', [MarksController::class, 'destroy']);
         Route::get('/export', [MarksController::class, 'export']);
     });
 

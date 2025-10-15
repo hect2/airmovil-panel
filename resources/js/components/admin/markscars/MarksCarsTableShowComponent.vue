@@ -14,12 +14,12 @@
                 </div>
             </div>
             <div class="db-card-body" id="print">
-                <!-- <img class="w-36 mx-auto mb-1" :src="setting.theme_logo" alt="logo"> -->
+                <img class="w-36 mx-auto mb-1" :src="marks.image" alt="Marca">
                 <p class="text-center">
                     <span class="block capitalize mt-4">{{ marks.name }}</span>
                     <span class="block">{{ marks.description }}</span>
                 </p>
-                <img class="w-48 sm:w-60 mx-auto my-4" :src="marks.image" alt="Marca">
+                <!-- <img class="w-48 sm:w-60 mx-auto my-4" :src="marks.image" alt="Marca"> -->
                 <!-- <p class="text-center mb-6">
                     <span class="block capitalize">{{ marks.name }}</span>
                 </p> -->

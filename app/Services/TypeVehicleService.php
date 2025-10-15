@@ -4,11 +4,12 @@ namespace App\Services;
 
 use Exception;
 use App\Models\TypeVehicle;
-use App\Http\Requests\TypeVehicleRequest;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 use Dipokhalder\EnvEditor\EnvEditor;
+use Illuminate\Support\Facades\File;
 use App\Http\Requests\PaginateRequest;
+use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\TypeVehicleRequest;
 
 class TypeVehicleService
 {
@@ -62,10 +63,15 @@ class TypeVehicleService
     public function store(TypeVehicleRequest $request)
     {
         try {
+
+            if ($request->hasFile('image')) {
+                $path = $request->file('image')->store('typeVehicle', 'public');
+            }
+
             return TypeVehicle::create([
                 'name' => $request->name,
                 'description' => $request->description,
-                'image' => 'storage/image/placeholder.png' // cambiar por manejo real de imágenes si aplica
+                'image' => $path ?? "" // cambiar por manejo real de imágenes si aplica
             ]);
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
@@ -78,13 +84,25 @@ class TypeVehicleService
      *
      * @throws Exception
      */
-    public function update(TypeVehicleRequest $request, TypeVehicle $typeVehicle)
+    public function update(TypeVehicleRequest $request, TypeVehicle $vehicles)
     {
         try {
-            return tap($typeVehicle)->update([
+
+            if( $request->hasFile('image') ){
+
+                if( !empty($vehicles->image) ){
+                    Storage::delete($vehicles->image);
+                }
+
+                $vehicles->fill($request->validated());
+
+                $path = $request->file('image')->store('typeVehicle', 'public');
+            }
+
+            return tap($vehicles)->update([
                 'name' => $request->name,
                 'description' => $request->description,
-                'image' => 'storage/image/placeholder.png' // actualizar lógica si se maneja subida real
+                'image' => $path // actualizar lógica si se maneja subida real
             ]);
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
@@ -97,14 +115,14 @@ class TypeVehicleService
      *
      * @throws Exception
      */
-    public function destroy(TypeVehicle $typeVehicle): void
+    public function destroy(TypeVehicle $vehicles): void
     {
         try {
-            if (File::exists($typeVehicle->image) && !$this->envService->getValue('DEMO')) {
-                File::delete($typeVehicle->image);
+            if (File::exists($vehicles->image) && !$this->envService->getValue('DEMO')) {
+                File::delete($vehicles->image);
             }
 
-            $typeVehicle->delete();
+            $vehicles->delete();
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
@@ -116,10 +134,10 @@ class TypeVehicleService
      *
      * @throws Exception
      */
-    public function show(TypeVehicle $typeVehicle): TypeVehicle
+    public function show(TypeVehicle $vehicles): TypeVehicle
     {
         try {
-            return $typeVehicle;
+            return $vehicles;
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);

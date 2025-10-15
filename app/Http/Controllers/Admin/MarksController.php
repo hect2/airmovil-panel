@@ -37,7 +37,7 @@ class MarksController extends AdminController
     }
 
     public function store(MarkRequest $request)
-    {\Log::debug("ENTRO AQUI");
+    {
         try {
             return new MarkResource($this->markService->store($request));
         } catch (Exception $exception) {
@@ -45,7 +45,7 @@ class MarksController extends AdminController
         }
     }
 
-    public function show(Mark $mark)
+    public function show(Mark $mark): \Illuminate\Http\Response | MarkResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory
     {
         try {
             return new MarkResource($this->markService->show($mark));
