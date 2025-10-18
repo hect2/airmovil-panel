@@ -8,13 +8,13 @@
                 <div class="db-card-filter">
                     <TableLimitComponent :method="list" :search="props.search" :page="paginationPage" />
                     <FilterComponent />
-                    <div class="dropdown-group">
+                    <!-- <div class="dropdown-group">
                         <ExportComponent />
                         <div class="dropdown-list db-card-filter-dropdown-list">
                             <PrintComponent :props="printObj" />
                             <ExcelComponent :method="xls" />
                         </div>
-                    </div>
+                    </div> -->
                     <TypesVehiclesCreateComponent :props="props" />
                 </div>
             </div>
@@ -23,18 +23,18 @@
                 <form class="p-4 sm:p-5 mb-5" @submit.prevent="search">
                     <div class="row">
                         <div class="col-12 sm:col-6 md:col-4 xl:col-3">
-                            <label for="name" class="db-field-title after:hidden">{{
+                            <label for="title" class="db-field-title after:hidden">{{
                                 $t("label.name")
                             }}</label>
-                            <input id="name" v-model="props.search.name" type="text" class="db-field-control" />
+                            <input id="title" v-model="props.search.title" type="text" class="db-field-control" />
                         </div>
-                        <div class="col-12 sm:col-6 md:col-4 xl:col-3">
+                        <!-- <div class="col-12 sm:col-6 md:col-4 xl:col-3">
                             <label for="size" class="db-field-title after:hidden">{{
                                 $t("label.description")
                             }}</label>
                             <input id="size" v-on:keypress="numberOnly($event)" v-model="props.search.description" type="text"
                                 class="db-field-control" />
-                        </div>
+                        </div> -->
 
                         <div class="col-12">
                             <div class="flex flex-wrap gap-3 mt-4">
@@ -52,41 +52,46 @@
                 </form>
             </div>
 
-            <div class="db-table-responsive">
-                <table class="db-table stripe" id="print">
-                    <thead class="db-table-head">
-                        <tr class="db-table-head-tr">
-                            <th class="db-table-head-th">{{ $t('label.name') }}</th>
-                            <th class="db-table-head-th">{{ $t('label.description') }}</th>
-                            <th class="db-table-head-th">{{ $t('label.image') }}</th>
-                            <th class="db-table-head-th hidden-print"
-                                v-if="permissionChecker('types_of_cars_show') || permissionChecker('types_of_cars_edit') || permissionChecker('types_of_cars_delete')">
-                                {{ $t('label.action') }}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="db-table-body" v-if="typesVehicles.length > 0">
-                        <tr class="db-table-body-tr" v-for="vehicle in typesVehicles" :key="vehicle">
-                            <td class="db-table-body-td">{{ vehicle.name }}</td>
-                            <td class="db-table-body-td">{{ vehicle.description }}</td>
-                            <td class="db-table-body-td">
-                                <!-- Quitar esta parte -->
-                            </td>
-                            <td class="db-table-body-td hidden-print"
-                                v-if="permissionChecker('types_of_cars_show') || permissionChecker('types_of_cars_edit') || permissionChecker('types_of_cars_delete')">
-                                <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
-                                    <!-- <SmIconQrCodeComponent :link="vehicle.qr" /> -->
-                                    <SmIconViewComponent :link="'admin.typesVehicles.show'" :id="vehicle.id"
-                                        v-if="permissionChecker('types_of_cars_show')" />
-                                    <SmIconSidebarModalEditComponent @click="edit(vehicle)"
-                                        v-if="permissionChecker('types_of_cars_edit')" />
-                                    <SmIconDeleteComponent @click="destroy(vehicle.id)"
-                                        v-if="permissionChecker('types_of_cars_delete') && demoChecker(vehicle.id)" />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div
+                    v-for="vehicle in typesVehicles"
+                    :key="vehicle.id"
+                    class="relative bg-white rounded overflow-hidden shadow"
+                >
+                    <!-- Imagen de ejemplo (puedes reemplazar 'diningTable.img' si tienes campo de imagen) -->
+                    <img
+                        :src="vehicle.img || '/images/default-table.jpg'"
+                        alt="Mesa"
+                        class="w-full h-64 object-cover"
+                    />
+
+                    <!-- Contenido de la tarjeta -->
+                    <div class="p-4">
+                        <!-- Título -->
+                        <h3 class="text-lg font-semibold mb-1">{{ vehicle.title }}</h3>
+
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div
+                        v-if="permissionChecker('dining_tables_show') || permissionChecker('dining_tables_edit') || permissionChecker('dining_tables_delete')"
+                        class="absolute top-2 right-2 flex space-x-2"
+                    >
+                        <!-- <SmIconViewComponent
+                            :link="'admin.diningTable.show'"
+                            :id="diningTable.id"
+                            v-if="permissionChecker('dining_tables_show')"
+                        /> -->
+                        <SmIconSidebarModalEditComponent
+                            @click="edit(vehicle)"
+                            v-if="permissionChecker('dining_tables_edit')"
+                        />
+                        <SmIconDeleteComponent
+                            @click="destroy(vehicle.id)"
+                            v-if="permissionChecker('dining_tables_delete') && demoChecker(vehicle.id)"
+                        />
+                    </div>
+                </div>
             </div>
 
             <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-6">
@@ -156,11 +161,7 @@ export default {
             },
             props: {
                 form: {
-                    branch_id: null,
-                    name: "",
-                    category: "",
-                    status: statusEnum.ACTIVE,
-                    description: "",
+                    title: ""
                 },
                 search: {
                     paginate: 1,
@@ -168,9 +169,7 @@ export default {
                     per_page: 10,
                     order_column: 'id',
                     order_type: 'desc',
-                    name: "",
-                    category: "",
-                    status: null,
+                    title: ""
                 }
             },
             demo: ENV.DEMO
@@ -222,10 +221,7 @@ export default {
         clear: function () {
             this.props.search.paginate = 1;
             this.props.search.page = 1;
-            this.props.search.name = "";
-            this.props.search.category = "";
-            this.props.search.status = null;
-            this.props.description = "";
+            this.props.search.title = "";
             this.list();
         },
         edit: function (vehicle) {
@@ -233,11 +229,7 @@ export default {
             this.loading.isActive = true;
             this.$store.dispatch('typesVehicles/edit', vehicle.id);
             this.props.form = {
-                // branch_id: typesVehicles.branch_id,
-                name: vehicle.name,
-                category: vehicle.category,
-                status: vehicle.status,
-                description: vehicle.description,
+                title: vehicle.title,
             };
             this.loading.isActive = false;
         },

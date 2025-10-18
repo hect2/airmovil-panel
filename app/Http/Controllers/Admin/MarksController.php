@@ -16,6 +16,7 @@ class MarksController extends AdminController
     private MarkService $markService;
 
     public function __construct(MarkService $markService)
+    // public function __construct(protected FirestoreService $firestore) 
     {
         parent::__construct();
         $this->markService = $markService;
@@ -26,6 +27,16 @@ class MarksController extends AdminController
         $this->middleware(['permission:marksCars_delete'])->only('destroy');
         $this->middleware(['permission:marksCars_show'])->only('show');
     }
+//? composer require google/cloud-firestore
+    // public function getAll()
+    // {
+    //     return $this->firestore->getAll('cardBrands');
+    // }
+
+    // public function getActiveOnly()
+    // {
+    //     return collect($this->getAll())->where('active', true)->values();
+    // }
 
     public function index(PaginateRequest $request)
     {

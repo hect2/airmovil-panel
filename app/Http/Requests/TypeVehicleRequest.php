@@ -24,9 +24,12 @@ class TypeVehicleRequest extends FormRequest
     public function rules()
     {
         return [
-            'name' => ['required'],
-            'description' => ['nullable', 'string'],
-            'image' => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
+            'title'      => [
+                'required',
+                'string',
+                'max:190'
+            ],
+            'img'        => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048']
         ];
     }
 }

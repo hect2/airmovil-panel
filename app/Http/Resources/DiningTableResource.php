@@ -16,19 +16,18 @@ class DiningTableResource extends JsonResource
      */
     public function toArray($request): array
     {
+        $sites = env('APP_URL');
+        $path = $this->resource['img'];
+        
+        if( !Str::startsWith($path, "https://firebasestorage.googleapis.com") ){
+            $url = Str::startsWith($path, $sites) ? str_replace($sites, '', $path) : $path;
+            $path = $url;
+        }
+
         return [
-            "id"             => $this->id,
-            "name"           => $this->resource->name,
-            "slug"           => $this->resource->slug ?? '',
-            "category"           => $this->resource->category,
-            // "qr_code"        => asset($this->qr_code),
-            // "branch_id"      => $this->branch_id,
-            // "branch_name"    => optional($this->branch)->name,
-            "status"         => (integer)$this->resource->status,
-            // "qr"             => $this->qr,
-            // "branch_address" => $this->branch->address,
-            "description"   => $this->resource->description,
-            "image"        => Str::startsWith('/storage', $this->resource->image) ? $this->resource->image : "/storage/".$this->resource->image
+            "id" => $this->resource['id'],
+            "title" => $this->resource['title'],
+            "img" => $path
         ];
     }
 }

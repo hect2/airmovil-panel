@@ -40,7 +40,7 @@ class DiningTableRequest extends FormRequest
         // ];
 
         return [
-            'name'      => [
+            'title'      => [
                 'required',
                 'string',
                 'max:190',
@@ -48,11 +48,7 @@ class DiningTableRequest extends FormRequest
             //         return $query->where('branch_id', $this->input('branch_id'));
             //     })->ignore($this->route('diningTable.id')),
             ],
-            'category'      => ['required', 'string', 'max:190'],
-            // 'description' => ['required', 'numeric'],
-            'status'    => ['required', 'numeric', 'max:24'],
-            'image'            => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048'],
-            'description' => ['nullable', 'string', 'max:500'],
+            'img'            => ['nullable', 'image', 'mimes:jpg,jpeg,png', 'max:2048']
         ];
     }
 }

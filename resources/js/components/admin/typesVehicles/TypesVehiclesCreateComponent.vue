@@ -12,15 +12,15 @@
                 <form @submit.prevent="save">
                     <div class="form-row">
                         <div class="form-col-12 sm:form-col-6">
-                            <label for="name" class="db-field-title required">{{ $t("label.name") }}</label>
+                            <label for="title" class="db-field-title required">{{ $t("label.name") }}</label>
                             <input
-                                v-model="props.form.name"
-                                :class="errors.name ? 'invalid' : ''"
+                                v-model="props.form.title"
+                                :class="errors.title ? 'invalid' : ''"
                                 type="text"
-                                id="name"
+                                id="title"
                                 class="db-field-control"
                             >
-                            <small class="db-field-alert" v-if="errors.name">{{ errors.name[0] }}</small>
+                            <small class="db-field-alert" v-if="errors.title">{{ errors.title[0] }}</small>
                         </div>
 
                         <!-- <div class="form-col-12 sm:form-col-6">
@@ -34,7 +34,7 @@
                             >
                             <small class="db-field-alert" v-if="errors.description">{{ errors.description[0] }}</small>
                         </div> -->
-                        <div class="form-col-12 sm:form-col-6">
+                        <!-- <div class="form-col-12 sm:form-col-6">
                             <label for="description" class="db-field-title">{{ $t("label.description") }}</label>
                             <textarea
                                 v-model="props.form.description"
@@ -43,7 +43,7 @@
                                 class="db-field-control"
                             ></textarea>
                             <small class="db-field-alert" v-if="errors.description">{{ errors.description[0] }}</small>
-                        </div>
+                        </div> -->
 
                         <div class="form-col-12 sm:form-col-6">
                             <label class="db-field-title">{{ $t("label.image") }}</label>
@@ -123,7 +123,7 @@ export default {
             this.errors = {};
             // Reiniciar formulario
             this.$props.props.form = {
-                name: "",
+                title: "",
                 image: "",
                 description: "",
             };
@@ -135,11 +135,10 @@ export default {
         save() {
             try {
                 const formData = new FormData();
-                formData.append('name', this.props.form.name);
-                formData.append('description', this.props.form.description);
+                formData.append('title', this.props.form.title);
 
                 if (this.image) {
-                    formData.append('image', this.image);
+                    formData.append('img', this.image);
                 }
 
                 const tempId = this.$store.getters['typesVehicles/temp'].temp_id;
@@ -150,8 +149,7 @@ export default {
                         this.loading.isActive = false;
                         alertService.successFlip((tempId === null ? 0 : 1), this.$t('menu.typesVehicles'));
                         // Reset formulario local
-                        this.props.form.name = "";
-                        this.props.form.description = "";
+                        this.props.form.title = "";
                         this.image = null;
                         this.errors = {};
                     })

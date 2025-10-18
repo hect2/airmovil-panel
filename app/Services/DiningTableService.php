@@ -17,22 +17,23 @@ use Illuminate\Support\Facades\Storage;
 use Smartisan\Settings\Facades\Settings;
 use App\Http\Requests\DiningTableRequest;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class DiningTableService
 {
     protected array $diningTableFilter = [
-        'name',
-        'size',
-        'branch_id',
-        'status'
+        'title'
     ];
 
 
+    protected $firebase;
+    protected $pathDomain;
     public $envService;
 
-    public function __construct(EnvEditor $envEditor)
+    public function __construct(FirebaseAuthService $firebase)
     {
-        $this->envService = $envEditor;
+        $this->firebase = $firebase;
+        $this->pathDomain = env('APP_URL');
     }
 
     /**
@@ -42,34 +43,81 @@ class DiningTableService
     {
         try {
             $requests    = $request->all();
-
             $method      = $request->get('paginate', 0) == 1 ? 'paginate' : 'get';
-            $methodValue = $request->get('paginate', 0) == 1 ? $request->get('per_page', 10) : '*';
+            $perPage     = $request->get('per_page', 10);
             $orderColumn = $request->get('order_column') ?? 'id';
             $orderType   = $request->get('order_type') ?? 'desc';
+            $page        = $request->get('page', 1);
 
-            return CategoryCar::where(function ($query) use ($requests) {
-                foreach ($requests as $key => $request) {
+            $filtered = $documents = collect($this->firebase->getAll('carBrands'));
+
+            // Filtros dinámicos
+            $filtered = $documents->filter(function ($doc) use ($requests) {
+                foreach ($requests as $key => $value) {
                     if (in_array($key, $this->diningTableFilter)) {
-                        if ($key == "except") {
-                            $explodes = explode('|', $request);
-                            if (count($explodes)) {
-                                foreach ($explodes as $explode) {
-                                    $query->where('id', '!=', $explode);
-                                }
+                        if ($key === 'except') {
+                            $exceptIds = explode('|', $value);
+                            if (in_array($doc['id'], $exceptIds)) {
+                                return false;
+                            }
+                        } elseif ($key === 'item_category_id') {
+                            if (!isset($doc[$key]) || $doc[$key] != $value) {
+                                return false;
                             }
                         } else {
-                            if ($key == "branch_id") {
-                                $query->where($key, $request);
-                            } else {
-                                $query->where($key, 'like', '%' . $request . '%');
+                            if (!isset($doc[$key]) || stripos($doc[$key], $value) === false) {
+                                return false;
                             }
                         }
                     }
                 }
-            })->orderBy($orderColumn, $orderType)->$method(
-                $methodValue
-            );
+                return true;
+            });
+
+            $sorted = $filtered->sortBy([
+                [$orderColumn, $orderType === 'desc' ? SORT_DESC : SORT_ASC],
+            ])->values();
+
+            if ( $method === 'paginate' ) {
+                $total = $sorted->count();
+                $items = $sorted->forPage($page, $perPage)->values();
+
+                return new LengthAwarePaginator(
+                    $items,
+                    $total,
+                    $perPage,
+                    $page,
+                    [
+                        'path' => request()->url(), // base URL
+                        'query' => request()->query(), // mantiene los parámetros en los links
+                    ]
+                );
+            }
+
+            return $sorted;
+
+            // return CategoryCar::where(function ($query) use ($requests) {
+            //     foreach ($requests as $key => $request) {
+            //         if (in_array($key, $this->diningTableFilter)) {
+            //             if ($key == "except") {
+            //                 $explodes = explode('|', $request);
+            //                 if (count($explodes)) {
+            //                     foreach ($explodes as $explode) {
+            //                         $query->where('id', '!=', $explode);
+            //                     }
+            //                 }
+            //             } else {
+            //                 if ($key == "branch_id") {
+            //                     $query->where($key, $request);
+            //                 } else {
+            //                     $query->where($key, 'like', '%' . $request . '%');
+            //                 }
+            //             }
+            //         }
+            //     }
+            // })->orderBy($orderColumn, $orderType)->$method(
+            //     $methodValue
+            // );
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
@@ -83,17 +131,14 @@ class DiningTableService
     {
         try {
 
-            if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('categoryCars', 'public');
+            if ($request->hasFile('img')) {
+                $path = $request->file('img')->store('carBrands', 'public');
             }
 
-            return CategoryCar::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'category' => $request->category,
-                'status' => $request->status,
-                'image' => $path ?? ""
-            ]);
+            return collect($this->firebase->create('carBrands',[
+                'title' => $request->title,
+                'img' => $this->pathDomain."/storage/".$path ?? ""
+            ]));
 
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
@@ -104,29 +149,29 @@ class DiningTableService
     /**
      * @throws Exception
      */
-    public function update(DiningTableRequest $request, CategoryCar $diningTable)
+    public function update(DiningTableRequest $request, $diningTable)
     {
         try {
 
-            if( $request->hasFile('image') ){
+            $dataImage = $this->firebase->getById('carBrands', $diningTable);
+            $pathImage = str_replace(env('APP_URL').'/storage/', '', $dataImage['img']);
+            Storage::disk('public')->delete($pathImage);
 
-                if( !empty($diningTable->image) ){
-                    Storage::delete($diningTable->image);
-                }
-
-                $diningTable->fill($request->validated());
-
-                $path = $request->file('image')->store('categoryCars', 'public');
-
+            if ($request->hasFile('img')) {
+                $path = $request->file('img')->store('carBrands', 'public');
             }
 
-            return tap($diningTable)->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'category' => $request->category,
-                'status' => $request->status,
-                'image' => $path ?? $diningTable->image
+            $this->firebase->update('carBrands', $diningTable, [
+                'img' => $this->pathDomain."/storage/".$path ?? "",
+                'title' => $request->title
             ]);
+
+            return collect([
+                'id' => $diningTable,
+                'img' => $this->pathDomain."/storage/".$path,
+                'title' => $request->title
+            ]);
+            
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
@@ -136,13 +181,15 @@ class DiningTableService
     /**
      * @throws Exception
      */
-    public function destroy(CategoryCar $diningTable): void
+    public function destroy($diningTable): void
     {
         try {
-            if(File::exists($diningTable->image) && !$this->envService->getValue('DEMO')){
-                File::delete($diningTable->image);
-            }
-            $diningTable->delete();
+            $dataImage = $this->firebase->getById('carBrands', $diningTable);
+            $pathImage = str_replace(env('APP_URL').'/storage/', '', $dataImage['img']);
+
+            Storage::disk('public')->delete($pathImage);
+            
+            $this->firebase->delete('carBrands', $diningTable);
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);

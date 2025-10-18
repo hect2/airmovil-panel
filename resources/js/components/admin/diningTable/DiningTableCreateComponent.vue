@@ -12,18 +12,18 @@
                 <form @submit.prevent="save">
                     <div class="form-row">
                         <div class="form-col-12 sm:form-col-6">
-                            <label for="name" class="db-field-title required">{{ $t("label.name") }}</label>
-                            <input v-model="props.form.name" v-bind:class="errors.name ? 'invalid' : ''" type="text"
-                                id="name" class="db-field-control">
-                            <small class="db-field-alert" v-if="errors.name">{{ errors.name[0] }}</small>
+                            <label for="title" class="db-field-title required">{{ $t("label.name") }}</label>
+                            <input v-model="props.form.title" v-bind:class="errors.title ? 'invalid' : ''" type="text"
+                                id="title" class="db-field-control">
+                            <small class="db-field-alert" v-if="errors.title">{{ errors.title[0] }}</small>
                         </div>
 
-                        <div class="form-col-12 sm:form-col-6">
+                        <!-- <div class="form-col-12 sm:form-col-6">
                             <label for="category" class="db-field-title required">{{ $t("label.categoria") }}</label>
                             <input v-model="props.form.category" v-bind:class="errors.category ? 'invalid' : ''" type="text"
                                 id="category" class="db-field-control">
                             <small class="db-field-alert" v-if="errors.category">{{ errors.category[0] }}</small>
-                        </div>
+                        </div> -->
 
                         <div class="form-col-12 sm:form-col-6">
                             <label class="db-field-title">{{ $t("label.image") }}</label>
@@ -32,7 +32,7 @@
                             <small class="db-field-alert" v-if="errors.image">{{ errors.image[0] }}</small>
                         </div>
 
-                        <div class="form-col-12 sm:form-col-6">
+                        <!-- <div class="form-col-12 sm:form-col-6">
                             <label class="db-field-title required" for="active">{{ $t('label.status') }}</label>
                             <div class="db-field-radio-group">
                                 <div class="db-field-radio">
@@ -52,16 +52,16 @@
                                     <label for="inactive" class="db-field-label">{{ $t('label.inactive') }}</label>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
 
-                        <div class="form-col-12 sm:form-col-6">
+                        <!-- <div class="form-col-12 sm:form-col-6">
                             <label for="description" class="db-field-title">{{ $t("label.description") }}</label>
                             <textarea v-model="props.form.description" v-bind:class="errors.description ? 'invalid' : ''"
                                 id="description" class="db-field-control"></textarea>
                             <small class="db-field-alert" v-if="errors.description">{{
                                 errors.description[0]
                             }}</small>
-                        </div>
+                        </div> -->
 
                         <div class="form-col-12">
                             <div class="flex flex-wrap gap-3 mt-4">
@@ -138,11 +138,7 @@ export default {
             this.$store.dispatch('diningTable/reset').then().catch();
             this.errors = {};
             this.$props.props.form = {
-                name: "",
-                category: "",
-                status: statusEnum.ACTIVE,
-                image: "",
-                description: "",
+                title: ""
             };
             if (this.image) {
                 this.image = "";
@@ -154,14 +150,11 @@ export default {
 
             try {
                 const formData = new FormData();
-                formData.append('name', this.props.form.name);
-                formData.append('category', this.props.form.category);
-                formData.append('status', this.props.form.status);
-                formData.append('description', this.props.form.description);
+                formData.append('title', this.props.form.title);
 
                 console.log("formData", this.props.form);
                 if (this.image) {
-                    formData.append('image', this.image);
+                    formData.append('img', this.image);
                 }
 
                 const tempId = this.$store.getters['diningTable/temp'].temp_id;
@@ -170,10 +163,7 @@ export default {
                     appService.sideDrawerHide();
                     this.loading.isActive = false;
                     alertService.successFlip((tempId === null ? 0 : 1), this.$t('menu.dining_tables'));
-                    this.props.form.name = "";
-                    this.props.form.category = "";
-                    this.props.form.status = statusEnum.ACTIVE;
-                    this.props.form.description = "";
+                    this.props.form.image = "";
                     this.image = null;
                     this.errors = {};
                 }).catch((err) => {

@@ -15,11 +15,18 @@ class TypeVehicleResource extends JsonResource
      */
     public function toArray($request)
     {
+        $sites = env('APP_URL');
+        $path = $this->resource['img'];
+        
+        if( !Str::startsWith($path, "https://firebasestorage.googleapis.com") ){
+            $url = Str::startsWith($path, $sites) ? str_replace($sites, '', $path) : $path;
+            $path = $url;
+        }
+
         return [
-            'id' => $this->resource->id,
-            'name' => $this->resource->name,
-            'description' => $this->resource->description,
-            'image' => Str::startsWith('/storage', $this->resource->image) ? $this->resource->image : "/storage/".$this->resource->image
+            "id" => $this->resource['id'],
+            "title" => $this->resource['title'],
+            "img" => $path
         ];
     }
 }

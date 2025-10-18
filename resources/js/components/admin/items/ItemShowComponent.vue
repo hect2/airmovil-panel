@@ -26,10 +26,10 @@
                 <div class="col-12 sm:col-6 !py-1.5">
                     <div class="db-list-item p-0">
                         <span class="db-list-item-title w-full sm:w-1/2">{{ $t('label.name') }}</span>
-                        <span class="db-list-item-text w-full sm:w-1/2">{{ item.name }}</span>
+                        <span class="db-list-item-text w-full sm:w-1/2">{{ item.title }}</span>
                     </div>
                 </div>
-                <div class="col-12 sm:col-6 !py-1.5">
+                <!-- <div class="col-12 sm:col-6 !py-1.5">
                     <div class="db-list-item p-0">
                         <span class="db-list-item-title w-full sm:w-1/2">{{ $t('label.price') }}</span>
                         <span class="db-list-item-text w-full sm:w-1/2">{{ item.flat_price }}</span>
@@ -48,9 +48,9 @@
                         <span class="db-list-item-title w-full sm:w-1/2">{{ $t('label.tax') }}</span>
                         <span class="db-list-item-text w-full sm:w-1/2">{{ tax_name }}</span>
                     </div>
-                </div>
+                </div> -->
 
-                <div class="col-12 sm:col-6 !py-1.5">
+                <!-- <div class="col-12 sm:col-6 !py-1.5">
                     <div class="db-list-item p-0">
                         <span class="db-list-item-title w-full sm:w-1/2">{{ $t('label.type') }}</span>
                         <span class="db-list-item-text w-full sm:w-1/2">{{
@@ -66,9 +66,9 @@
                             enums.askEnumArray[item.is_featured]
                         }}</span>
                     </div>
-                </div>
+                </div> -->
 
-                <div class="col-12 sm:col-6 !py-1.5">
+                <!-- <div class="col-12 sm:col-6 !py-1.5">
                     <div class="db-list-item p-0">
                         <span class="db-list-item-title w-full sm:w-1/2">{{ $t('label.status') }}</span>
                         <span class="db-list-item-text w-full sm:w-1/2">{{
@@ -93,7 +93,7 @@
                             <span class="mt-2">{{ item.description }}</span>
                         </span>
                     </div>
-                </div>
+                </div> -->
             </div>
         </div>
 
@@ -228,7 +228,7 @@ export default {
                 try {
                     this.loading.isActive = true;
                     const formData = new FormData();
-                    formData.append("image", this.$refs.imageProperty.files[0]);
+                    formData.append("img", this.$refs.imageProperty.files[0]);
                     this.$store
                         .dispatch("item/changeImage", {
                             id: this.$route.params.id,

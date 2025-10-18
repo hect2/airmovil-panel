@@ -13,7 +13,13 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libcurl4-openssl-dev \
     pkg-config \
-    libicu-dev
+    libprotobuf-dev \
+    protobuf-compiler \
+    libicu-dev \
+    autoconf \
+    zlib1g-dev 
+    #php-dev \
+    #php-pear
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -27,6 +33,9 @@ RUN pecl install raphf && docker-php-ext-enable raphf
 # Install ext-http extension
 RUN pecl install pecl_http && docker-php-ext-enable http
 
+# Instala grpc versión más ligera y estable
+RUN pecl install grpc-1.55.0 && docker-php-ext-enable grpc
+
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -35,6 +44,9 @@ WORKDIR /var/www
 
 # Copy existing application directory contents
 COPY . /var/www
+
+# Configure git safe.directory (for the ownership issue)
+RUN git config --global --add safe.directory /var/www
 
 # Install dependencies
 RUN composer install --ignore-platform-reqs

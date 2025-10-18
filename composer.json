@@ -17,6 +17,7 @@
         "barryvdh/laravel-dompdf": "^3.0",
         "dipesh79/laravel-phonepe": "*",
         "dipokhalder/laravel-env-editor": "^1.0",
+        "google/cloud-firestore": "^1.54",
         "guzzlehttp/guzzle": "^7.2",
         "iyzico/iyzipay-php": "^2.0",
         "karim007/laravel-bkash-tokenize": "^2.0",

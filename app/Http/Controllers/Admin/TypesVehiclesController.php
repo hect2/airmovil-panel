@@ -45,7 +45,7 @@ class TypesVehiclesController extends AdminController
         }
     }
 
-    public function show(TypeVehicle $vehicles)
+    public function show($vehicles)
     {
         try {
             return new TypeVehicleResource($this->typeVehicleService->show($vehicles));
@@ -54,7 +54,7 @@ class TypesVehiclesController extends AdminController
         }
     }
 
-    public function update(TypeVehicleRequest $request, TypeVehicle $vehicles)
+    public function update(TypeVehicleRequest $request, $vehicles)
     {
         try {
             return new TypeVehicleResource($this->typeVehicleService->update($request, $vehicles));
@@ -63,7 +63,7 @@ class TypesVehiclesController extends AdminController
         }
     }
 
-    public function destroy(TypeVehicle $vehicles)
+    public function destroy($vehicles)
     {
         try {
             $this->typeVehicleService->destroy($vehicles);

@@ -50,7 +50,7 @@ class DiningTableController extends AdminController
 
     public function show(
         // DiningTable $diningTable
-        CategoryCar $diningTable
+        $diningTable
     ): \Illuminate\Http\Response | DiningTableResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory {
         try {
             return new DiningTableResource($this->diningTableService->show($diningTable));
@@ -61,7 +61,7 @@ class DiningTableController extends AdminController
 
     public function update(
         DiningTableRequest $request,
-        CategoryCar $diningTable
+        $diningTable
     ): \Illuminate\Http\Response | DiningTableResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory {
         try {
             return new DiningTableResource($this->diningTableService->update($request, $diningTable));
@@ -71,7 +71,7 @@ class DiningTableController extends AdminController
     }
 
     public function destroy(
-        CategoryCar $diningTable
+        $diningTable
     ): \Illuminate\Http\Response | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory {
         try {
             $this->diningTableService->destroy($diningTable);

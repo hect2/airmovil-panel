@@ -10,109 +10,12 @@
         <div class="drawer-body">
             <form @submit.prevent="save">
                 <div class="form-row">
-                    <div class="form-col-12 sm:form-col-6">
-                        <label for="name" class="db-field-title required">{{ $t("label.name") }}</label>
-                        <input v-model="props.form.name" v-bind:class="errors.name ? 'invalid' : ''" type="text" id="name"
-                            class="db-field-control">
-                        <small class="db-field-alert" v-if="errors.name">{{ errors.name[0] }}</small>
-                    </div>
-
-                    <!-- <div class="form-col-12 sm:form-col-6">
-                        <label for="price" class="db-field-title required">{{ $t("label.price") }}</label>
-                        <input v-model="props.form.price" v-bind:class="errors.price ? 'invalid' : ''" type="text"
-                            id="price" class="db-field-control">
-                        <small class="db-field-alert" v-if="errors.price">{{ errors.price[0] }}</small>
-                    </div> -->
-
-
-                    <div class="form-col-12 sm:form-col-6">
-                        <label for="item_category_id" class="db-field-title required">{{ $t("label.category") }}</label>
-                        <vue-select class="db-field-control f-b-custom-select" id="item_category_id"
-                            v-bind:class="errors.item_category_id ? 'invalid' : ''" v-model="props.form.item_category_id"
-                            :options="itemCategories" label-by="name" value-by="id" :closeOnSelect="true" :searchable="true"
-                            :clearOnClose="true" placeholder="--" search-placeholder="--" />
-                        <small class="db-field-alert" v-if="errors.item_category_id">{{
-                            errors.item_category_id[0]
-                        }}</small>
-                    </div>
-
-                    <!-- <div class="form-col-12 sm:form-col-6">
-                        <label for="tax_id" class="db-field-title">{{ $t("label.tax") }} ({{ $t("label.including")
-                        }})</label>
-                        <vue-select class="db-field-control f-b-custom-select" id="tax_id"
-                            v-bind:class="errors.tax_id ? 'invalid' : ''" v-model="props.form.tax_id" :options="taxes"
-                            label-by="code" value-by="id" :closeOnSelect="true" :searchable="true" :clearOnClose="true"
-                            placeholder="--" search-placeholder="--" />
-                        <small class="db-field-alert" v-if="errors.tax_id">{{ errors.tax_id[0] }}</small>
-                    </div> -->
 
                     <div class="form-col-12 sm:form-col-6">
                         <label class="db-field-title">{{ $t("label.image") }}</label>
-                        <input @change="changeImage" v-bind:class="errors.image ? 'invalid' : ''" id="image" type="file"
+                        <input @change="changeImage" v-bind:class="errors.img ? 'invalid' : ''" id="img" type="file"
                             class="db-field-control" ref="imageProperty" accept="image/png, image/jpeg, image/jpg">
-                        <small class="db-field-alert" v-if="errors.image">{{ errors.image[0] }}</small>
-                    </div>
-
-                    <div class="form-col-12 sm:form-col-6">
-                        <label class="db-field-title" for="yes">{{ $t("label.is_featured") }}</label>
-                        <div class="db-field-radio-group">
-                            <div class="db-field-radio">
-                                <div class="custom-radio">
-                                    <input type="radio" v-model="props.form.is_featured" id="yes" :value="enums.askEnum.YES"
-                                        class="custom-radio-field">
-                                    <span class="custom-radio-span"></span>
-                                </div>
-                                <label for="yes" class="db-field-label">{{ $t('label.yes') }}</label>
-                            </div>
-                            <div class="db-field-radio">
-                                <div class="custom-radio">
-                                    <input type="radio" class="custom-radio-field" v-model="props.form.is_featured" id="no"
-                                        :value="enums.askEnum.NO">
-                                    <span class="custom-radio-span"></span>
-                                </div>
-                                <label for="no" class="db-field-label">{{ $t('label.no') }}</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-col-12 sm:form-col-6">
-                        <label class="db-field-title">{{ $t("label.status") }}</label>
-                        <div class="db-field-radio-group">
-                            <div class="db-field-radio">
-                                <div class="custom-radio">
-                                    <input type="radio" v-model="props.form.status" id="active"
-                                        :value="enums.statusEnum.ACTIVE" class="custom-radio-field">
-                                    <span class="custom-radio-span"></span>
-                                </div>
-                                <label for="active" class="db-field-label">{{ $t('label.active') }}</label>
-                            </div>
-                            <div class="db-field-radio">
-                                <div class="custom-radio">
-                                    <input type="radio" class="custom-radio-field" v-model="props.form.status" id="inactive"
-                                        :value="enums.statusEnum.INACTIVE">
-                                    <span class="custom-radio-span"></span>
-                                </div>
-                                <label for="inactive" class="db-field-label">{{ $t('label.inactive') }}</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- <div class="form-col-12">
-                        <label for="caution" class="db-field-title">{{ $t("label.caution") }}</label>
-                        <textarea v-model="props.form.caution" v-bind:class="errors.caution ? 'invalid' : ''" id="caution"
-                            rows="2" class="db-field-control"></textarea>
-                        <small class="db-field-alert" v-if="errors.caution">{{
-                            errors.caution[0]
-                        }}</small>
-                    </div> -->
-
-                    <div class="form-col-12">
-                        <label for="description" class="db-field-title">{{ $t("label.description") }}</label>
-                        <textarea v-model="props.form.description" v-bind:class="errors.description ? 'invalid' : ''"
-                            id="description" class="db-field-control"></textarea>
-                        <small class="db-field-alert" v-if="errors.description">{{
-                            errors.description[0]
-                        }}</small>
+                        <small class="db-field-alert" v-if="errors.img">{{ errors.img[0] }}</small>
                     </div>
 
                     <div class="col-12">
@@ -197,43 +100,34 @@ export default {
     },
     methods: {
         changeImage: function (e) {
-            this.image = e.target.files[0];
+            this.img = e.target.files[0];
         },
         reset: function () {
             appService.sideDrawerHide();
             this.$store.dispatch('item/reset').then().catch();
             this.errors = {};
             this.$props.props.form = {
-                name: "",
-                price: "",
-                description: "",
-                caution: "",
-                is_featured: askEnum.YES,
-                item_type: itemTypeEnum.NON_VEG,
-                item_category_id: null,
-                tax_id: null,
-                status: statusEnum.ACTIVE,
+                title: ""
+                // price: "",
+                // description: "",
+                // caution: "",
+                // is_featured: askEnum.YES,
+                // item_type: itemTypeEnum.NON_VEG,
+                // item_category_id: null,
+                // tax_id: null,
+                // status: statusEnum.ACTIVE,
             };
-            if (this.image) {
-                this.image = "";
+            if (this.img) {
+                this.img = "";
                 this.$refs.imageProperty.value = null;
             }
         },
         save: function () {
             try {
                 const fd = new FormData();
-                fd.append('name', this.props.form.name);
-                fd.append('price', this.props.form.price);
-                fd.append('item_category_id', this.props.form.item_category_id == null ? '' : this.props.form.item_category_id);
-                fd.append('tax_id', this.props.form.tax_id == null ? '' : this.props.form.tax_id);
-                fd.append('item_type', this.props.form.item_type);
-                fd.append('is_featured', this.props.form.is_featured);
-                fd.append('description', this.props.form.description);
-                fd.append('caution', this.props.form.caution);
-                fd.append('order', 1);
-                fd.append('status', this.props.form.status);
-                if (this.image) {
-                    fd.append('image', this.image);
+
+                if (this.img) {
+                    fd.append('img', this.img);
                 }
                 const tempId = this.$store.getters['item/temp'].temp_id;
                 this.loading.isActive = true;
@@ -245,17 +139,9 @@ export default {
                     this.loading.isActive = false;
                     alertService.successFlip((tempId === null ? 0 : 1), this.$t('menu.items'));
                     this.props.form = {
-                        name: "",
-                        price: "",
-                        description: "",
-                        caution: "",
-                        is_featured: askEnum.YES,
-                        item_type: itemTypeEnum.NON_VEG,
-                        item_category_id: null,
-                        tax_id: null,
-                        status: statusEnum.ACTIVE,
+                        title: ""
                     };
-                    this.image = "";
+                    this.img = "";
                     this.errors = {};
                     this.$refs.imageProperty.value = null;
                 }).catch((err) => {

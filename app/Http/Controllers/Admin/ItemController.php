@@ -67,7 +67,7 @@ class ItemController extends AdminController
         }
     }
 
-    public function update(ItemRequest $request, Item $item) : \Illuminate\Http\Response | ItemResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory
+    public function update(ItemRequest $request, $item) : \Illuminate\Http\Response | ItemResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory
     {
         try {
             return new ItemResource($this->itemService->update($request, $item));
@@ -76,7 +76,7 @@ class ItemController extends AdminController
         }
     }
 
-    public function destroy(Item $item) : \Illuminate\Http\Response | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory
+    public function destroy($item) : \Illuminate\Http\Response | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory
     {
         try {
             $this->itemService->destroy($item);
@@ -86,7 +86,7 @@ class ItemController extends AdminController
         }
     }
 
-    public function changeImage(ChangeImageRequest $request, Item $item) : \Illuminate\Http\Response | ItemResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory
+    public function changeImage(ChangeImageRequest $request, $item) : \Illuminate\Http\Response | ItemResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory
     {
         try {
 //            return new ItemResource($this->itemService->changeImage($request, $item));

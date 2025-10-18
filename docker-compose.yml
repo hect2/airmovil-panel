@@ -15,7 +15,7 @@ services:
 
     nginx:
         image: nginx:alpine
-        #platform: linux/arm64/v8 # Specify platform for ARM64
+        platform: linux/arm64/v8 # Specify platform for ARM64
         container_name: laravel-nginx
         restart: unless-stopped
         ports:
@@ -28,7 +28,7 @@ services:
 
     db:
         image: mysql:8.0 # Use MySQL 8.0 which has ARM64 support
-        #platform: linux/arm64/v8 # Specify platform for ARM64
+        platform: linux/arm64/v8 # Specify platform for ARM64
         container_name: laravel-db
         restart: unless-stopped
         environment:

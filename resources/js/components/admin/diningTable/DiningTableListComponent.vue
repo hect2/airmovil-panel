@@ -8,13 +8,13 @@
                 <div class="db-card-filter">
                     <TableLimitComponent :method="list" :search="props.search" :page="paginationPage" />
                     <FilterComponent />
-                    <div class="dropdown-group">
+                    <!-- <div class="dropdown-group">
                         <ExportComponent />
                         <div class="dropdown-list db-card-filter-dropdown-list">
                             <PrintComponent :props="printObj" />
                             <ExcelComponent :method="xls" />
                         </div>
-                    </div>
+                    </div> -->
                     <DiningTableCreateComponent :props="props" />
                 </div>
             </div>
@@ -23,20 +23,20 @@
                 <form class="p-4 sm:p-5 mb-5" @submit.prevent="search">
                     <div class="row">
                         <div class="col-12 sm:col-6 md:col-4 xl:col-3">
-                            <label for="name" class="db-field-title after:hidden">{{
+                            <label for="title" class="db-field-title after:hidden">{{
                                 $t("label.name")
                             }}</label>
-                            <input id="name" v-model="props.search.name" type="text" class="db-field-control" />
+                            <input id="title" v-model="props.search.title" type="text" class="db-field-control" />
                         </div>
-                        <div class="col-12 sm:col-6 md:col-4 xl:col-3">
+                        <!-- <div class="col-12 sm:col-6 md:col-4 xl:col-3">
                             <label for="size" class="db-field-title after:hidden">{{
                                 $t("label.size")
                             }}</label>
                             <input id="size" v-on:keypress="numberOnly($event)" v-model="props.search.size" type="text"
                                 class="db-field-control" />
-                        </div>
+                        </div> -->
 
-                        <div class="col-12 sm:col-6 md:col-4 xl:col-3">
+                        <!-- <div class="col-12 sm:col-6 md:col-4 xl:col-3">
                             <label for="searchStatus" class="db-field-title after:hidden">{{
                                 $t("label.status")
                             }}</label>
@@ -46,7 +46,7 @@
                                     { id: enums.statusEnum.INACTIVE, name: $t('label.inactive') },
                                 ]" label-by="name" value-by="id" :closeOnSelect="true" :searchable="true"
                                 :clearOnClose="true" placeholder="--" search-placeholder="--" />
-                        </div>
+                        </div> -->
 
                         <div class="col-12">
                             <div class="flex flex-wrap gap-3 mt-4">
@@ -64,44 +64,56 @@
                 </form>
             </div>
 
-            <div class="db-table-responsive">
-                <table class="db-table stripe" id="print">
-                    <thead class="db-table-head">
-                        <tr class="db-table-head-tr">
-                            <th class="db-table-head-th">{{ $t('label.name') }}</th>
-                            <!-- <th class="db-table-head-th">{{ $t('label.size') }}</th> -->
-                            <th class="db-table-head-th">categoria</th>
-                            <th class="db-table-head-th">{{ $t('label.status') }}</th>
-                            <th class="db-table-head-th hidden-print"
-                                v-if="permissionChecker('dining_tables_show') || permissionChecker('dining_tables_edit') || permissionChecker('dining_tables_delete')">
-                                {{ $t('label.action') }}
-                            </th>
-                        </tr>
-                    </thead>
-                    <tbody class="db-table-body" v-if="diningTables.length > 0">
-                        <tr class="db-table-body-tr" v-for="diningTable in diningTables" :key="diningTable">
-                            <td class="db-table-body-td">{{ diningTable.name }}</td>
-                            <td class="db-table-body-td">{{ diningTable.category }}</td>
-                            <td class="db-table-body-td">
-                                <span :class="statusClass(diningTable.status)">
-                                    {{ enums.statusEnumArray[diningTable.status] }}
-                                </span>
-                            </td>
-                            <td class="db-table-body-td hidden-print"
-                                v-if="permissionChecker('dining_tables_show') || permissionChecker('dining_tables_edit') || permissionChecker('dining_tables_delete')">
-                                <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
-                                    <!-- <SmIconQrCodeComponent :link="diningTable.qr" /> -->
-                                    <SmIconViewComponent :link="'admin.diningTable.show'" :id="diningTable.id"
-                                        v-if="permissionChecker('dining_tables_show')" />
-                                    <SmIconSidebarModalEditComponent @click="edit(diningTable)"
-                                        v-if="permissionChecker('dining_tables_edit')" />
-                                    <SmIconDeleteComponent @click="destroy(diningTable.id)"
-                                        v-if="permissionChecker('dining_tables_delete') && demoChecker(diningTable.id)" />
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                <div
+                    v-for="diningTable in diningTables"
+                    :key="diningTable.id"
+                    class="relative bg-white rounded overflow-hidden shadow"
+                >
+                    <!-- Imagen de ejemplo (puedes reemplazar 'diningTable.img' si tienes campo de imagen) -->
+                    <img
+                        :src="diningTable.img || '/images/default-table.jpg'"
+                        alt="Mesa"
+                        class="w-full h-64 object-cover"
+                    />
+
+                    <!-- Contenido de la tarjeta -->
+                    <div class="p-4">
+                        <!-- Título -->
+                        <h3 class="text-lg font-semibold mb-1">{{ diningTable.title }}</h3>
+
+                        <!-- Categoría -->
+                        <!-- <p class="text-sm text-gray-600 mb-1">Categoría: {{ diningTable.category }}</p> -->
+
+                        <!-- Estado -->
+                        <!-- <p class="text-sm">
+                            Estado:
+                            <span :class="statusClass(diningTable.status)">
+                                {{ enums.statusEnumArray[diningTable.status] }}
+                            </span>
+                        </p> -->
+                    </div>
+
+                    <!-- Botones de acción -->
+                    <div
+                        v-if="permissionChecker('dining_tables_show') || permissionChecker('dining_tables_edit') || permissionChecker('dining_tables_delete')"
+                        class="absolute top-2 right-2 flex space-x-2"
+                    >
+                        <!-- <SmIconViewComponent
+                            :link="'admin.diningTable.show'"
+                            :id="diningTable.id"
+                            v-if="permissionChecker('dining_tables_show')"
+                        /> -->
+                        <SmIconSidebarModalEditComponent
+                            @click="edit(diningTable)"
+                            v-if="permissionChecker('dining_tables_edit')"
+                        />
+                        <SmIconDeleteComponent
+                            @click="destroy(diningTable.id)"
+                            v-if="permissionChecker('dining_tables_delete') && demoChecker(diningTable.id)"
+                        />
+                    </div>
+                </div>
             </div>
 
             <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-6">
@@ -171,11 +183,7 @@ export default {
             },
             props: {
                 form: {
-                    branch_id: null,
-                    name: "",
-                    category: "",
-                    status: statusEnum.ACTIVE,
-                    description: "",
+                    title: ""
                 },
                 search: {
                     paginate: 1,
@@ -183,9 +191,7 @@ export default {
                     per_page: 10,
                     order_column: 'id',
                     order_type: 'desc',
-                    name: "",
-                    category: "",
-                    status: null,
+                    title: ""
                 }
             },
             demo: ENV.DEMO
@@ -237,10 +243,7 @@ export default {
         clear: function () {
             this.props.search.paginate = 1;
             this.props.search.page = 1;
-            this.props.search.name = "";
-            this.props.search.category = "";
-            this.props.search.status = null;
-            this.props.description = "";
+            this.props.search.title = "";
             this.list();
         },
         edit: function (diningTable) {
@@ -249,10 +252,7 @@ export default {
             this.$store.dispatch('diningTable/edit', diningTable.id);
             this.props.form = {
                 // branch_id: diningTable.branch_id,
-                name: diningTable.name,
-                category: diningTable.category,
-                status: diningTable.status,
-                description: diningTable.description,
+                title: diningTable.title
             };
             this.loading.isActive = false;
         },

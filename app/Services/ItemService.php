@@ -13,11 +13,15 @@ use App\Http\Requests\ItemRequest;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\PaginateRequest;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\ChangeImageRequest;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ItemService
 {
     public $item;
+    protected $firebase;
+    protected $pathDomain;
     protected $itemFilter = [
         'name',
         'slug',
@@ -32,6 +36,12 @@ class ItemService
         'except'
     ];
 
+    public function __construct(FirebaseAuthService $firebase)
+    {
+        $this->firebase = $firebase;
+        $this->pathDomain = env('APP_URL');
+    }
+
     /**
      * @throws Exception
      */
@@ -40,35 +50,61 @@ class ItemService
         try {
             $requests    = $request->all();
             $method      = $request->get('paginate', 0) == 1 ? 'paginate' : 'get';
-            $methodValue = $request->get('paginate', 0) == 1 ? $request->get('per_page', 10) : '*';
+            $perPage     = $request->get('per_page', 10);
             $orderColumn = $request->get('order_column') ?? 'id';
             $orderType   = $request->get('order_type') ?? 'desc';
+            $page        = $request->get('page', 1);
 
-            return Item::with('media', 'category', 'tax')->where(function ($query) use ($requests) {
-                foreach ($requests as $key => $request) {
+            $filtered = $documents = collect($this->firebase->getAll('banners'));
+
+            // Filtros dinámicos
+            $filtered = $documents->filter(function ($doc) use ($requests) {
+                foreach ($requests as $key => $value) {
                     if (in_array($key, $this->itemFilter)) {
-                        if ($key == "except") {
-                            $explodes = explode('|', $request);
-                            if (count($explodes)) {
-                                foreach ($explodes as $explode) {
-                                    $query->where('id', '!=', $explode);
-                                }
+                        if ($key === 'except') {
+                            $exceptIds = explode('|', $value);
+                            if (in_array($doc['id'], $exceptIds)) {
+                                return false;
+                            }
+                        } elseif ($key === 'item_category_id') {
+                            if (!isset($doc[$key]) || $doc[$key] != $value) {
+                                return false;
                             }
                         } else {
-                            if ($key == "item_category_id") {
-                                $query->where($key, $request);
-                            } else {
-                                $query->where($key, 'like', '%' . $request . '%');
+                            if (!isset($doc[$key]) || stripos($doc[$key], $value) === false) {
+                                return false;
                             }
                         }
                     }
                 }
-            })->orderBy($orderColumn, $orderType)->$method(
-                $methodValue
+                return true;
+            });
+
+            $sorted = $filtered->sortBy([
+            [$orderColumn, $orderType === 'desc' ? SORT_DESC : SORT_ASC],
+        ])->values();
+
+        if ( $method === 'paginate' ) {
+            $total = $sorted->count();
+            $items = $sorted->forPage($page, $perPage)->values();
+
+            return new LengthAwarePaginator(
+                $items,
+                $total,
+                $perPage,
+                $page,
+                [
+                    'path' => request()->url(), // base URL
+                    'query' => request()->query(), // mantiene los parámetros en los links
+                ]
             );
+        }
+
+        return $sorted;
+
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
-            throw new Exception($exception->getMessage(), 422);
+            throw new Exception($exception->getLine()." ".$exception->getMessage(), 422);
         }
     }
 
@@ -78,21 +114,18 @@ class ItemService
     public function store(ItemRequest $request)
     {
         try {
-            DB::transaction(function () use ($request) {
-                $this->item = Item::create($request->validated() + ['slug' => Str::slug($request->name)]);
-                if ($request->image) {
-                    $this->item->clearMediaCollection('offer');
-                    $this->item->addMedia($request->image)
-                        ->toMediaCollection('offer', 'public_custom');
-                }
-                if ($request->variations) {
-                    $this->item->variations()->createMany(json_decode($request->variations, true));
-                }
-            });
-            return $this->item;
+
+            if ($request->hasFile('img')) {
+                $path = $request->file('img')->store('items', 'public');
+            }
+
+            return collect($this->firebase->create('banners',[
+                'img' => $this->pathDomain."/storage/".$path ?? ""
+            ]));
+
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
-            DB::rollBack();
+            // DB::rollBack();
             throw new Exception($exception->getMessage(), 422);
         }
     }
@@ -100,50 +133,29 @@ class ItemService
     /**
      * @throws Exception
      */
-    public function update(ItemRequest $request, Item $item): Item
+    public function update(ItemRequest $request, $item)
     {
         try {
-            DB::transaction(function () use ($request, $item) {
-                $item->update($request->validated() + ['slug' => Str::slug($request->name)]);
-                if ($request->image) {
-                    $item->clearMediaCollection('offer');
-                    $item->addMediaFromRequest('image')
-                        ->toMediaCollection('offer', 'public_custom');
+            $dataImage = $this->firebase->getById('banners', $item);
+            $pathImage = str_replace(env('APP_URL').'/storage/', '', $dataImage['img']);
+            Storage::disk('public')->delete($pathImage);
 
-                }
-                if ($request->variations) {
-                    $variationIdsArray    = [];
-                    $variationDeleteArray = [];
-                    $oldVariations        = $item->variations->pluck('id')->toArray();
-                    foreach (json_decode($request->variations, true) as $variation) {
-                        if (isset($variation['id'])) {
-                            $variationIdsArray[] = $variation['id'];
-                            ItemVariation::where('id', $variation['id'])->update([
-                                'name'             => $variation['name'],
-                                'price' => $variation['price'],
-                            ]);
-                        } else {
-                            $item->variations()->create($variation);
-                        }
-                    }
+            if ($request->hasFile('img')) {
+                $path = $request->file('img')->store('items', 'public');
+            }
 
-                    if ($variationIdsArray) {
-                        foreach ($oldVariations as $oldVariation) {
-                            if (!in_array($oldVariation, $variationIdsArray)) {
-                                $variationDeleteArray[] = $oldVariation;
-                            }
-                        }
-                    }
+            $this->firebase->update('banners', $item, [
+                'img' => $this->pathDomain."/storage/".$path ?? ""
+            ]);
 
-                    if ($variationDeleteArray) {
-                        ItemVariation::whereIn('id', $variationDeleteArray)->delete();
-                    }
-                }
-            });
-            return Item::find($item->id);
+            return collect([
+                'id' => $item,
+                'img' => $this->pathDomain."/storage/".$path
+            ]);
+
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
-            DB::rollBack();
+            // DB::rollBack();
             throw new Exception($exception->getMessage(), 422);
         }
     }
@@ -151,18 +163,19 @@ class ItemService
     /**
      * @throws Exception
      */
-    public function destroy(Item $item)
+    public function destroy($item)
     {
         try {
-            DB::transaction(function () use ($item) {
-                $item->variations()->delete();
-                $item->extras()->delete();
-                $item->addons()->delete();
-                $item->delete();
-            });
+
+            $dataImage = $this->firebase->getById('banners', $item);
+            $pathImage = str_replace(env('APP_URL').'/storage/', '', $dataImage['img']);
+
+            Storage::disk('public')->delete($pathImage);
+            
+            $this->firebase->delete('banners', $item);
         } catch (Exception $exception) {
             Log::info($exception->getMessage());
-            DB::rollBack();
+
             throw new Exception($exception->getMessage(), 422);
         }
     }
