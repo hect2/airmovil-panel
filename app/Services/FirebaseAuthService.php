@@ -13,7 +13,7 @@ class FirebaseAuthService
     public function __construct()
     {
         $this->firestore = new FirestoreClient([
-            'keyFilePath' => storage_path('app/firebase/angular-tienda-dc239-firebase-adminsdk-gok7t-9dba862937.json'),
+            'keyFilePath' => storage_path(env('FIREBASE_CREDENTIALS_PATH')),
             'projectId'   => env('FIREBASE_PROJECT_ID'),
         ]);
     }
