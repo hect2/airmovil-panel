@@ -144,7 +144,8 @@
     </div>
 
     <div class="footer">
-        <p>¿Necesitas ayuda? Contáctanos a <a href="mailto:soporte@holandesa.com">soporte@holandesa.com</a></p>
+        <!-- <p>¿Necesitas ayuda? Contáctanos a <a href="mailto:soporte@holandesa.com">soporte@holandesa.com</a></p> -->
+        <p>¿Necesitas ayuda? Contáctanos a <a href="mailto:soporte@holandesa.com">soporte@example.com</a></p>
         <p>&copy; {{ date('Y') }} {{ $name_business }}. Todos los derechos reservados.</p>
     </div>
 </div>
