@@ -68,6 +68,7 @@ use App\Http\Controllers\Admin\MyOrderDetailsController;
 use App\Http\Controllers\Admin\NotificationAlertController;
 use App\Http\Controllers\Admin\OfferItemController;
 use App\Http\Controllers\Admin\OrderSetupController;
+use App\Http\Controllers\Admin\PolizesController;
 use App\Http\Controllers\Admin\PosCategoryController;
 use App\Http\Controllers\Admin\SalesReportController;
 use App\Http\Controllers\Admin\SimpleUserController;
@@ -637,6 +638,16 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
         Route::match(['post', 'put', 'patch'], '/{mark}', [MarksController::class, 'update']);
         Route::delete('/{mark}', [MarksController::class, 'destroy']);
         Route::get('/export', [MarksController::class, 'export']);
+    });
+
+    Route::prefix('polizes')->name('polizes.')->group(function () {
+        Route::get('/', [PolizesController::class, 'index']);
+        Route::get('/show/{polizes}', [PolizesController::class, 'show']);
+        Route::post('/', [PolizesController::class, 'store']);
+        Route::match(['post', 'put', 'patch'], '/{polize}', [PolizesController::class, 'update']);
+        Route::delete('/{polize}', [PolizesController::class, 'destroy']);
+        Route::get('/export', [PolizesController::class, 'export']);
+        Route::get('/getUsersAdmin', [PolizesController::class, 'getUsersAdmin']);
     });
 
 });

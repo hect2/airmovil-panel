@@ -193,6 +193,48 @@ class PermissionTableSeeder extends Seeder
                 ]
             ],
             [
+                'title'      => 'Polizes',
+                'name'       => 'polizes',
+                'guard_name' => 'sanctum',
+                'url'        => 'polizes',
+                'created_at' => now(),
+                'updated_at' => now(),
+                'children'   => [
+                    [
+                        'title'      => 'Polizes Create',
+                        'name'       => 'polizes_create',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'polizes/create',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Polizes Edit',
+                        'name'       => 'polizes_edit',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'polizes/edit',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Polizes Delete',
+                        'name'       => 'polizes_delete',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'polizes/delete',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Polizes Show',
+                        'name'       => 'polizes_show',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'polizes/show',
+                        'created_at' => now(),
+                        'updated_at' => now(),
+                    ]
+                ]
+            ],
+            [
                 'title'      => 'Politicas',
                 'name'       => 'politicas',
                 'guard_name'   => 'sanctum',

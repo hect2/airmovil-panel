@@ -1,5 +1,5 @@
 const statusEnum = Object.freeze({
-    ACTIVE: 5,
-    INACTIVE: 10
+    ACTIVE: true,
+    INACTIVE: false
 });
 export default statusEnum;

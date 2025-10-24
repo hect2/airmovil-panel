@@ -92,7 +92,8 @@ import { subscriber } from './modules/subscriber';
 import {transactionsSales} from "./modules/transactionsSales";
 import { marks } from "./modules/marks";
 import { typesVehicles } from "./modules/typesVehicles";
-
+import { polizes } from "./modules/polizes";
+import { customerUser } from "./modules/customerUser";
 
 export default new createStore({
     state: {},
@@ -190,6 +191,8 @@ export default new createStore({
         subscriber,
         marks,
         typesVehicles,
+        polizes,
+        customerUser,
     },
     plugins: [
         createPersistedState({

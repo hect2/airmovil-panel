@@ -68,7 +68,7 @@
         "change_password": "Cambiar Contraseña",
         "settings_menu": "Menú de Configuración",
         "pos": "Punto de Venta",
-        "pos_and_orders": "POS y Pedidos",
+        "pos_and_orders": "Transacciones",
         "promo": "Promoción",
         "communications": "Comunicaciones",
         "users": "Usuarios",
@@ -83,7 +83,8 @@
         "marcas": "Marcas de Vehiculos",
         "policies": "Políticas",
         "marksCars": "Marcas de Vehiculos",
-        "typesVehicles": "Tipos de Vehiculos"
+        "typesVehicles": "Tipos de Vehiculos",
+        "polizes": "Registro de Polizas"
     },
     "label": {
         "previous": "Anterior",
@@ -556,7 +557,13 @@
         "pesapal_ipn_id": "ID de IPN de Pesapal",
         "pesapal_mode": "Modo de Pesapal",
         "pesapal_status": "Estado de Pesapal",
-        "categoria": "Categoria"
+        "categoria": "Categoria",
+        "policyNumber": "Numero Poliza",
+        "nit": "Nit",
+        "dropdown": "Arrendadores",
+        "startDate": "Fecha Inicio",
+        "endDate": "Fecha Fin",
+        "customerId": "Usuario"
     },
     "button": {
         "add": "Agregar",
@@ -646,6 +653,7 @@
         "send_mail": "Enviar Correo",
         "change_language": "Cambiar Idioma",
         "add_marksCars": "Nueva marca",
+        "add_polizes": "Nueva Poliza",
         "add_vehicles": "Nuevo vehiculo"
     },
     "number": {

@@ -4,18 +4,12 @@
     <div class="col-12">
         <div class="db-card">
             <div class="db-card-header border-none">
-                <h3 class="db-card-title">{{ $t('menu.marksCars') }}</h3>
+                <h3 class="db-card-title">{{ $t('menu.polizes') }}</h3>
                 <div class="db-card-filter">
                     <TableLimitComponent :method="list" :search="props.search" :page="paginationPage" />
                     <FilterComponent />
-                    <!-- <div class="dropdown-group">
-                        <ExportComponent />
-                        <div class="dropdown-list db-card-filter-dropdown-list">
-                            <PrintComponent :props="printObj" />
-                            <ExcelComponent :method="xls" />
-                        </div>
-                    </div> -->
-                    <MarksCarsTableCreateComponent :props="props" />
+
+                    <PolizesCreateComponent :props="props" :customers="customerUsers" />
                 </div>
             </div>
 
@@ -23,18 +17,30 @@
                 <form class="p-4 sm:p-5 mb-5" @submit.prevent="search">
                     <div class="row">
                         <div class="col-12 sm:col-6 md:col-4 xl:col-3">
-                            <label for="name" class="db-field-title after:hidden">{{
+                            <label for="title" class="db-field-title after:hidden">{{
                                 $t("label.name")
                             }}</label>
-                            <input id="name" v-model="props.search.name" type="text" class="db-field-control" />
+                            <input id="policyNumber" v-model="props.search.policyNumber" type="text" class="db-field-control" />
                         </div>
-                        <div class="col-12 sm:col-6 md:col-4 xl:col-3">
+                        <!-- <div class="col-12 sm:col-6 md:col-4 xl:col-3">
                             <label for="size" class="db-field-title after:hidden">{{
-                                $t("label.description")
+                                $t("label.size")
                             }}</label>
-                            <input id="size" v-on:keypress="numberOnly($event)" v-model="props.search.description" type="text"
+                            <input id="size" v-on:keypress="numberOnly($event)" v-model="props.search.size" type="text"
                                 class="db-field-control" />
-                        </div>
+                        </div> -->
+
+                        <!-- <div class="col-12 sm:col-6 md:col-4 xl:col-3">
+                            <label for="searchStatus" class="db-field-title after:hidden">{{
+                                $t("label.status")
+                            }}</label>
+                            <vue-select class="db-field-control f-b-custom-select" id="searchStatus"
+                                v-model="props.search.status" :options="[
+                                    { id: enums.statusEnum.ACTIVE, name: $t('label.active') },
+                                    { id: enums.statusEnum.INACTIVE, name: $t('label.inactive') },
+                                ]" label-by="name" value-by="id" :closeOnSelect="true" :searchable="true"
+                                :clearOnClose="true" placeholder="--" search-placeholder="--" />
+                        </div> -->
 
                         <div class="col-12">
                             <div class="flex flex-wrap gap-3 mt-4">
@@ -56,32 +62,36 @@
                 <table class="db-table stripe" id="print">
                     <thead class="db-table-head">
                         <tr class="db-table-head-tr">
-                            <th class="db-table-head-th">{{ $t('label.name') }}</th>
-                            <th class="db-table-head-th">{{ $t('label.description') }}</th>
-                            <th class="db-table-head-th">{{ $t('label.image') }}</th>
+                            <th class="db-table-head-th">{{ $t('label.policyNumber') }}</th>
+                            <th class="db-table-head-th">{{ $t('label.nit') }}</th>
+                            <!-- <th class="db-table-head-th">{{ $t('label.dropdown') }}</th> -->
+                            <!-- <th class="db-table-head-th">{{ $t('label.customerId') }}</th> -->
+                            <th class="db-table-head-th">{{ $t('label.endDate') }}</th>
+                            <th class="db-table-head-th">{{ $t('label.startDate') }}</th>
                             <th class="db-table-head-th hidden-print"
-                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
+                                v-if="permissionChecker('polizes_show') || permissionChecker('polizes_edit') || permissionChecker('polizes_delete')">
                                 {{ $t('label.action') }}
                             </th>
                         </tr>
                     </thead>
-                    <tbody class="db-table-body" v-if="marks.length > 0">
-                        <tr class="db-table-body-tr" v-for="mark in marks" :key="mark">
-                            <td class="db-table-body-td">{{ mark.name }}</td>
-                            <td class="db-table-body-td">{{ mark.description }}</td>
-                            <td class="db-table-body-td">
-                                <!-- Quitar esta parte -->
-                            </td>
+                    <tbody class="db-table-body" v-if="polizes.length > 0">
+                        <tr class="db-table-body-tr" v-for="polize in polizes" :key="polize">
+                            <td class="db-table-body-td">{{ polize.policyNumber }}</td>
+                            <td class="db-table-body-td">{{ polize.nit }}</td>
+                            <!-- <td class="db-table-body-td">{{ polize.dropdown }}</td> -->
+                            <!-- <td class="db-table-body-td">{{ polize.dropdown }}</td> -->
+                            <td class="db-table-body-td">{{ formatDate(polize.endDate) }}</td>
+                            <td class="db-table-body-td">{{ formatDate(polize.startDate) }}</td>
                             <td class="db-table-body-td hidden-print"
-                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
+                                v-if="permissionChecker('polizes_show') || permissionChecker('polizes_edit') || permissionChecker('polizes_delete')">
                                 <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
                                     <!-- <SmIconQrCodeComponent :link="mark.qr" /> -->
-                                    <SmIconViewComponent :link="'admin.marksCars.show'" :id="mark.id"
-                                        v-if="permissionChecker('marksCars_show')" />
-                                    <SmIconSidebarModalEditComponent @click="edit(mark)"
-                                        v-if="permissionChecker('marksCars_edit')" />
-                                    <SmIconDeleteComponent @click="destroy(mark.id)"
-                                        v-if="permissionChecker('marksCars_delete') && demoChecker(mark.id)" />
+                                    <!-- <SmIconViewComponent :link="'admin.polizes.show'" :id="polize.id"
+                                        v-if="permissionChecker('polizes_show')" /> -->
+                                    <SmIconSidebarModalEditComponent @click="edit(polize)"
+                                        v-if="permissionChecker('polizes_edit')" />
+                                    <SmIconDeleteComponent @click="destroy(polize.id)"
+                                        v-if="permissionChecker('polizes_delete') && demoChecker(polize.id)" />
                                 </div>
                             </td>
                         </tr>
@@ -101,7 +111,7 @@
 </template>
 <script>
 import LoadingComponent from "../components/LoadingComponent";
-import MarksCarsTableCreateComponent from "./MarksCarsTableCreateComponent";
+import PolizesCreateComponent from "./PolizesCreateComponent";
 import alertService from "../../../services/alertService";
 import PaginationTextComponent from "../components/pagination/PaginationTextComponent";
 import PaginationBox from "../components/pagination/PaginationBox";
@@ -120,13 +130,13 @@ import FilterComponent from "../components/buttons/collapse/FilterComponent";
 import ENV from "../../../config/env";
 
 export default {
-    name: "MarksCarsTableListComponent",
+    name: "PolizesListComponent",
     components: {
         TableLimitComponent,
         PaginationSMBox,
         PaginationBox,
         PaginationTextComponent,
-        MarksCarsTableCreateComponent,
+        PolizesCreateComponent,
         LoadingComponent,
         SmIconDeleteComponent,
         SmIconSidebarModalEditComponent,
@@ -145,7 +155,7 @@ export default {
             printLoading: true,
             printObj: {
                 id: "print",
-                popTitle: this.$t("menu.marksCars"),
+                popTitle: this.$t("menu.polizes"),
             },
             enums: {
                 statusEnum: statusEnum,
@@ -156,11 +166,8 @@ export default {
             },
             props: {
                 form: {
-                    branch_id: null,
-                    name: "",
-                    category: "",
-                    status: statusEnum.ACTIVE,
-                    description: "",
+                    policyNumber: "",
+                    nit: ""
                 },
                 search: {
                     paginate: 1,
@@ -168,27 +175,30 @@ export default {
                     per_page: 10,
                     order_column: 'id',
                     order_type: 'desc',
-                    name: "",
-                    category: "",
-                    status: null,
+                    policyNumber: "",
+                    nit: ""
                 }
             },
             demo: ENV.DEMO
         }
     },
     computed: {
-        marks: function () {
-            return this.$store.getters['marks/lists'];
+        polizes: function () {
+            return this.$store.getters['polizes/lists'];
         },
         pagination: function () {
-            return this.$store.getters['marks/pagination'];
+            return this.$store.getters['polizes/pagination'];
         },
         paginationPage: function () {
-            return this.$store.getters['marks/page'];
+            return this.$store.getters['polizes/page'];
+        },
+        customerUsers() {
+            return this.$store.getters['customerUser/lists'];
         }
     },
     mounted() {
         this.list();
+        // this.listCustomerUsers();
     },
     methods: {
         permissionChecker(e) {
@@ -210,7 +220,7 @@ export default {
         list: function (page = 1) {
             this.loading.isActive = true;
             this.props.search.page = page;
-            this.$store.dispatch('marks/lists', this.props.search).then(res => {
+            this.$store.dispatch('polizes/lists', this.props.search).then(res => {
                 this.loading.isActive = false;
             }).catch((err) => {
                 this.loading.isActive = false;
@@ -222,22 +232,24 @@ export default {
         clear: function () {
             this.props.search.paginate = 1;
             this.props.search.page = 1;
-            this.props.search.name = "";
-            this.props.search.category = "";
-            this.props.search.status = null;
-            this.props.description = "";
+            this.props.search.policyNumber = "";
             this.list();
         },
-        edit: function (mark) {
+        edit: function (polize) {
             appService.sideDrawerShow();
             this.loading.isActive = true;
-            this.$store.dispatch('marks/edit', mark.id);
+            this.$store.dispatch('polizes/edit', polize.id);
+            
+            const formatDate = (dateStr) => dateStr ? dateStr.split('T')[0] : '';
+
             this.props.form = {
-                // branch_id: marks.branch_id,
-                name: mark.name,
-                category: mark.category,
-                status: mark.status,
-                description: mark.description,
+                policyNumber: polize.policyNumber,
+                nit: polize.nit,
+                customerId: polize.customerId || '',
+                dropdown: polize.dropdown || '',
+                startDate: formatDate(polize.startDate),
+                endDate: formatDate(polize.endDate),
+                status: polize.isActive || ''
             };
             this.loading.isActive = false;
         },
@@ -245,9 +257,9 @@ export default {
             appService.destroyConfirmation().then((res) => {
                 try {
                     this.loading.isActive = true;
-                    this.$store.dispatch('marks/destroy', { id: id, search: this.props.search }).then((res) => {
+                    this.$store.dispatch('polizes/destroy', { id: id, search: this.props.search }).then((res) => {
                         this.loading.isActive = false;
-                        alertService.successFlip(null, this.$t('menu.marksCars'));
+                        alertService.successFlip(null, this.$t('menu.polizes'));
                     }).catch((err) => {
                         this.loading.isActive = false;
                         alertService.error(err.response.data.message);
@@ -262,20 +274,49 @@ export default {
         },
         xls: function () {
             this.loading.isActive = true;
-            this.$store.dispatch("marks/export", this.props.search).then((res) => {
+            this.$store.dispatch("polizes/export", this.props.search).then((res) => {
                 this.loading.isActive = false;
                 const blob = new Blob([res.data], {
                     type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 });
                 const link = document.createElement("a");
                 link.href = URL.createObjectURL(blob);
-                link.download = this.$t("menu.marksCars");
+                link.download = this.$t("menu.polizes");
                 link.click();
                 URL.revokeObjectURL(link.href);
             }).catch((err) => {
                 this.loading.isActive = false;
                 alertService.error(err.response.data.message);
             });
+        },
+        formatDate(dateISO) {
+            if (!dateISO) return '';
+
+            const date = new Date(dateISO);
+            const dia = date.getDate().toString().padStart(2, '0');
+            const mes = (date.getMonth() + 1).toString().padStart(2, '0');
+            const anio = date.getFullYear();
+            const hora = date.getHours().toString().padStart(2, '0');
+            const minutos = date.getMinutes().toString().padStart(2, '0');
+
+            return `${dia}/${mes}/${anio} ${hora}:${minutos}`;
+        },
+        listCustomerUsers: function (page = 1) {
+
+            try {
+                this.props.search.page = 25;
+                this.props.search.rol = "ADMIN";
+                this.$store.dispatch('customerUser/lists', this.props.search);
+            } catch (err) {
+                console.error('Error al obtener usuarios:', err);
+            }
+            // this.loading.isActive = true;
+            // this.props.search.page = page;
+            // this.$store.dispatch('customerUser/lists', this.props.search).then(res => {
+            //     this.loading.isActive = false;
+            // }).catch((err) => {
+            //     this.loading.isActive = false;
+            // });
         },
     }
 }

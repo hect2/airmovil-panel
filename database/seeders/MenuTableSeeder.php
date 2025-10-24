@@ -46,7 +46,7 @@ class MenuTableSeeder extends Seeder
                 'name'       => 'Pastry Tables',
                 'language'   => 'dining_tables',
                 'url'        => 'dining-tables',
-                'icon'       => 'lab lab-dining-table',
+                'icon'       => 'lab lab-pos',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),
@@ -57,7 +57,7 @@ class MenuTableSeeder extends Seeder
                 'name'       => 'Marcas',
                 'language'   => 'marcas',
                 'url'        => 'marcas',
-                'icon'       => 'lab lab-dining-table',
+                'icon'       => 'lab lab-transactions',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),
@@ -68,7 +68,19 @@ class MenuTableSeeder extends Seeder
                 'name'       => 'Tipos de Carro',
                 'language'   => 'typesVehicles',
                 'url'        => 'types-of-cars',
-                'icon'       => 'lab lab-dining-table',
+                'icon'       => 'lab lab-subscribers',
+                'priority'   => 100,
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+
+            ],
+            //Polizas
+            [
+                'name'       => 'Polizas',
+                'language'   => 'polizes',
+                'url'        => 'polizes',
+                'icon'       => 'lab lab-pos-orders',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),
@@ -79,79 +91,79 @@ class MenuTableSeeder extends Seeder
                 'name'       => 'Politicas',
                 'language'   => 'policies',
                 'url'        => 'policies',
-                'icon'       => 'lab lab-dining-table',
+                'icon'       => 'lab lab-reserve-line',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),
                 'updated_at' => now()
 
             ],
-            // [
-            //     'name'       => 'Pos & Orders',
-            //     'language'   => 'pos_and_orders',
-            //     'url'        => '#',
-            //     'icon'       => 'lab lab-pos',
-            //     'priority'   => 100,
-            //     'status'     => 1,
-            //     'created_at' => now(),
-            //     'updated_at' => now(),
-            //     'children'   => [
-            //         [
-            //             'name'       => 'POS',
-            //             'url'        => 'pos',
-            //             'language'   => 'pos',
-            //             'icon'       => 'lab lab-pos',
-            //             'priority'   => 100,
-            //             'status'     => 1,
-            //             'created_at' => now(),
-            //             'updated_at' => now()
+            [
+                'name'       => 'Pos & Orders',
+                'language'   => 'pos_and_orders',
+                'url'        => '#',
+                'icon'       => 'lab lab-pos',
+                'priority'   => 100,
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now(),
+                'children'   => [
+                    // [
+                    //     'name'       => 'POS',
+                    //     'url'        => 'pos',
+                    //     'language'   => 'pos',
+                    //     'icon'       => 'lab lab-pos',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
 
-            //         ],
-            //         [
-            //             'name'       => 'POS Orders',
-            //             'language'   => 'pos_orders',
-            //             'url'        => 'pos-orders',
-            //             'icon'       => 'lab lab-pos-orders',
-            //             'priority'   => 100,
-            //             'status'     => 1,
-            //             'created_at' => now(),
-            //             'updated_at' => now()
-            //         ],
-            //         [
-            //             'name'       => 'Online Orders',
-            //             'language'   => 'online_orders',
-            //             'url'        => 'online-orders',
-            //             'icon'       => 'lab lab-online-orders',
-            //             'priority'   => 100,
-            //             'status'     => 1,
-            //             'created_at' => now(),
-            //             'updated_at' => now()
+                    // ],
+                    // [
+                    //     'name'       => 'POS Orders',
+                    //     'language'   => 'pos_orders',
+                    //     'url'        => 'pos-orders',
+                    //     'icon'       => 'lab lab-pos-orders',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
+                    // ],
+                    // [
+                    //     'name'       => 'Online Orders',
+                    //     'language'   => 'online_orders',
+                    //     'url'        => 'online-orders',
+                    //     'icon'       => 'lab lab-online-orders',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
 
-            //         ],
-            //         [
-            //             'name'       => 'Table Orders',
-            //             'language'   => 'table_orders',
-            //             'url'        => 'table-orders',
-            //             'icon'       => 'lab lab-reserve-line',
-            //             'priority'   => 100,
-            //             'status'     => 1,
-            //             'created_at' => now(),
-            //             'updated_at' => now()
+                    // ],
+                    // [
+                    //     'name'       => 'Table Orders',
+                    //     'language'   => 'table_orders',
+                    //     'url'        => 'table-orders',
+                    //     'icon'       => 'lab lab-reserve-line',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
 
-            //         ],
-            //         [
-            //             'name'       => 'transactions_sales',
-            //             'language'   => 'transactions_sales',
-            //             'url'        => 'transactionsSales',
-            //             'icon'       => 'lab lab-transactions',
-            //             'priority'   => 100,
-            //             'status'     => 1,
-            //             'created_at' => now(),
-            //             'updated_at' => now()
+                    // ],
+                    [
+                        'name'       => 'transactions_sales',
+                        'language'   => 'transactions_sales',
+                        'url'        => 'transactionsSales',
+                        'icon'       => 'lab lab-transactions',
+                        'priority'   => 100,
+                        'status'     => 1,
+                        'created_at' => now(),
+                        'updated_at' => now()
 
-            //         ]
-            //     ],
-            // ],
+                    ]
+                ],
+            ],
             // [
             //     'name'       => 'Promo',
             //     'language'   => 'promo',
@@ -271,41 +283,41 @@ class MenuTableSeeder extends Seeder
                         'created_at' => now(),
                         'updated_at' => now()
                     ],
-                    [
-                        'name'       => 'Employees',
-                        'language'   => 'employees',
-                        'url'        => 'employees',
-                        'icon'       => 'lab lab-employee',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ],
+                    // [
+                    //     'name'       => 'Employees',
+                    //     'language'   => 'employees',
+                    //     'url'        => 'employees',
+                    //     'icon'       => 'lab lab-employee',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
+                    // ],
                 ]
             ],
-            [
-                'name'       => 'Accounts',
-                'language'   => 'accounts',
-                'url'        => '#',
-                'icon'       => 'lab ',
-                'priority'   => 100,
-                'status'     => 1,
-                'created_at' => now(),
-                'updated_at' => now(),
-                'children'   => [
-                    [
-                        'name'       => 'Transactions',
-                        'language'   => 'transactions',
-                        'url'        => 'transactions',
-                        'icon'       => 'lab lab-transactions',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
+            // [
+            //     'name'       => 'Accounts',
+            //     'language'   => 'accounts',
+            //     'url'        => '#',
+            //     'icon'       => 'lab ',
+            //     'priority'   => 100,
+            //     'status'     => 1,
+            //     'created_at' => now(),
+            //     'updated_at' => now(),
+            //     'children'   => [
+            //         [
+            //             'name'       => 'Transactions',
+            //             'language'   => 'transactions',
+            //             'url'        => 'transactions',
+            //             'icon'       => 'lab lab-transactions',
+            //             'priority'   => 100,
+            //             'status'     => 1,
+            //             'created_at' => now(),
+            //             'updated_at' => now()
 
-                    ]
-                ]
-            ],
+            //         ]
+            //     ]
+            // ],
             [
                 'name'       => 'Reports',
                 'language'   => 'reports',
@@ -328,26 +340,26 @@ class MenuTableSeeder extends Seeder
 
                     ],
 
-                    [
-                        'name'       => 'Items Report',
-                        'language'   => 'items_report',
-                        'url'        => 'items-report',
-                        'icon'       => 'lab lab-items-report',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ],
-                    [
-                        'name'       => 'Credit Balance Report',
-                        'language'   => 'credit_balance_report',
-                        'url'        => 'credit-balance-report',
-                        'icon'       => 'lab lab-credit-balance-report',
-                        'priority'   => 100,
-                        'status'     => 1,
-                        'created_at' => now(),
-                        'updated_at' => now()
-                    ]
+                    // [
+                    //     'name'       => 'Items Report',
+                    //     'language'   => 'items_report',
+                    //     'url'        => 'items-report',
+                    //     'icon'       => 'lab lab-items-report',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
+                    // ],
+                    // [
+                    //     'name'       => 'Credit Balance Report',
+                    //     'language'   => 'credit_balance_report',
+                    //     'url'        => 'credit-balance-report',
+                    //     'icon'       => 'lab lab-credit-balance-report',
+                    //     'priority'   => 100,
+                    //     'status'     => 1,
+                    //     'created_at' => now(),
+                    //     'updated_at' => now()
+                    // ]
 
                 ]
             ],
