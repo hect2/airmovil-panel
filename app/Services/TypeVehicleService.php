@@ -43,8 +43,6 @@ class TypeVehicleService
             $page        = $request->get('page', 1);
 
             $documents = collect($this->firebase->getAll('carTypes'));
-            $logReservas = collect($this->firebase->getAll('reservations'));
-            \Log::info($logReservas);
 
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {
