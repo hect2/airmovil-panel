@@ -65,8 +65,8 @@
                             <th class="db-table-head-th">{{ $t('label.nit') }}</th>
                             <!-- <th class="db-table-head-th">{{ $t('label.dropdown') }}</th> -->
                             <!-- <th class="db-table-head-th">{{ $t('label.customerId') }}</th> -->
-                            <th class="db-table-head-th">{{ $t('label.endDate') }}</th>
                             <th class="db-table-head-th">{{ $t('label.startDate') }}</th>
+                            <th class="db-table-head-th">{{ $t('label.endDate') }}</th>
                             <th class="db-table-head-th hidden-print"
                                 v-if="permissionChecker('polizes_show') || permissionChecker('polizes_edit') || permissionChecker('polizes_delete')">
                                 {{ $t('label.action') }}
@@ -79,8 +79,8 @@
                             <td class="db-table-body-td">{{ polize.nit }}</td>
                             <!-- <td class="db-table-body-td">{{ polize.dropdown }}</td> -->
                             <!-- <td class="db-table-body-td">{{ polize.dropdown }}</td> -->
-                            <td class="db-table-body-td">{{ formatDate(polize.endDate) }}</td>
                             <td class="db-table-body-td">{{ formatDate(polize.startDate) }}</td>
+                            <td class="db-table-body-td">{{ formatDate(polize.endDate) }}</td>
                             <td class="db-table-body-td hidden-print"
                                 v-if="permissionChecker('polizes_show') || permissionChecker('polizes_edit') || permissionChecker('polizes_delete')">
                                 <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
