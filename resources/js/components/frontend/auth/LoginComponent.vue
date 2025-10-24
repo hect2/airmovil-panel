@@ -125,6 +125,7 @@ export default {
                 this.$store.dispatch('login', this.form).then((res) => {
                     this.loading.isActive = false;
                     alertService.success(res.data.message);
+                    console.log("LOGUEADO EXITOSAMENTE");
                     if (this.carts.length > 0) {
                         router.push({name: "frontend.checkout"});
                     } else {

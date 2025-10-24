@@ -231,6 +231,14 @@ class PermissionTableSeeder extends Seeder
                         'url'        => 'polizes/show',
                         'created_at' => now(),
                         'updated_at' => now(),
+                    ],
+                    [
+                        'title'      => 'Polizes getUserAdmin',
+                        'name'       => 'polizes_getUserAdmin',
+                        'guard_name' => 'sanctum',
+                        'url'        => 'polizes/getUserAdmin',
+                        'created_at' => now(),
+                        'updated_at' => now(),
                     ]
                 ]
             ],

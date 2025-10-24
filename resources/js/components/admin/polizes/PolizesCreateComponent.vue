@@ -37,27 +37,22 @@
                         </div>
 
                         <!-- customerId -->
-                        <!-- <div class="form-col-12 sm:form-col-6">
+                        <div class="form-col-12 sm:form-col-6">
                             <label for="customerId" class="db-field-title required">{{ $t("label.customer") }}</label>
 
-                            <vue-select
-                                id="customerId"
-                                v-model="props.form.customerId"
-                                :options="customerUsers"
-                                label-by="email"
-                                value-by="id"
-                                :closeOnSelect="true"
-                                :searchable="true"
-                                :clearOnClose="true"
-                                placeholder="Selecciona un usuario"
-                                search-placeholder="Buscar..."
-                                :class="errors.customerId ? 'invalid' : ''"
-                            />
+                            <vue-select class="db-field-control f-b-custom-select" id="searchStatus"
+                                v-model="props.form.customerId" :options="customers" label-by="name" value-by="id" :closeOnSelect="true" :searchable="true"
+                                :clearOnClose="true" placeholder="--" search-placeholder="--" />
+
+                            <!-- <select class="db-field-control f-b-custom-select" v-model="props.form.customerId">
+                                <option v-for="customer in customers" :value="customer.id">{{ customer.name }}</option>
+                            </select> -->
+
 
                             <small class="db-field-alert" v-if="errors.customerId">{{ errors.customerId[0] }}</small>
-                        </div> -->
+                        </div>
 
-                        <div class="form-col-12 sm:form-col-6">
+                        <!-- <div class="form-col-12 sm:form-col-6">
                             <label for="customerId" class="db-field-title required">{{ $t("label.customerId") }}</label>
                             <input
                                 v-model="props.form.customerId"
@@ -67,7 +62,7 @@
                                 class="db-field-control"
                             >
                             <small class="db-field-alert" v-if="errors.customerId">{{ errors.customerId[0] }}</small>
-                        </div>
+                        </div> -->
 
                         <!-- Dropdown-->
                         <div class="form-col-12 sm:form-col-6">
@@ -160,10 +155,6 @@ export default {
     name: "PolizesCreateComponent",
     components: { SmSidebarModalCreateComponent, LoadingComponent },
     props: ['props'],
-    customerUsers: {
-        type: Array,
-        default: () => []
-    },
     data() {
         return {
             loading: {
@@ -176,7 +167,9 @@ export default {
                     [statusEnum.INACTIVE]: this.$t("label.inactive")
                 }
             },
-            errors: {}
+            errors: {},
+            customers: [],
+            selectedCustomer: null
         }
     },
     computed: {
@@ -185,7 +178,7 @@ export default {
         }
     },
     mounted() {
-        // Opcional: si necesitas cargar algo al montar
+        this.getUsers();
     },
     methods: {
         reset() {
@@ -239,8 +232,25 @@ export default {
                 alertService.error(err);
             }
         },
-        getUsersAdmin(){
+        getUsers(){
+            const payload = { page: 1, per_page: 25, rol: 'ADMIN' }; // igual que en el padre
+            this.$store.dispatch('polizes/listsUsers', payload)
+            .then(res => {
+                    this.customers = res.data;
 
+                    if (this.props.form.customerId) {
+                        this.props.form.customerId = String(this.props.form.customerId);
+                    }
+
+                    if(this.props.form.customerId){
+                        const foundUser = this.customers.find(c => c.id == this.props.form.customerId);
+
+                        if (foundUser) this.selectedCustomer = foundUser.id;
+                    }
+                })
+                .catch(err => {
+                    console.error('Error cargando usuarios admin', err);
+                });
         }
     }
 }

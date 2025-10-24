@@ -8,8 +8,7 @@
                 <div class="db-card-filter">
                     <TableLimitComponent :method="list" :search="props.search" :page="paginationPage" />
                     <FilterComponent />
-
-                    <PolizesCreateComponent :props="props" :customers="customerUsers" />
+                    <PolizesCreateComponent :props="props" />
                 </div>
             </div>
 
@@ -167,7 +166,11 @@ export default {
             props: {
                 form: {
                     policyNumber: "",
-                    nit: ""
+                    nit: "",
+                    customerId: "",
+                    startDate: "",
+                    endDate: "",
+                    status: ""
                 },
                 search: {
                     paginate: 1,
@@ -192,13 +195,9 @@ export default {
         paginationPage: function () {
             return this.$store.getters['polizes/page'];
         },
-        customerUsers() {
-            return this.$store.getters['customerUser/lists'];
-        }
     },
     mounted() {
         this.list();
-        // this.listCustomerUsers();
     },
     methods: {
         permissionChecker(e) {
@@ -235,9 +234,10 @@ export default {
             this.props.search.policyNumber = "";
             this.list();
         },
-        edit: function (polize) {
+        edit(polize) {
             appService.sideDrawerShow();
             this.loading.isActive = true;
+
             this.$store.dispatch('polizes/edit', polize.id);
             
             const formatDate = (dateStr) => dateStr ? dateStr.split('T')[0] : '';
@@ -246,7 +246,6 @@ export default {
                 policyNumber: polize.policyNumber,
                 nit: polize.nit,
                 customerId: polize.customerId || '',
-                dropdown: polize.dropdown || '',
                 startDate: formatDate(polize.startDate),
                 endDate: formatDate(polize.endDate),
                 status: polize.isActive || ''
@@ -300,24 +299,7 @@ export default {
             const minutos = date.getMinutes().toString().padStart(2, '0');
 
             return `${dia}/${mes}/${anio} ${hora}:${minutos}`;
-        },
-        listCustomerUsers: function (page = 1) {
-
-            try {
-                this.props.search.page = 25;
-                this.props.search.rol = "ADMIN";
-                this.$store.dispatch('customerUser/lists', this.props.search);
-            } catch (err) {
-                console.error('Error al obtener usuarios:', err);
-            }
-            // this.loading.isActive = true;
-            // this.props.search.page = page;
-            // this.$store.dispatch('customerUser/lists', this.props.search).then(res => {
-            //     this.loading.isActive = false;
-            // }).catch((err) => {
-            //     this.loading.isActive = false;
-            // });
-        },
+        }
     }
 }
 </script>

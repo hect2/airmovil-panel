@@ -6,6 +6,7 @@ export const polizes = {
     namespaced: true,
     state: {
         lists: [],
+        listsUsers: [],
         page: {},
         pagination: [],
         show: {},
@@ -29,6 +30,9 @@ export const polizes = {
         },
         temp: function (state) {
             return state.temp;
+        },
+        listsUsers: function (state) {
+            return state.listsUsers;
         }
     },
     actions: {
@@ -106,6 +110,24 @@ export const polizes = {
                 });
             });
         },
+        listsUsers: function (context, payload) {
+            return new Promise((resolve, reject) => {
+                let url = 'admin/polizes/getUsersAdmin';
+                if (payload) {
+                    url = url + appService.requestHandler(payload);
+                }
+                axios.get(url).then((res) => {
+                    if(typeof payload?.vuex === "undefined" || payload.vuex === true) {
+                        context.commit('listsUsers', res.data.data);
+                        context.commit('page', res.data.meta);
+                        context.commit('pagination', res.data);
+                    }
+                    resolve(res);
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
+        },
     },
     mutations: {
         lists: function (state, payload) {
@@ -133,6 +155,9 @@ export const polizes = {
         reset: function(state) {
             state.temp.temp_id = null;
             state.temp.isEditing = false;
+        },
+        listsUsers: function(state, payload) {
+            state.listsUsers = payload
         }
     },
 }
