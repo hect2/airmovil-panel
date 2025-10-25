@@ -44,6 +44,9 @@ class TypeVehicleService
 
             $documents = collect($this->firebase->getAll('carTypes'));
 
+            $documents2 = collect($this->firebase->getAll('cars'));
+            \Log::info($documents2);
+
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {
                 foreach ($requests as $key => $value) {
