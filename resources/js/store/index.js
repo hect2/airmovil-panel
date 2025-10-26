@@ -94,6 +94,7 @@ import { marks } from "./modules/marks";
 import { typesVehicles } from "./modules/typesVehicles";
 import { polizes } from "./modules/polizes";
 import { customerUser } from "./modules/customerUser";
+import { reservations } from "./modules/reservations";
 
 export default new createStore({
     state: {},
@@ -193,6 +194,7 @@ export default new createStore({
         typesVehicles,
         polizes,
         customerUser,
+        reservations,
     },
     plugins: [
         createPersistedState({

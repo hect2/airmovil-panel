@@ -84,7 +84,9 @@
         "policies": "Políticas",
         "marksCars": "Marcas de Vehiculos",
         "typesVehicles": "Tipos de Vehiculos",
-        "polizes": "Registro de Polizas"
+        "polizes": "Registro de Polizas",
+        "reservations": "Reservas",
+        "reservations_sales": "Reservas"
     },
     "label": {
         "previous": "Anterior",
@@ -563,7 +565,12 @@
         "dropdown": "Arrendadores",
         "startDate": "Fecha Inicio",
         "endDate": "Fecha Fin",
-        "customerId": "Usuario"
+        "customerId": "Usuario",
+        "summary": "Resumen",
+        "car": "Carro",
+        "location": "Ubicación",
+        "documents": "Documentos",
+        "dryver": "Con conductor"
     },
     "button": {
         "add": "Agregar",

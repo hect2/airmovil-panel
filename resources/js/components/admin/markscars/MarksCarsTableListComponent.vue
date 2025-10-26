@@ -53,40 +53,159 @@
             </div>
 
             <div class="db-table-responsive">
-                <table class="db-table stripe" id="print">
-                    <thead class="db-table-head">
-                        <tr class="db-table-head-tr">
-                            <th class="db-table-head-th">{{ $t('label.name') }}</th>
-                            <th class="db-table-head-th">{{ $t('label.description') }}</th>
-                            <th class="db-table-head-th">{{ $t('label.image') }}</th>
-                            <th class="db-table-head-th hidden-print"
-                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
-                                {{ $t('label.action') }}
+                <div class="bg-white rounded-2xl border border-[var(--border-color)] overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead class="bg-[var(--bg)] sticky top-0">
+                        <tr>
+                            <th
+                            v-for="col in columns"
+                            :key="col.key"
+                            class="text-left py-4 px-6 text-sm font-semibold text-[var(--ink)] cursor-pointer hover:bg-gray-100"
+                            @click="col.sortable && handleSort(col.key)"
+                            >
+                            <div class="flex items-center gap-2">
+                                {{ col.label }}
+                                <SortIcon v-if="col.sortable" :column="col.key" />
+                            </div>
+                            </th>
+                            <th class="text-center py-4 px-6 text-sm font-semibold text-[var(--ink)]">
+                            Acciones
                             </th>
                         </tr>
-                    </thead>
-                    <tbody class="db-table-body" v-if="marks.length > 0">
-                        <tr class="db-table-body-tr" v-for="mark in marks" :key="mark">
-                            <td class="db-table-body-td">{{ mark.name }}</td>
-                            <td class="db-table-body-td">{{ mark.description }}</td>
-                            <td class="db-table-body-td">
-                                <!-- Quitar esta parte -->
+                        </thead>
+
+                        <tbody>
+                        <tr
+                            v-for="brand in paginatedBrands"
+                            :key="brand.brandId"
+                            class="border-t border-[var(--border-color)] hover:bg-[var(--bg)] transition-colors"
+                        >
+                            <td class="py-4 px-6">
+                            <div class="flex items-center gap-3">
+                                <img
+                                v-if="brand.brandImg"
+                                :src="brand.brandImg"
+                                :alt="brand.brandTitle"
+                                class="w-10 h-10 object-contain"
+                                />
+                                <span class="font-semibold text-[var(--ink)]">
+                                {{ brand.brandTitle }}
+                                </span>
+                            </div>
                             </td>
-                            <td class="db-table-body-td hidden-print"
-                                v-if="permissionChecker('marksCars_show') || permissionChecker('marksCars_edit') || permissionChecker('marksCars_delete')">
-                                <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
-                                    <!-- <SmIconQrCodeComponent :link="mark.qr" /> -->
-                                    <SmIconViewComponent :link="'admin.marksCars.show'" :id="mark.id"
-                                        v-if="permissionChecker('marksCars_show')" />
-                                    <SmIconSidebarModalEditComponent @click="edit(mark)"
-                                        v-if="permissionChecker('marksCars_edit')" />
-                                    <SmIconDeleteComponent @click="destroy(mark.id)"
-                                        v-if="permissionChecker('marksCars_delete') && demoChecker(mark.id)" />
-                                </div>
+
+                            <td class="py-4 px-6 text-[var(--ink)]">
+                            {{ brand.modelos }}
+                            </td>
+
+                            <td class="py-4 px-6 text-[var(--ink)]">
+                            Q{{ brand.priceMin }}–{{ brand.priceMax }}
+                            </td>
+
+                            <td class="py-4 px-6">
+                            <div class="flex items-center gap-1">
+                                <span>⭐</span>
+                                <span class="text-[var(--ink)]">{{ brand.ratingAvg.toFixed(1) }}</span>
+                            </div>
+                            </td>
+
+                            <td class="py-4 px-6">
+                            <div class="flex flex-wrap gap-1">
+                                <span
+                                v-for="fuel in brand.fuels"
+                                :key="fuel"
+                                class="px-2 py-1 bg-[var(--bg)] text-[var(--ink)] rounded text-xs capitalize"
+                                >
+                                {{ fuel }}
+                                </span>
+                            </div>
+                            </td>
+
+                            <td class="py-4 px-6">
+                            <div class="flex gap-2 text-xs">
+                                <span
+                                v-for="(count, status) in brand.publishCounters"
+                                :key="status"
+                                :class="[
+                                    'px-2 py-1 rounded',
+                                    status === 'published'
+                                    ? 'bg-green-100 text-green-800'
+                                    : 'bg-gray-100 text-gray-800',
+                                ]"
+                                >
+                                {{ count }}
+                                </span>
+                            </div>
+                            </td>
+
+                            <td class="py-4 px-6 text-center">
+                            <button
+                                @click="setSelectedBrand(brand)"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-[var(--brand)] text-white rounded-full hover:bg-[var(--brand-700)] transition-colors font-medium"
+                                :aria-label="`Visualizar ${brand.brandTitle}`"
+                            >
+                                <Eye class="w-4 h-4" />
+                                Visualizar
+                            </button>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Estado vacío -->
+                <div v-if="filteredBrands.length === 0" class="text-center py-12">
+                <p class="text-[var(--muted-text)]">
+                    No se encontraron marcas con los filtros aplicados
+                </p>
+                </div>
+
+                <!-- Paginación -->
+                <div
+                v-if="totalPages > 1"
+                class="flex items-center justify-between px-6 py-4 border-t border-[var(--border-color)]"
+                >
+                <p class="text-sm text-[var(--muted-text)]">
+                    Mostrando {{ (currentPage - 1) * itemsPerPage + 1 }} a
+                    {{ Math.min(currentPage * itemsPerPage, filteredBrands.length) }} de
+                    {{ filteredBrands.length }} marcas
+                </p>
+
+                <div class="flex gap-2">
+                    <button
+                    @click="prevPage"
+                    :disabled="currentPage === 1"
+                    class="px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                    Anterior
+                    </button>
+
+                    <button
+                    v-for="page in totalPages"
+                    :key="page"
+                    @click="setCurrentPage(page)"
+                    :class="[
+                        'px-4 py-2 rounded-lg',
+                        page === currentPage
+                        ? 'bg-[var(--brand)] text-white'
+                        : 'border border-[var(--border-color)] hover:bg-[var(--bg)]',
+                    ]"
+                    :aria-current="page === currentPage ? 'page' : undefined"
+                    >
+                    {{ page }}
+                    </button>
+
+                    <button
+                    @click="nextPage"
+                    :disabled="currentPage === totalPages"
+                    class="px-4 py-2 border border-[var(--border-color)] rounded-lg hover:bg-[var(--bg)] disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                    Siguiente
+                    </button>
+                </div>
+                </div>
+            </div>
             </div>
 
             <div class="flex items-center justify-between border-t border-gray-200 bg-white px-4 py-6">
@@ -173,7 +292,10 @@ export default {
                     status: null,
                 }
             },
-            demo: ENV.DEMO
+            demo: ENV.DEMO,
+            filters: {
+                
+            }
         }
     },
     computed: {

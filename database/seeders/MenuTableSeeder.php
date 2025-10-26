@@ -140,17 +140,6 @@ class MenuTableSeeder extends Seeder
                     //     'updated_at' => now()
 
                     // ],
-                    // [
-                    //     'name'       => 'Table Orders',
-                    //     'language'   => 'table_orders',
-                    //     'url'        => 'table-orders',
-                    //     'icon'       => 'lab lab-reserve-line',
-                    //     'priority'   => 100,
-                    //     'status'     => 1,
-                    //     'created_at' => now(),
-                    //     'updated_at' => now()
-
-                    // ],
                     [
                         'name'       => 'transactions_sales',
                         'language'   => 'transactions_sales',
@@ -161,7 +150,18 @@ class MenuTableSeeder extends Seeder
                         'created_at' => now(),
                         'updated_at' => now()
 
-                    ]
+                    ],
+                    [
+                        'name'       => 'reservations_sales',
+                        'language'   => 'reservations_sales',
+                        'url'        => 'reservations',
+                        'icon'       => 'lab lab-calendar',
+                        'priority'   => 100,
+                        'status'     => 1,
+                        'created_at' => now(),
+                        'updated_at' => now()
+
+                    ],
                 ],
             ],
             // [

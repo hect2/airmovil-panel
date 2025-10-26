@@ -3,32 +3,26 @@
 namespace App\Services;
 
 use Exception;
-use App\Models\Mark;
-use App\Http\Requests\MarkRequest;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 use App\Http\Requests\PaginateRequest;
-use Illuminate\Support\Facades\Storage;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class MarkService
+class ReservationsService
 {
 
     protected $firebase;
     protected $pathDomain;
 
     protected array $filterableFields = [
-        'fuelType',
-        'gear',
-        'hasAC'
+        'status',
+        'paymentMethodName',
+        'bookedWithDriver'
     ];
-
-    public $envService;
 
     public function __construct(FirebaseAuthService $firebase)
     {
         $this->firebase = $firebase;
-        $this->pathDomain = env('APP_URL');
+        $this->pathDomain = env('APP_URL');   
     }
 
     /**
@@ -46,8 +40,8 @@ class MarkService
             $orderType   = $request->get('order_type') ?? 'desc';
             $page        = $request->get('page', 1);
 
-            $documents = collect($this->firebase->getAll('carTypes'));
-
+            $documents = collect($this->firebase->getAll('reservations'));
+            // \Log::info($documents);
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {
                 foreach ($requests as $key => $value) {
@@ -100,90 +94,18 @@ class MarkService
     }
 
     /**
-     * Crear nueva marca
+     * Mostrar tipo de vehículo individual
      *
      * @throws Exception
      */
-    public function store(MarkRequest $request)
+    public function show($reservation)
     {
         try {
-
-            if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('marks', 'public');
-            }
-
-            return Mark::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'image' => $path ?? ""
-            ]);
+            return collect($this->firebase->getById('reservations', $reservation));
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
         }
     }
 
-    /**
-     * Actualizar marca
-     *
-     * @throws Exception
-     */
-    public function update(MarkRequest $request, Mark $mark)
-    {
-        try {
-
-            if( $request->hasFile('image') ){
-
-                if( !empty($mark->image) ){
-                    Storage::delete($mark->image);
-                }
-
-                $mark->fill($request->validated());
-
-                $path = $request->file('image')->store('marks', 'public');
-            }
-
-            return tap($mark)->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'image' => $path ?? $mark->image
-            ]);
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage());
-            throw new Exception($exception->getMessage(), 422);
-        }
-    }
-
-    /**
-     * Eliminar marca
-     *
-     * @throws Exception
-     */
-    public function destroy(Mark $mark): void
-    {
-        try {
-            if (File::exists($mark->image) && !$this->envService->getValue('DEMO')) {
-                File::delete($mark->image);
-            }
-            $mark->delete();
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage());
-            throw new Exception($exception->getMessage(), 422);
-        }
-    }
-
-    /**
-     * Mostrar marca individual
-     *
-     * @throws Exception
-     */
-    public function show(Mark $mark): Mark
-    {
-        try {
-            return $mark;
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage());
-            throw new Exception($exception->getMessage(), 422);
-        }
-    }
 }
