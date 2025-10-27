@@ -88,6 +88,7 @@ use App\Http\Controllers\Frontend\BranchController as FrontendBranchController;
 use App\Http\Controllers\Frontend\CouponController as FrontendCouponController;
 use App\Http\Controllers\Frontend\SliderController as FrontendSliderController;
 use App\Http\Controllers\Admin\TableOrderController as AdminTableOrderController;
+use App\Http\Controllers\Payment\BacController;
 use App\Http\Controllers\Frontend\AddressController as FrontendAddressController;
 use App\Http\Controllers\Frontend\CookiesController as FrontendCookiesController;
 use App\Http\Controllers\Frontend\MessageController as FrontendMessageController;
@@ -163,7 +164,7 @@ Route::prefix('profile')->name('profile.')->middleware(['installed', 'apiKey', '
     Route::post('/change-image', [ProfileController::class, 'changeImage']);
 });
 
-Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth:sanctum', 'localization'])->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['installed', 'localization'])->group(function () {
     Route::prefix('default-access')->name('default-access.')->group(function () {
         Route::get('/', [DefaultAccessController::class, 'index']);
         Route::post('/', [DefaultAccessController::class, 'storeOrUpdate']);
@@ -599,7 +600,7 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'apiKey', 'auth
         Route::get('/export', [TransactionController::class, 'export']);
     });
 
-    Route::prefix('transactionsSales')->name('transactionsSales.')->middleware(['auth:sanctum'])->group(function () {
+    Route::prefix('transactionsSales')->name('transactionsSales.')->group(function () {
         Route::get('/', [TransactionSalesController::class, 'index']);
         Route::post('/show', [TransactionSalesController::class, 'show']);
         Route::get('/export', [TransactionSalesController::class, 'export']);
@@ -787,4 +788,12 @@ Route::prefix('/public')->group(function () {
     Route::post('/paymentCybersource', [PaymentController::class, 'paymentCybersource']);
     Route::post('/reverseTransactions', [PaymentController::class, 'reverseTransactions']);
 
+});
+
+
+Route::prefix('/payments')->group(function () {
+    Route::post('/auth', [BacController::class, 'auth']);
+    Route::post('/capture', [BacController::class, 'capture']);
+    Route::post('/refund', [BacController::class, 'refund']);
+    Route::post('/payment', [BacController::class, 'payment']);
 });

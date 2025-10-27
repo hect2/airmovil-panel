@@ -5,6 +5,7 @@ namespace App\Models\sales;
 use App\Models\Order;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\sales\PaymentTransactions;
 
 class Transactions extends Model
 {
@@ -22,6 +23,10 @@ class Transactions extends Model
         return $this->hasOne(Order::class, 'id', 'order_id');
     }
 
+    public function captures()
+    {
+        return $this->hasMany(PaymentTransactions::class, 'transaction_uuid', 'uuid')->whereNull('refund_id');
+    }
 
     public function error()
     {
