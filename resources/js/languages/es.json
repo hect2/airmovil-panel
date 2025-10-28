@@ -570,7 +570,10 @@
         "car": "Carro",
         "location": "Ubicación",
         "documents": "Documentos",
-        "dryver": "Con conductor"
+        "dryver": "Con conductor",
+        "typeGasoline": "Tipo de gasolina",
+        "ac-sin-ac": "Con/Sin A/C",
+        "Gear": "Transmision"
     },
     "button": {
         "add": "Agregar",

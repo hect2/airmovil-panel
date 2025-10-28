@@ -87,17 +87,17 @@ class MenuTableSeeder extends Seeder
                 'updated_at' => now()
 
             ],
-            [
-                'name'       => 'Politicas',
-                'language'   => 'policies',
-                'url'        => 'policies',
-                'icon'       => 'lab lab-reserve-line',
-                'priority'   => 100,
-                'status'     => 1,
-                'created_at' => now(),
-                'updated_at' => now()
+            // [
+            //     'name'       => 'Politicas',
+            //     'language'   => 'policies',
+            //     'url'        => 'policies',
+            //     'icon'       => 'lab lab-reserve-line',
+            //     'priority'   => 100,
+            //     'status'     => 1,
+            //     'created_at' => now(),
+            //     'updated_at' => now()
 
-            ],
+            // ],
             [
                 'name'       => 'Pos & Orders',
                 'language'   => 'pos_and_orders',

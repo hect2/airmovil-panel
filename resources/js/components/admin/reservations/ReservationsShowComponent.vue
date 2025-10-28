@@ -69,15 +69,13 @@
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Recogida:</span>
                                     <span class="font-mono">
-                                        {{ formatDate(reservation.pickupDate) }}
-                                        {{ formatDate(reservation.pickupTime) }}
+                                        {{ formatDatePersonalized(reservation.pickupDate, reservation.pickupTime) }}
                                     </span>
                                 </div>
                                 <div class="flex justify-between">
                                     <span class="text-gray-600">Devolución:</span>
                                     <span class="font-mono">
-                                        {{ formatDate(reservation.returnDate) }}
-                                        {{ formatDate(reservation.returnTime) }}
+                                        {{ formatDatePersonalized(reservation.returnDate, reservation.returnTime) }}
                                     </span>
                                 </div>
                                 <div class="flex justify-between">
@@ -470,7 +468,19 @@ export default {
             const year = date.getFullYear();
             const hours = String(date.getHours()).padStart(2, '0');
             const minutes = String(date.getMinutes()).padStart(2, '0');
+            console.log(`${day}/${month}/${year} ${hours}:${minutes}`);
             return `${day}/${month}/${year} ${hours}:${minutes}`;
+        },
+        formatDatePersonalized(dateString, time){
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            
+            const normalizedTime = time.split(':').map(t => t.padStart(2, '0')).join(':');
+
+            return `${day}/${month}/${year} ${normalizedTime}`;
+
         },
         formatCurrency(amount) {
             return `Q ${amount.toLocaleString('es-GT', {

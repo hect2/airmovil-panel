@@ -46,7 +46,7 @@ class MarkService
             $orderType   = $request->get('order_type') ?? 'desc';
             $page        = $request->get('page', 1);
 
-            $documents = collect($this->firebase->getAll('carTypes'));
+            $documents = collect($this->firebase->getAll('cars'));
 
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {
@@ -177,10 +177,10 @@ class MarkService
      *
      * @throws Exception
      */
-    public function show(Mark $mark): Mark
+    public function show($mark)
     {
         try {
-            return $mark;
+            return collect($this->firebase->getById('cars', $mark));
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
