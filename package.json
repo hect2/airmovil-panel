@@ -36,6 +36,7 @@
         "google-maps": "^4.3.3",
         "laravel-vue-pagination": "^4.0.0",
         "lucide-vue-next": "^0.548.0",
+        "recharts": "^3.3.0",
         "swiper": "^11.0.5",
         "vue-draggable-next": "^2.2.1",
         "vue-element-loading": "^3.0.1",
