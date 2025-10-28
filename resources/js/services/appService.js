@@ -5,6 +5,7 @@ import orderStatusEnum from "../enums/modules/orderStatusEnum";
 import askEnum from "../enums/modules/askEnum";
 import taxTypeEnum from "../enums/modules/taxTypeEnum";
 import currencyPositionEnum from "../enums/modules/currencyPositionEnum";
+import axios from 'axios'
 
 export default {
     sideDrawerShow: function (id = 'sideDrawer') {
@@ -113,6 +114,16 @@ export default {
             if (data) {
                 const modalContent = modalTarget.querySelector(".modal-content");
                 if (modalContent) {
+
+                    let status = ['Sale', 'Refund'];
+                    let total_capture = 0;
+                    if (data.captures && Array.isArray(data.captures)) {
+                        data.captures.forEach(capture => {
+                            total_capture += parseFloat(capture.total_amount);
+                        });
+                    }
+                    data.total_capture = total_capture;
+                    
                     modalContent.innerHTML = `
                 <style>
                     .modal-content {
@@ -248,7 +259,7 @@ export default {
                     .modal-footer button:hover {
                         background: #0056b3;
                     }
-
+                        
                     table {
                         width: 100%;
                         border-collapse: collapse;
@@ -405,6 +416,51 @@ export default {
                             `).join('')}
                         </tbody>
                     </table>
+
+                    ${data.total > data.total_capture ? `
+                    <div class="bg-white rounded-xl shadow p-4 flex items-center justify-between gap-4">
+                        <div class="grid grid-cols-3 gap-4 w-full text-gray-700">
+                            <button class="btn-partial-payment px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition duration-200">
+                            💳 Cobrar
+                            </button>
+                        </div>
+                    </div>
+                    ` : ''}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Capturas</th>
+                                <th>Cantidad</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                         ${data.captures.map(item => `
+                            <tr>
+                                <td>${item.uuid}</td>
+                                <td>${data.currency} ${item.total_amount}</td>
+                                <td>
+                                    ${status.includes(item.transaction_type) ? `
+                                        <div class="transaction-status">
+                                            <span class="px-3 py-1 rounded-full font-semibold text-white ${
+                                                item.transaction_type === 'Sale' ? 'bg-green-600' :
+                                                item.transaction_type === 'Refund' ? 'bg-red-600' :
+                                                'bg-gray-400'
+                                            }">
+                                                ${item.transaction_type === 'Sale' ? 'Pagado' :
+                                                item.transaction_type === 'Refund' ? 'Reembolsado' :
+                                                'Pendiente'}
+                                            </span>
+                                        </div>
+                                    ` : `
+                                        <button class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition duration-200">Pago</button>
+                                        <button class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200">🔄 Reembolso</button>
+                                    `}
+                                </td>
+                            </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
                 </div>
                 <div class="modal-footer">
                     <button class="btn-close-modal">Cerrar</button>
@@ -415,6 +471,76 @@ export default {
                     modalContent.querySelector(".btn-close-modal")?.addEventListener("click", () => {
                         this.modalHide(id);
                     });
+                    modalContent.querySelectorAll(".btn-partial-payment").forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            // 'data' ya contiene la info de la transacción
+                            let total = data.total - data.total_capture;
+                            this.partialPaymentModal(data.uuid, total);  // llama al modal de cobro parcial
+                        });
+                    });
+
+                    modalContent.querySelectorAll("tbody tr").forEach((row, index) => {
+                        const capture = data.captures[index];
+                    
+                        // Botón de Pago
+                        row.querySelector("button.bg-green-600")?.addEventListener("click", () => {
+                            VueSimpleAlert.confirm(`¿Deseas cobrar GTQ ${capture.total_amount}?`, "Cobro", "Sí", "No")
+                                .then((result) => {
+                                    console.log('💳 Pago:', result);
+                                    if (result) {
+                                        console.log('💳 Pago 2:', result);
+                                        axios.post(`payments/payment`, {
+                                            capture_uuid: capture.uuid,
+                                        }, {
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            responseType: 'json' // Si necesitas que la respuesta sea en formato blob
+                                        })
+                                            .then((res) => {
+                                                console.log('💳 Pago Respuesta:', res);
+                                                VueSimpleAlert.alert(`Cobro exitoso: GTQ ${capture.total_amount}`, "Éxito", "success");
+                                                this.reloadTransaction(data.uuid); // función que recarga el modal
+                                            })
+                                            .catch((err) => {
+                                                console.error('💳 Pago Error:', err);
+                                                VueSimpleAlert.alert(err.response?.data?.message || "Error al procesar el cobro", "Oops!", "error");
+                                            });
+                                    }
+                                });
+                        });
+                    
+                        // Botón de Reembolso
+                        row.querySelector("button.bg-red-600")?.addEventListener("click", () => {
+                            VueSimpleAlert.confirm(`¿Deseas hacer un reembolso de GTQ ${capture.total_amount}?`, "Reembolso", "Sí", "No")
+                                .then((result) => {
+                                    console.log('💳 Reembolso:', result);
+                                    if (result) {
+                                        console.log('💳 Reembolso 2:', result);
+                                        axios.post(`payments/refund`, {
+                                            capture_uuid: capture.uuid,
+                                        }, {
+                                            headers: {
+                                                'Content-Type': 'application/json'
+                                            },
+                                            responseType: 'json' // Si necesitas que la respuesta sea en formato blob
+                                        })
+                                            .then((res) => {
+                                                console.log('💳 Reembolso Respuesta:', res);
+                                                VueSimpleAlert.alert(`Reembolso exitoso: GTQ ${capture.total_amount}`, "Éxito", "success");
+                                                this.reloadTransaction(data.uuid); // función que recarga el modal
+                                            })
+                                            .catch((err) => {
+                                                console.error('💳 Reembolso Error:', err);
+                                                VueSimpleAlert.alert(err.response?.data?.message || "Error al procesar el reembolso", "Oops!", "error");
+                                            });
+                                    }
+                                });
+                        });
+                    });
+
+                    
+                    
                 }
             }
         }
@@ -580,5 +706,137 @@ export default {
         for (let pair of formData.entries()) {
             console.log(pair[0] + " : " + pair[1]);
         }
+    },
+
+    partialPaymentModal: function (uuid, capture, transactionData = {}) {
+        const modalId = "#partialPaymentModal";
+        let modalTarget = document.querySelector(modalId);
+    
+        // Crear modal dinámicamente si no existe
+        if (!modalTarget) {
+            modalTarget = document.createElement("div");
+            modalTarget.id = modalId.replace("#", "");
+            modalTarget.classList.add("modal");
+            modalTarget.innerHTML = `
+                <div class="modal-content">
+                    <h2 class="text-xl font-semibold mb-4 text-gray-800 text-center">Recargo por incidente del vehículo</h2>
+    
+                    <div class="flex flex-col gap-3">
+                        <button id="payTotalBtn" class="w-full bg-green-600 hover:bg-green-700 text-white py-2.5 rounded-lg font-semibold">
+                            Cobrar Total (GTQ ${capture})
+                        </button>
+    
+                        <div class="flex items-center gap-2 mt-2">
+                            <input type="number" id="partialAmountInput" placeholder="Monto parcial"
+                                min="0" max="${capture}"
+                                class="border border-gray-300 rounded-lg px-3 py-2 w-full" />
+                            <button id="payPartialBtn" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg font-semibold">
+                                Cobrar
+                            </button>
+                        </div>
+                    </div>
+    
+                    <div class="mt-5 text-center">
+                        <button id="closePartialModal" class="text-gray-500 hover:text-gray-700 font-medium">Cancelar</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modalTarget);
+        }
+    
+        // Mostrar modal
+        modalTarget.classList.add("active");
+        document.body.style.overflowY = "hidden";
+    
+        // Reset input
+        const partialInput = document.getElementById("partialAmountInput");
+        if (partialInput) partialInput.value = 0;
+    
+        // Función para procesar el pago
+        const makePayment = (uuid, amount) => {
+            axios.post(`/payments/capture`, {
+                transaction_uuid: uuid,
+                TotalAmount: amount,
+            }, {
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(res => {
+                VueSimpleAlert.alert(
+                    `Cobro ${res.data.Approved ? 'aprobado' : 'fallido'}: GTQ ${amount}`,
+                    "Éxito",
+                    res.data.Approved ? "success" : "error"
+                );
+                this.reloadTransaction(res.data.transaction_uuid);
+            })
+            .catch(err => {
+                console.error(err);
+                VueSimpleAlert.alert(
+                    err.response?.data?.message || "Error al procesar el cobro",
+                    "Oops!",
+                    "error"
+                );
+                // Si quieres mantener la info del modal:
+                // this.modalShows(".modal", { ...transactionData, error: err.response?.data });
+            });
+        };
+    
+        // Cerrar modal
+        document.getElementById("closePartialModal")?.addEventListener("click", () => {
+            modalTarget.remove();
+            document.body.style.overflowY = "auto";
+        });
+    
+        // Cobro total
+        document.getElementById("payTotalBtn")?.addEventListener("click", () => {
+            makePayment(uuid, capture);
+            modalTarget.remove();
+            document.body.style.overflowY = "auto";
+        });
+    
+        // Cobro parcial
+        const payPartialBtn = document.getElementById("payPartialBtn");
+        if (payPartialBtn) {
+            payPartialBtn.addEventListener("click", () => {
+                const partialAmount = parseFloat(partialInput.value);
+                if (!partialAmount || partialAmount <= 0 || partialAmount > capture) {
+                    VueSimpleAlert.alert(
+                        "Ingresa un monto válido menor o igual al total",
+                        "Oops!",
+                        "warning"
+                    );
+                    return;
+                }
+                makePayment(uuid, partialAmount);
+                modalTarget.remove();
+                document.body.style.overflowY = "auto";
+            });
+        }
+    },
+    
+    
+    reloadTransaction: function (uuid) {
+        axios.post('admin/transactionsSales/show', {
+                uuid: uuid
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                responseType: 'json' // Si necesitas que la respuesta sea en formato blob
+            })
+                .then(res => {
+                    // Vuelve a renderizar el modal con la info actualizada
+                    let total_capture = 0;
+                    if (res.data.data.captures && Array.isArray(res.data.data.captures)) {
+                        res.data.data.captures.forEach(capture => {
+                            total_capture += parseFloat(capture.total_amount);
+                        });
+                    }
+                    res.data.data.total_capture = total_capture;
+                    this.modalShows(".modal", res.data.data);
+                })
+                .catch(err => {
+                    console.error(err);
+                    VueSimpleAlert.alert("Error al recargar la transacción", "Oops!", "error");
+                });
     },
 };

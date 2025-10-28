@@ -41,4 +41,9 @@ return [
         'industry_type'    => "",
     ],
 
+    'bac' => [
+        'api_key' => env('BAC_API_KEY', ''),
+        'auth_url' => env('BAC_AUTH_URL', ''),
+    ],
+
 ];
