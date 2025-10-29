@@ -1,7 +1,7 @@
 <template>
     <LoadingComponent :props="loading" />
     <div class="col-12">
-        <div class="db-card">
+        <div class="db-card p-3">
             <div class="db-card-header border-none">
                 <h3 class="db-card-title">{{ $t('menu.items') }}</h3>
                 <div class="db-card-filter">
@@ -45,18 +45,22 @@
             </div>
 
             <!-- PRODUCTOS -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 <div
                     v-for="item in items"
                     :key="item.id"
-                    class="relative bg-white rounded overflow-hidden shadow"
+                    class="rgroup relative bg-white rounded-2xl overflow-hidden border-2 border-[var(--border-color)] shadow-sm hover:shadow-xl hover:border-red-500 hover:shadow-red-100 transition-all duration-300 hover:-translate-y-1 transition-all duration-300 hover:text-red-500 hover:scale-105 hover:decoration-red-500"
                 >
                     <!-- Imagen del producto -->
-                    <img
-                    :src="item.img"
-                    alt="Producto"
-                    class="w-full h-64 object-cover"
-                    />
+                    <div
+                    class="aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6 overflow-hidden"
+                    >
+                        <img
+                        :src="item.img"
+                        alt="Producto"
+                        class="w-full h-full object-contain"
+                        />
+                    </div>
 
                     <!-- Botones de acción en la esquina superior derecha -->
                     <div
