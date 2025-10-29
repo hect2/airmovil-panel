@@ -1,6 +1,6 @@
 <template>
     <LoadingComponent :props="loading" />
-    <footer class="footer-part pt-12 mb-14 lg:mb-0">
+    <footer class="footer-part mb-14 lg:mb-0">
         <div class="container">
             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 md:gap-6">
                 <div>
@@ -71,6 +71,12 @@
         </div>
         <div class="py-8 mt-8 border-t">
             <p class="text-sm text-center text-white">{{ setting.site_copyright }}</p>
+        </div>
+        <div class="relative h-24 overflow-hidden">
+          <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 120" preserveAspectRatio="none">
+            <path d="M0,64 C240,96 480,96 720,64 C960,32 1200,32 1440,64 L1440,120 L0,120 Z" fill="#001233" />
+            <path d="M0,80 C320,48 640,48 960,80 C1120,96 1280,96 1440,80 L1440,120 L0,120 Z" fill="#001233" opacity="0.5" />
+          </svg>
         </div>
     </footer>
 </template>

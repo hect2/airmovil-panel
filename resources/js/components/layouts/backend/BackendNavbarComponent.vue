@@ -1,7 +1,7 @@
 <template>
     <div class="backdrop"></div>
     <header class="db-header">
-        <router-link class="w-8 flex-shrink-0" :to="{ name: 'frontend.home' }">
+        <router-link class="w-16 flex-shrink-0" :to="{ name: 'frontend.home' }">
             <img class="w-full" :src="setting.theme_logo" alt="logo">
         </router-link>
         <div class="flex items-center justify-end w-full gap-4">

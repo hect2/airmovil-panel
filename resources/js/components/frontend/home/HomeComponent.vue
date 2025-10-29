@@ -6,7 +6,7 @@
             <CTAHomeComponent />
         </div>
 
-        <div v-if="logged" class="my-14 p-6">
+        <div v-if="logged" class="my-14">
             <router-link
                 v-if="profile.role_id !== enums.roleEnum.CUSTOMER && Object.keys(authDefaultPermission).length > 0"
                 :to="{ name: 'admin.dashboard' }"
