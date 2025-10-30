@@ -59,7 +59,7 @@
          <table class="container-table">
 
              <tr>
-                 <th> <img class="logo-pagalo" src="images/theme/holandesa-blanco.jpg" alt="Imagen"> </th>
+                 <th> <img class="logo-pagalo" src="images/theme/universal_media.jpeg" alt="Imagen"> </th>
              </tr>
 
              <tr>

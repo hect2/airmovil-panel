@@ -390,7 +390,7 @@ export default {
                             </a>
 
                         ` : ''}
-                        <a href="/admin/pos-orders/show/${data.id_order}" class="voucher-card">
+                        <a href="#" class="voucher-card">
                             <i class="fa fa-receipt"></i>
                             <span>Ver Orden</span>
                             <i class="fa fa-arrow-right"></i>
@@ -466,7 +466,7 @@ export default {
                     <button class="btn-close-modal">Cerrar</button>
                 </div>
                 `;
-
+                    // Orden: /admin/pos-orders/show/${data.id_order}
                     // Agregar eventos para los botones de cierre y agregar comentario
                     modalContent.querySelector(".btn-close-modal")?.addEventListener("click", () => {
                         this.modalHide(id);
