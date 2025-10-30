@@ -436,7 +436,7 @@ export default {
                         </thead>
                         <tbody>
                          ${data.captures.map(item => `
-                            <tr>
+                            <tr class="capture_row">
                                 <td>${item.uuid}</td>
                                 <td>${data.currency} ${item.total_amount}</td>
                                 <td>
@@ -453,8 +453,8 @@ export default {
                                             </span>
                                         </div>
                                     ` : `
-                                        <button class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition duration-200">Pago</button>
-                                        <button class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200">🔄 Reembolso</button>
+                                        <button class="btn_pago px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition duration-200">Pago</button>
+                                        <button class="btn_refund px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200">🔄 Reembolso</button>
                                     `}
                                 </td>
                             </tr>
@@ -479,11 +479,13 @@ export default {
                         });
                     });
 
-                    modalContent.querySelectorAll("tbody tr").forEach((row, index) => {
+                    modalContent.querySelectorAll("tr.capture_row").forEach((row, index) => {
+                        console.log('💳 index:', index);
                         const capture = data.captures[index];
+                        console.log('💳 Capture:', capture);
                     
                         // Botón de Pago
-                        row.querySelector("button.bg-green-600")?.addEventListener("click", () => {
+                        row.querySelector("button.btn_pago")?.addEventListener("click", () => {
                             VueSimpleAlert.confirm(`¿Deseas cobrar GTQ ${capture.total_amount}?`, "Cobro", "Sí", "No")
                                 .then((result) => {
                                     console.log('💳 Pago:', result);
@@ -511,7 +513,7 @@ export default {
                         });
                     
                         // Botón de Reembolso
-                        row.querySelector("button.bg-red-600")?.addEventListener("click", () => {
+                        row.querySelector("button.btn_refund")?.addEventListener("click", () => {
                             VueSimpleAlert.confirm(`¿Deseas hacer un reembolso de GTQ ${capture.total_amount}?`, "Reembolso", "Sí", "No")
                                 .then((result) => {
                                     console.log('💳 Reembolso:', result);
