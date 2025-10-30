@@ -44,7 +44,7 @@
                     </router-link>
                 </div>
                 <button type="submit"
-                        class="w-full h-12 text-center capitalize font-medium rounded-3xl mb-6 text-white bg-primary">
+                        class="w-full h-12 text-center capitalize font-medium rounded-3xl mb-6 text-white bg-[var(--brand)]">
                     {{ $t('button.login') }}
                 </button>
                 <div class="flex items-center justify-center gap-2 mb-4">

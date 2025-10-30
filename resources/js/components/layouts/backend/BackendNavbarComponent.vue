@@ -1,20 +1,22 @@
 <template>
     <div class="backdrop"></div>
-    <header class="db-header">
+    <header class="flex justify-between fixed top-0 left-0 right-0 h-16 bg-[var(--card-bg)] border-b border-[var(--border-color)] shadow-sm z-30">
         <router-link class="w-16 flex-shrink-0" :to="{ name: 'frontend.home' }">
             <img class="w-full" :src="setting.theme_logo" alt="logo">
         </router-link>
         <div class="flex items-center justify-end w-full gap-4">
-            <div
-                class="sub-header flex items-center gap-4 transition xh:justify-between xh:fixed xh:left-0 xh:w-full xh:p-4 xh:border-y xh:border-[#EFF0F6] xh:bg-white">
+            <div class="sub-header flex items-center gap-4 transition xh:justify-between xh:fixed xh:left-0 xh:w-full xh:p-4 xh:border-y xh:border-[#EFF0F6] xh:bg-white">
+                <!-- Branch -->
                 <div v-if="authBranch === 0" class="relative dropdown-group">
-                    <button class="flex items-center text-left gap-2 dropdown-btn">
-                        <i class="lab lab-shop lab-font-size-24 font-fill-primary"></i>
+                    <button class="dropdown-btn hidden md:flex items-center gap-2 px-3 py-2 hover:bg-[var(--bg)] rounded-lg transition-colors">
+                    <!-- <button class="flex items-center text-left gap-2 dropdown-btn"> -->
+                        <!-- <i class="lab lab-shop lab-font-size-24 font-fill-primary"></i> -->
+                        <Store class="w-4 h-4 text-[var(--brand)]" />
                         <h3 class="capitalize text-xs font-medium text-heading">
-                            <span class="block font-normal mb-0.5">{{ $t('label.branch') }}</span>
+                            <!-- <span class="block font-normal mb-0.5">{{ $t('label.branch') }}</span> -->
                             <b class="font-semibold whitespace-nowrap">{{ branch.name }}</b>
                         </h3>
-                        <i class="lab lab-arrow-down text-xs ml-1.5 lab-font-size-14"></i>
+                        <ChevronDown class="w-4 h-4 text-[var(--muted-text)]" />
                     </button>
                     <ul v-if="branches.length > 0"
                         class="p-2 w-fit rounded-lg shadow-xl absolute top-14 left-0 z-10 border border-gray-200 bg-white hidden dropdown-list">
@@ -31,13 +33,22 @@
                     </ul>
                 </div>
 
+                <!-- Lenguajes -->
                 <div class="flex items-center justify-between md:justify-center gap-4">
+
                     <div v-if="setting.site_language_switch === enums.activityEnum.ENABLE" class="dropdown-group relative">
-                        <button class="dropdown-btn flex items-center gap-2 h-9 px-3 rounded-lg bg-[#FFEDF4]">
-                            <img :src="language.image" alt="flag" class="w-4 h-4 rounded-full">
+                        <button class="dropdown-btn hidden md:flex items-center gap-2 px-3 py-2 hover:bg-[var(--bg)] rounded-lg transition-colors">
+                        <!-- <button class="dropdown-btn md:flex items-center gap-2 px-3 py-2 hover:bg-[var(--bg)] rounded-lg transition-colors"> -->
+                            <Globe class="w-4 h-4 text-[var(--muted-text)]" />
+                            <span class="text-sm font-medium text-[var(--ink)]">
+                            {{ language.name }}
+                            </span>
+                            <ChevronDown class="w-4 h-4 text-[var(--muted-text)]" />
+
+                            <!-- <img :src="language.image" alt="flag" class="w-4 h-4 rounded-full">
                             <span class="hidden md:block whitespace-nowrap text-xs font-medium capitalize text-heading">
                                 {{ language.name }}
-                            </span>
+                            </span> -->
                         </button>
                         <ul v-if="languages.length > 0"
                             class="p-2 min-w-[180px] rounded-lg shadow-xl absolute top-14 ltr:right-0 rtl:left-0 z-10 border border-gray-200 bg-white hidden dropdown-list">
@@ -56,10 +67,12 @@
                     </router-link> -->
                 </div>
             </div>
-            <button class="fa-solid fa-align-left db-header-nav w-9 h-9 rounded-lg text-primary bg-primary/5"></button>
 
+            <!-- BOTON PARA OCULTAR SIDEBAR -->
+            <!-- <button class="fa-solid fa-align-left db-header-nav w-9 h-9 rounded-lg text-primary bg-primary/5"></button> -->
+            
             <div class="dropdown-group">
-                <button class="dropdown-btn flex items-center gap-2">
+                <button class="dropdown-btn flex items-center gap-2 px-3 py-2 hover:bg-[var(--bg)] rounded-lg transition-colors">
                     <img class="flex-shrink-0 w-9 h-9 object-cover rounded-lg" :src="authInfo.image" alt="avatar">
                     <h3 class="whitespace-nowrap text-sm capitalize text-left leading-[17px]">{{ $t('label.hello') }} <b
                             class="block font-semibold">{{ textShortener(authInfo.name, 15) }}</b></h3>
@@ -138,9 +151,15 @@ import appService from "../../../services/appService";
 import { initializeApp } from "firebase/app";
 import { getMessaging, getToken, onMessage } from "firebase/messaging";
 import axios from "axios";
+import { ChevronDown, Globe, Store } from "lucide-vue-next";
 
 export default {
     name: "BackendNavbarComponent",
+    components: {
+        Globe,
+        ChevronDown,
+        Store
+    },
     data() {
         return {
             loading: {
