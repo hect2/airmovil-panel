@@ -107,6 +107,10 @@
 }
 
 @layer components {
+
+    .border-color {border-color: var(--border-color);}
+    .border-brand {border-color: var(--brand);}
+    .kpi-stripe {background: linear-gradient(90deg, var(--brand) 0%, #ff6a6a 50%, var(--brand-600) 100%);}
     
     .container { @apply max-w-6xl mx-auto px-2.5 sm:px-4 }
     .row { @apply flex flex-wrap -m-3 }

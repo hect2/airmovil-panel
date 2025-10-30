@@ -678,7 +678,7 @@ body {
   justify-content: space-between;
   --tw-bg-opacity: 1;
   background-color: rgb(255 255 255 / var(--tw-bg-opacity));
-  padding: 1rem;
+  padding: 0.25rem;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, -webkit-backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
   transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter, -webkit-backdrop-filter;
@@ -5718,6 +5718,11 @@ input:checked + div svg {
 .py-0 {
   padding-top: 0px;
   padding-bottom: 0px;
+}
+
+.py-44 {
+  padding-top: 11rem;
+  padding-bottom: 11rem;
 }
 
 .\!py-1\.5 {

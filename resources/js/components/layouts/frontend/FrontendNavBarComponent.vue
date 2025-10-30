@@ -4,7 +4,7 @@
         <div class="container flex flex-col lg:flex-row items-center justify-between">
             <div class="w-full flex items-center justify-between gap-5 xl:gap-8 lg:justify-start lg:w-fit">
                 <router-link :to="{ name: 'frontend.home' }">
-                    <!-- <img class="w-32" :src="/public/images/logo-default.png" alt="logo"> -->
+                    <!-- <img class="w-32" :src="setting.theme_logo" alt="logo"> -->
                     AIRMOVIL
                 </router-link>
 
@@ -38,7 +38,7 @@
             <div class="flex flex-col items-center justify-end gap-3 w-full mt-4 lg:flex-row lg:w-fit lg:mt-0">
 
                 <router-link v-if="!logged"
-                    class="hidden lg:flex items-center justify-center gap-1 w-fit rounded-3xl capitalize text-sm font-medium h-8 px-3 transition text-white bg-primary"
+                    class="hidden lg:flex items-center justify-center gap-1 w-fit rounded-3xl capitalize text-sm font-medium h-8 px-3 transition text-white bg-[var(--brand)]"
                     :to="{ name: 'auth.login' }">
                     <i class="lab lab-profile-circle"></i>
                     <span class="whitespace-nowrap">{{ $t('label.login') }}</span>
@@ -426,7 +426,7 @@ export default {
         },
         closeOrderNotificationModal: function () {
             const modalTarget = this.$refs.orderNotificationModal;
-            modalTarget?.classList?.remove("active");
+            // modalTarget?.classList?.remove("active");
             document.body.style.overflowY = "auto";
             this.loading.isActive = false;
             this.orderNotificationStatus = false;

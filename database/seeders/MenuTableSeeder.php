@@ -34,7 +34,7 @@ class MenuTableSeeder extends Seeder
                 'name'       => 'Items',
                 'language'   => 'items',
                 'url'        => 'items',
-                'icon'       => 'lab lab-items',
+                'icon'       => 'lab lab-image',
                 'priority'   => 100,
                 'status'     => 1,
                 'created_at' => now(),

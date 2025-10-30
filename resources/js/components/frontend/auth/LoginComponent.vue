@@ -1,7 +1,7 @@
 <template>
     <LoadingComponent :props="loading"/>
     <section class="pt-8 pb-16">
-        <div class="container max-w-[360px] py-6 p-4 mb-6 sm:px-6 shadow-xs rounded-2xl bg-white">
+        <div class="container max-w-[360px] p-4 mb-6 sm:px-6 shadow-xs rounded-2xl bg-white">
             <h2 class="capitalize mb-6 text-center text-[22px] font-semibold leading-[34px] text-heading">
                 {{ $t('label.welcome_back') }}
             </h2>
@@ -44,7 +44,7 @@
                     </router-link>
                 </div>
                 <button type="submit"
-                        class="w-full h-12 text-center capitalize font-medium rounded-3xl mb-6 text-white bg-primary">
+                        class="w-full h-12 text-center capitalize font-medium rounded-3xl mb-6 text-white bg-[var(--brand)]">
                     {{ $t('button.login') }}
                 </button>
                 <div class="flex items-center justify-center gap-2 mb-4">
@@ -53,11 +53,11 @@
                         {{ $t('button.signup') }}
                     </router-link>
                 </div>
-                <p class="text-sm uppercase text-center mb-3 text-[#6E7191]">{{ $t('label.or') }}</p>
+                <!-- <p class="text-sm uppercase text-center mb-3 text-[#6E7191]">{{ $t('label.or') }}</p>
                 <router-link :to="{ name: 'auth.guestLogin' }"
                              class="w-full h-12 leading-[46px] text-center capitalize font-medium rounded-3xl border text-primary border-primary bg-white">
                     {{ $t('button.login_as_guest') }}
-                </router-link>
+                </router-link> -->
             </form>
         </div>
 
