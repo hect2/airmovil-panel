@@ -38,7 +38,7 @@ class PaymentController extends Controller
             $function = json_decode($methodBusiness->function,true);
 
             $processTransactions = new processTransactions();
-            $transactions = $processTransactions->crateTransactions($request,$client,$ip);
+            $transactions = $processTransactions->crateTransactions($request,$client,$ip, 'cybersource');
 
             $Datos = (object)[
                 "rules"             => $function,

@@ -2,13 +2,18 @@
 
 namespace App\Http\Controllers\Payment;
 
+use App\Helpers\emails\emails;
+use App\Helpers\processClient;
+use App\Helpers\processTransactions;
 use App\Models\sales\Transactions;
 use Illuminate\Http\Request;
 use App\Services\PaymentBacService;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
+use App\Models\sales\PaymentMethod;
 use App\Models\sales\PaymentTransactions;
+use App\Models\sales\ResponseCode;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
@@ -16,65 +21,129 @@ class BacController extends Controller
 {
     public function auth(Request $request)
     {
-        $id_order = $request->input('OrderIdentifier');
-        $total_amount = $request->input('TotalAmount');
-        $currency_code = $request->input('CurrencyCode');
-        $BillingAddress = $request->input('BillingAddress', null);
-        $source = $request->input('Source');
-        $last_four = substr($source['Card']['AccountNumber'] ?? '', -4);
+        try {
+            $ip = $request->ip() ?? '192.168.1.1';
+            $clientSales = new processClient();
+            $client = $clientSales->createClient($request);
 
-        $data = [
-            'TotalAmount'       => $total_amount, //null, //
-            'CurrencyCode'      => $currency_code,
-            'ThreeDSecure'      => false,
-            'Source'            => $source,
-            'OrderIdentifier'   => $id_order,
-            'BillingAddress'    => $BillingAddress,
-            'ShippingAddress'   => $request->input('ShippingAddress', null),
-        ];
+            // $methodBusiness = PaymentMethod::where('payment_code','BAC')->where('currency',$request->currency)->where('status',1)->first();
+            // if (empty($methodBusiness))
+            // {
+            //     return response()->json(['error' => 'true', 'code' => 400, 'message' =>"No cuentas con credenciales en: ".$request->currency],400);
+            // }
+            // $credentials = json_decode($methodBusiness->credentials,true);
+            // $function = json_decode($methodBusiness->function,true);
 
-        $transactions =  Transactions::create(
-            [
-                'uuid'                  => Str::uuid(),
-                'id_order'              => $id_order,
-                'client_name'           => ($BillingAddress['FirstName'] ?? '')  . ' ' . ($BillingAddress['LastName'] ?? ''),
-                'client_uuid'           => fake()->uuid(),
-                'ip_location'           => fake()->ipv4(),
-                'device_id'             => '',
-                'country'               => 'GT',
-                'currency'              => $currency_code,
-                'total'                 => $total_amount,
-                'date_transaction'      => Carbon::now(),
-                'request_id'            => '',
-                'request_status'        => '',
-                'request_code'          => '',
-                'request_auth'          => '',
-                'status_transaction'    => '',
-                'payment'               => "Bac",
-                'identifier_payment'    => "BAC",
-                'value_payment'         => $last_four,
-                'type_card'             => 'visa'
-            ]
-        );
-        
-        $response = PaymentBacService::processAuth($data);
+            $processTransactions = new processTransactions();
+            $transactions = $processTransactions->crateTransactions($request, $client, $ip, 'bac');
 
-        $transactions->fill(
-            [
-                'request_id'            => $response['data']['TransactionIdentifier'] ?? '',
-                'request_status'        => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
-                'request_code'          => $response['data']['IsoResponseCode'] ?? '',
-                'request_auth'          => $response['data']['AuthorizationCode'] ?? '',
-                'status_transaction'    => $this->getStatus($response['data']['TransactionType']),
-            ]
-        );
-        $transactions->save();
+            $id_order = $request->input('order_number');
+            $total_amount = $request->input('total_amount');
+            $currency_code = $request->input('currency');
+            // $BillingAddress = $request->input('BillingAddress', null);
+            // $source = $request->input('Source');
+            $BillingAddress = [
+                'FirstName'     => $client->first_name,
+                'LastName'      => $client->last_name,
+                'EmailAddress'  => $client->email,
+                'PhoneNumber'   => $client->phone,
+            ];
 
-        return response()->json([
-            'message' => 'Procesando autenticación de pago',
-            'data' => $response['data'],
-            'transaction_uuid' => $transactions->uuid,
-        ], $response['Code']);
+            $source = [
+                'CardPan'           => $request->card_payment['number_card'],
+                'CardCvv'           => $request->card_payment['cvv_card'],
+                'CardExpiration'    => $request->card_payment['expiration_year'] . $request->card_payment['expiration_month'],
+                'CardholderName'    => $client->name,
+            ];
+
+            $data = [
+                'TotalAmount'       => $total_amount,
+                'CurrencyCode'      => $currency_code,
+                'ThreeDSecure'      => false,
+                'Source'            => $source,
+                'OrderIdentifier'   => $id_order,
+                'BillingAddress'    => $BillingAddress,
+                // 'ShippingAddress'   => $request->input('ShippingAddress', null),
+            ];
+
+            $response = PaymentBacService::processAuth($data);
+            
+            $status = isset($response['data']['Approved']) ? $response['data']['Approved'] : false;
+            if ($status) {
+                $transactions->fill(
+                    [
+                        'request_id'            => $response['data']['TransactionIdentifier'] ?? '',
+                        'request_status'        => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
+                        'request_code'          => $response['data']['IsoResponseCode'] ?? '',
+                        'request_auth'          => $response['data']['AuthorizationCode'] ?? '',
+                        'status_transaction'    => $this->getStatus($response['data']['TransactionType']),
+                    ]
+                );
+                $transactions->save();
+
+                emails::sendEmailPaymentAccept($client, $transactions);
+
+                $dateTransaction = $transactions->date_transaction;
+                $date = Carbon::parse($dateTransaction)->format('d-m-Y');
+                $hour =  $dateTransaction->format('g:i A');
+                $dataVoucher = [
+                    // 'merchant'=>    $methodBusiness->merchant,
+                    'request_id' => $transactions->request_id,
+                    'code_payment' => $transactions->identifier_payment,
+                    'date_transaction' => $date,
+                    'hour_transactions' => $hour,
+                    'last_card' => $transactions->value_payment,
+                    'total' => $transactions->total,
+                    'uuid_transaction' => $transactions->uuid,
+                ];
+
+                $transaction = Transactions::where('uuid', $transactions->uuid)->first();
+                $objData = [
+                    'url_voucher'       => $transaction->url_voucher,
+                    'data_voucher'      => $dataVoucher,
+                    'decision'          =>  $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
+                    'reasonCode'        =>  $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
+                    'requestID'         =>  $response['data']['TransactionIdentifier'],
+                    'transactions' =>  $transactions->uuid
+                ];
+                return response()->json(['code' => 200, 'error' => false, 'data' => $objData], 200);
+            } else {
+                $transactions->fill(
+                    [
+                        'request_id'            => $transactions->request_id,
+                        'request_status'        => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
+                        'request_code'          => $response['data']['IsoResponseCode'] ?? '',
+                        'request_auth'          => $response['data']['AuthorizationCode'] ?? '',
+                        'status_transaction'    => $this->getStatus($response['data']['TransactionType']),
+                    ]
+                );
+                $transactions->save();
+
+                $code = ResponseCode::where('code', $response['data']['IsoResponseCode'])->where('code_payment', $transactions->identifier_payment)
+                    ->where('language', 'ES')
+                    ->select(
+                        'code',
+                        'code_payment',
+                        'language',
+                        'description',
+                        'message'
+                    )
+                    ->first();
+
+                $data = [
+                    'decision'          =>  $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
+                    'reasonCode'        =>  $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
+                    'requestID'         =>  $response['data']['TransactionIdentifier'],
+                    'authorizationCode' =>  $response['data']['AuthorizationCode'],
+                    'error_code'      => $code,
+                ];
+
+                return response()->json(['error' => true, 'code' => 400, 'data' => $data], 400);
+            }
+        } catch (\Exception $e) {
+            $decision = $e->getMessage();
+            return response()->json(['error' => 'true', 'code' => 400, 'message' => $decision], 400);
+        }
     }
 
     public function capture(Request $request)
@@ -90,7 +159,7 @@ class BacController extends Controller
         if ($total_amount <= 0) {
             return response()->json(['message' => 'El monto a capturar debe ser mayor que cero'], 400);
         }
-        
+
         $data = [
             'TotalAmount'       => $total_amount,
             'TransactionIdentifier'      => $transaction->request_id,
@@ -149,7 +218,7 @@ class BacController extends Controller
             // 'TipAmount'                 => $request->input('TipAmount'),
             // 'TaxAmount'                 => $request->input('TaxAmount'),
         ];
-        
+
         $response = PaymentBacService::processRefund($data);
         $data_response = $response['data'];
 
@@ -188,7 +257,7 @@ class BacController extends Controller
             'spi_token_encrypted' => '', // Limpiar el SpiToken almacenado
             'transaction_type' => $this->getStatus($data_response['TransactionType']),
         ]);
-        
+
         return response()->json([
             'message' => 'Procesando pago',
             'data' => $response['data']
@@ -202,7 +271,8 @@ class BacController extends Controller
         return response()->json(['message' => 'Transaccion', 'data' => $data], 200);
     }
 
-    private function getStatus(int $status): string{
+    private function getStatus(int $status): string
+    {
         $arr_status = [
             1 => 'Auth',
             2 => 'Sale',
