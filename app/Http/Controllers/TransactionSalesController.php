@@ -119,7 +119,7 @@ class TransactionSalesController extends AdminController
 
     public function show(Request $request)
     {
-        $transactions =  Transactions::with('detail','error','captures')->where('uuid',$request->uuid)->first();
+        $transactions =  Transactions::with('detail','error','captures','float_transaction')->where('uuid',$request->uuid)->first();
         return response()->json(['error' => false, 'code' => 200, 'data' =>$transactions],200);
 
     }

@@ -58,4 +58,18 @@ class processTransactions{
         }
         return $transactions;
     }
+
+    public static function validateTotal($request){
+        $detail = $request->detail;
+        $total_calculate = 0;
+        foreach ($detail as $i => $pro)
+        {
+            $total_calculate += $pro['subtotal'];
+        }
+        if($total_calculate == $request->total_amount){
+            return true;
+        }
+
+        return false;
+    }
 }

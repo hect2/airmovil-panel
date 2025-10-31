@@ -417,12 +417,31 @@ export default {
                         </tbody>
                     </table>
 
-                    ${data.total > data.total_capture ? `
+
+                    ${data.float_transaction.total < data.total_capture ? `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Monto en Flotante</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>GTQ ${data.float_transaction.total}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    ` : ''}
+
+                    ${data.float_transaction.total > data.total_capture ? `
                     <div class="bg-white rounded-xl shadow p-4 flex items-center justify-between gap-4">
-                        <div class="grid grid-cols-3 gap-4 w-full text-gray-700">
+                        <div class="grid grid-cols-1 gap-4 w-full text-gray-700">
                             <button class="btn-partial-payment px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition duration-200">
                             💳 Cobrar
                             </button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4 w-full text-gray-700">
+                            Total: ${data.currency} ${data.float_transaction.total}
                         </div>
                     </div>
                     ` : ''}
@@ -474,15 +493,13 @@ export default {
                     modalContent.querySelectorAll(".btn-partial-payment").forEach(btn => {
                         btn.addEventListener("click", () => {
                             // 'data' ya contiene la info de la transacción
-                            let total = data.total - data.total_capture;
-                            this.partialPaymentModal(data.uuid, total);  // llama al modal de cobro parcial
+                            let total = data.float_transaction.total - data.total_capture;
+                            this.partialPaymentModal(data.float_transaction.uuid, total);  // llama al modal de cobro parcial
                         });
                     });
 
                     modalContent.querySelectorAll("tr.capture_row").forEach((row, index) => {
-                        console.log('💳 index:', index);
                         const capture = data.captures[index];
-                        console.log('💳 Capture:', capture);
                     
                         // Botón de Pago
                         row.querySelector("button.btn_pago")?.addEventListener("click", () => {
@@ -755,10 +772,11 @@ export default {
         if (partialInput) partialInput.value = 0;
     
         // Función para procesar el pago
-        const makePayment = (uuid, amount) => {
+        const makePayment = (uuid, amount, is_pay = false) => {
             axios.post(`/payments/capture`, {
-                transaction_uuid: uuid,
+                float_transaction_uuid: uuid,
                 TotalAmount: amount,
+                pay: is_pay,
             }, {
                 headers: { 'Content-Type': 'application/json' }
             })
@@ -790,7 +808,7 @@ export default {
     
         // Cobro total
         document.getElementById("payTotalBtn")?.addEventListener("click", () => {
-            makePayment(uuid, capture);
+            makePayment(uuid, capture, true);
             modalTarget.remove();
             document.body.style.overflowY = "auto";
         });
