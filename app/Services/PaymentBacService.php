@@ -89,7 +89,14 @@ class PaymentBacService
         $response_400 = [
             'Code' => 400,
             'data' => [
+                'Code' => 400,
                 'Message' => 'Error interno del servidor',
+
+                'Approved' => false,
+                'IsoResponseCode' => '05',
+                'AuthorizationCode' => '',
+                'TransactionType' => 1,
+                'TransactionIdentifier' => '',
             ],
         ];
         if ($method == 'auth') {

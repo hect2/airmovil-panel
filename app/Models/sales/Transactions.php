@@ -28,6 +28,11 @@ class Transactions extends Model
         return $this->hasMany(PaymentTransactions::class, 'transaction_uuid', 'uuid')->whereNull('refund_id');
     }
 
+    public function float_transaction()
+    {
+        return $this->hasOne(TransactionFloat::class, 'transaction_uuid', 'uuid');
+    }
+
     public function error()
     {
         return $this->hasOne('App\Models\sales\ResponseCode', 'code', 'request_code')

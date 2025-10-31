@@ -124,6 +124,13 @@ export default {
                         });
                     }
                     data.total_capture = total_capture;
+
+                    if (data.float_transaction == null) {
+                        data.float_transaction = {
+                            total: 0,
+                            uuid: ''
+                        };
+                    }
                     
                     modalContent.innerHTML = `
                 <style>
@@ -391,7 +398,7 @@ export default {
                             </a>
 
                         ` : ''}
-                        <a href="/admin/pos-orders/show/${data.id_order}" class="voucher-card">
+                        <a href="#" class="voucher-card">
                             <i class="fa fa-receipt"></i>
                             <span>Ver Orden</span>
                             <i class="fa fa-arrow-right"></i>
@@ -418,12 +425,31 @@ export default {
                         </tbody>
                     </table>
 
-                    ${data.total > data.total_capture ? `
+
+                    ${data.float_transaction.total < data.total_capture ? `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Monto en Flotante</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>GTQ ${data.float_transaction.total}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    ` : ''}
+
+                    ${data.float_transaction.total > data.total_capture ? `
                     <div class="bg-white rounded-xl shadow p-4 flex items-center justify-between gap-4">
-                        <div class="grid grid-cols-3 gap-4 w-full text-gray-700">
+                        <div class="grid grid-cols-1 gap-4 w-full text-gray-700">
                             <button class="btn-partial-payment px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition duration-200">
                             💳 Cobrar
                             </button>
+                        </div>
+                        <div class="grid grid-cols-1 gap-4 w-full text-gray-700">
+                            Total: ${data.currency} ${data.float_transaction.total}
                         </div>
                     </div>
                     ` : ''}
@@ -437,7 +463,7 @@ export default {
                         </thead>
                         <tbody>
                          ${data.captures.map(item => `
-                            <tr>
+                            <tr class="capture_row">
                                 <td>${item.uuid}</td>
                                 <td>${data.currency} ${item.total_amount}</td>
                                 <td>
@@ -454,8 +480,8 @@ export default {
                                             </span>
                                         </div>
                                     ` : `
-                                        <button class="px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition duration-200">Pago</button>
-                                        <button class="px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200">🔄 Reembolso</button>
+                                        <button class="btn_pago px-5 py-2.5 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-xl shadow-md transition duration-200">Pago</button>
+                                        <button class="btn_refund px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200">🔄 Reembolso</button>
                                     `}
                                 </td>
                             </tr>
@@ -467,7 +493,7 @@ export default {
                     <button class="btn-close-modal">Cerrar</button>
                 </div>
                 `;
-
+                    // Orden: /admin/pos-orders/show/${data.id_order}
                     // Agregar eventos para los botones de cierre y agregar comentario
                     modalContent.querySelector(".btn-close-modal")?.addEventListener("click", () => {
                         this.modalHide(id);
@@ -475,16 +501,16 @@ export default {
                     modalContent.querySelectorAll(".btn-partial-payment").forEach(btn => {
                         btn.addEventListener("click", () => {
                             // 'data' ya contiene la info de la transacción
-                            let total = data.total - data.total_capture;
-                            this.partialPaymentModal(data.uuid, total);  // llama al modal de cobro parcial
+                            let total = data.float_transaction.total - data.total_capture;
+                            this.partialPaymentModal(data.float_transaction.uuid, total);  // llama al modal de cobro parcial
                         });
                     });
 
-                    modalContent.querySelectorAll("tbody tr").forEach((row, index) => {
+                    modalContent.querySelectorAll("tr.capture_row").forEach((row, index) => {
                         const capture = data.captures[index];
                     
                         // Botón de Pago
-                        row.querySelector("button.bg-green-600")?.addEventListener("click", () => {
+                        row.querySelector("button.btn_pago")?.addEventListener("click", () => {
                             VueSimpleAlert.confirm(`¿Deseas cobrar GTQ ${capture.total_amount}?`, "Cobro", "Sí", "No")
                                 .then((result) => {
                                     console.log('💳 Pago:', result);
@@ -512,7 +538,7 @@ export default {
                         });
                     
                         // Botón de Reembolso
-                        row.querySelector("button.bg-red-600")?.addEventListener("click", () => {
+                        row.querySelector("button.btn_refund")?.addEventListener("click", () => {
                             VueSimpleAlert.confirm(`¿Deseas hacer un reembolso de GTQ ${capture.total_amount}?`, "Reembolso", "Sí", "No")
                                 .then((result) => {
                                     console.log('💳 Reembolso:', result);
@@ -761,10 +787,11 @@ export default {
         if (partialInput) partialInput.value = 0;
     
         // Función para procesar el pago
-        const makePayment = (uuid, amount) => {
+        const makePayment = (uuid, amount, is_pay = false) => {
             axios.post(`/payments/capture`, {
-                transaction_uuid: uuid,
+                float_transaction_uuid: uuid,
                 TotalAmount: amount,
+                pay: is_pay,
             }, {
                 headers: { 'Content-Type': 'application/json' }
             })
@@ -796,7 +823,7 @@ export default {
     
         // Cobro total
         document.getElementById("payTotalBtn")?.addEventListener("click", () => {
-            makePayment(uuid, capture);
+            makePayment(uuid, capture, true);
             modalTarget.remove();
             document.body.style.overflowY = "auto";
         });

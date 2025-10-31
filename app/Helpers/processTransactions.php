@@ -9,7 +9,7 @@ use Illuminate\Support\Str;
 
 class processTransactions{
 
-    public static function crateTransactions($request,$client,$ip){
+    public static function crateTransactions($request,$client,$ip, $type_payment){
         $accountNumber = $request->card_payment['number_card'];
         $solo4           = substr($accountNumber, -4);
         $typeCard = validateCard::check_cc($accountNumber);
@@ -37,8 +37,8 @@ class processTransactions{
                 'request_code'          => '',
                 'request_auth'          => '',
                 'status_transaction'    => '',
-                'payment'               => "Cybersource",
-                'identifier_payment'    => "CYBERSOURCE",
+                'payment'               => Str::ucfirst($type_payment), // "Cybersource",
+                'identifier_payment'    => Str::upper($type_payment), //"CYBERSOURCE",
                 'value_payment'         => $solo4,
                 'type_card'            => $typeCard
             ]
@@ -57,5 +57,19 @@ class processTransactions{
             );
         }
         return $transactions;
+    }
+
+    public static function validateTotal($request){
+        $detail = $request->detail;
+        $total_calculate = 0;
+        foreach ($detail as $i => $pro)
+        {
+            $total_calculate += $pro['subtotal'];
+        }
+        if($total_calculate == $request->total_amount){
+            return true;
+        }
+
+        return false;
     }
 }
