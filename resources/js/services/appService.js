@@ -123,6 +123,13 @@ export default {
                         });
                     }
                     data.total_capture = total_capture;
+
+                    if (data.float_transaction == null) {
+                        data.float_transaction = {
+                            total: 0,
+                            uuid: ''
+                        };
+                    }
                     
                     modalContent.innerHTML = `
                 <style>
