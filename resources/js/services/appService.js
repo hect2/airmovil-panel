@@ -1,6 +1,7 @@
 import VueSimpleAlert from "vue3-simple-alert";
 import store from "../store";
 import statusEnum from "../enums/modules/statusEnum";
+import statusCustomerEnum from "../enums/modules/statusCustomerEnum";
 import orderStatusEnum from "../enums/modules/orderStatusEnum";
 import askEnum from "../enums/modules/askEnum";
 import taxTypeEnum from "../enums/modules/taxTypeEnum";
@@ -618,6 +619,13 @@ export default {
     },
     statusClass: function (status) {
         if (status === statusEnum.ACTIVE) {
+            return "db-table-badge text-green-600 bg-green-100";
+        } else {
+            return "db-table-badge text-red-600 bg-red-100";
+        }
+    },
+    statusCustomerClass: function (status) {
+        if (status === statusCustomerEnum.ACTIVE) {
             return "db-table-badge text-green-600 bg-green-100";
         } else {
             return "db-table-badge text-red-600 bg-red-100";

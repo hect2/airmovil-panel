@@ -29,31 +29,14 @@ class CustomerRequest extends FormRequest
             'email'                 => [
                 'required',
                 'email',
-                'max:190',
-                Rule::unique("users", "email")->ignore($this->route('customer.id'))
+                'max:190'
             ],
-            'password'              => [
-                $this->route('customer.id') ? 'nullable' : 'required',
-                'string',
-                'min:6',
-                'confirmed'
-            ],
-            'username'              => [
-                'nullable',
-                'max:190',
-                Rule::unique("users", "username")->ignore($this->route('customer.id'))
-            ],
-            'device_token'          => ['nullable', 'string'],
-            'web_token'             => ['nullable', 'string'],
-            'password_confirmation' => [$this->route('customer.id') ? 'nullable' : 'required', 'string', 'min:6'],
             'phone'                 => [
                 'nullable',
                 'string',
-                'max:20',
-                Rule::unique("users", "phone")->ignore($this->route('customer.id'))
+                'max:20'
             ],
-            'branch_id'             => ['nullable', 'numeric'],
-            'status'                => ['required', 'numeric', 'max:24'],
+            'status'                => ['required', 'string', 'max:24'],
 //            'country_code'          => ['required', 'string', 'max:20'],
         ];
     }

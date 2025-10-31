@@ -60,7 +60,7 @@
                         <div class="db-field-radio-group">
                             <div class="db-field-radio">
                                 <div class="custom-radio">
-                                    <input :value="enums.statusEnum.ACTIVE" v-model="props.form.status" id="active"
+                                    <input :value="enums.statusCustomerEnum.ACTIVE" v-model="props.form.status" id="active"
                                         type="radio" class="custom-radio-field" />
                                     <span class="custom-radio-span"></span>
                                 </div>
@@ -70,7 +70,7 @@
                             </div>
                             <div class="db-field-radio">
                                 <div class="custom-radio">
-                                    <input :value="enums.statusEnum.INACTIVE" v-model="props.form.status" type="radio"
+                                    <input :value="enums.statusCustomerEnum.INACTIVE" v-model="props.form.status" type="radio"
                                         id="inactive" class="custom-radio-field" />
                                     <span class="custom-radio-span"></span>
                                 </div>
@@ -83,7 +83,7 @@
                             errors.status[0]
                         }}</small>
                     </div>
-                    <div class="form-col-12 sm:form-col-6">
+                    <!-- <div class="form-col-12 sm:form-col-6">
                         <label for="password" class="db-field-title required">{{
                             $t("label.password")
                         }}</label>
@@ -102,7 +102,7 @@
                         <small class="db-field-alert" v-if="errors.password_confirmation">{{
                             errors.password_confirmation[0]
                         }}</small>
-                    </div>
+                    </div> -->
                     <div class="form-col-12">
                         <div class="flex flex-wrap gap-3 mt-4">
                             <button type="submit" class="db-btn py-2 text-white bg-primary">
@@ -123,7 +123,7 @@
 <script>
 import SmSidebarModalCreateComponent from "../components/buttons/SmSidebarModalCreateComponent";
 import LoadingComponent from "../components/LoadingComponent";
-import statusEnum from "../../../enums/modules/statusEnum";
+import statusCustomerEnum from "../../../enums/modules/statusCustomerEnum";
 import alertService from "../../../services/alertService";
 import appService from "../../../services/appService";
 
@@ -137,10 +137,10 @@ export default {
                 isActive: false,
             },
             enums: {
-                statusEnum: statusEnum,
-                statusEnumArray: {
-                    [statusEnum.ACTIVE]: this.$t("label.active"),
-                    [statusEnum.INACTIVE]: this.$t("label.inactive"),
+                statusCustomerEnum: statusCustomerEnum,
+                statusCustomerEnumArray: {
+                    [statusCustomerEnum.ACTIVE]: this.$t("label.active"),
+                    [statusCustomerEnum.INACTIVE]: this.$t("label.inactive"),
                 },
             },
             errors: {},
@@ -185,9 +185,7 @@ export default {
                 name: "",
                 email: "",
                 phone: "",
-                password: "",
-                password_confirmation: "",
-                status: statusEnum.ACTIVE,
+                status: statusCustomerEnum.ACTIVE,
                 country_code: this.country_code,
             };
         },
@@ -210,9 +208,7 @@ export default {
                             name: "",
                             email: "",
                             phone: "",
-                            password: "",
-                            password_confirmation: "",
-                            status: statusEnum.ACTIVE,
+                            status: statusCustomerEnum.ACTIVE,
                             country_code: this.country_code,
                         };
                         this.errors = {};
