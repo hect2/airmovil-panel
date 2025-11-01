@@ -278,8 +278,8 @@ class MenuTableSeeder extends Seeder
                     ],
                     [
                         'name'       => 'Vehicle Owner',
-                        'language'   => 'vehicle_owner',
-                        'url'        => 'delivery-boys',
+                        'language'   => 'vehicleOwner',
+                        'url'        => 'vehicleOwners',
                         'icon'       => 'lab lab-delivery-boys',
                         'priority'   => 100,
                         'status'     => 1,

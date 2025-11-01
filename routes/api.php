@@ -89,6 +89,7 @@ use App\Http\Controllers\Frontend\BranchController as FrontendBranchController;
 use App\Http\Controllers\Frontend\CouponController as FrontendCouponController;
 use App\Http\Controllers\Frontend\SliderController as FrontendSliderController;
 use App\Http\Controllers\Admin\TableOrderController as AdminTableOrderController;
+use App\Http\Controllers\Admin\VehicleOwnerController;
 use App\Http\Controllers\Payment\BacController;
 use App\Http\Controllers\Frontend\AddressController as FrontendAddressController;
 use App\Http\Controllers\Frontend\CookiesController as FrontendCookiesController;
@@ -382,6 +383,12 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'localization']
         Route::post('/address/{customer}', [CustomerAddressController::class, 'store']);
         Route::match(['put', 'patch'], '/address/{customer}/{address}', [CustomerAddressController::class, 'update']);
         Route::delete('/address/{customer}/{address}', [CustomerAddressController::class, 'destroy']);
+    });
+
+    Route::prefix('vehicleOwners')->name('vehicleOwners.')->group(function () {
+        Route::get('/', [VehicleOwnerController::class, 'index']);
+        Route::post('/', [VehicleOwnerController::class, 'store']);
+        Route::match(['post', 'put', 'patch'], '/{vehicleOwner}', [VehicleOwnerController::class, 'update']);
     });
 
     Route::prefix('my-order')->name('my-order.')->group(function () {

@@ -101,6 +101,22 @@ class ReservationsService
     public function show($reservation)
     {
         try {
+
+            $reservations = $this->firebase->getById('reservations', $reservation);
+            $dataFeatures = [];
+
+            $values = array_slice($reservations['car']['features'], 0, 10);
+
+            foreach($values as $value){
+                $feature = $this->firebase->getById('carFeatures', $value);
+                \Log::info($feature);
+                $dataFeatures[] = $feature['title'] ?? null;
+            }
+
+            $reservations['car']['features'] = $dataFeatures;
+
+            return collect($reservations);
+
             return collect($this->firebase->getById('reservations', $reservation));
         } catch (Exception $exception) {
             Log::error($exception->getMessage());

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use Kreait\Firebase\Factory;
+use Google\Cloud\Firestore\FieldPath;
 use Google\Cloud\Firestore\FirestoreClient;
 
 class FirebaseAuthService
@@ -28,6 +29,37 @@ class FirebaseAuthService
         $results = [];
 
         foreach ($documents as $document) {
+            if ($document->exists()) {
+                $results[] = array_merge(['id' => $document->id()], $document->data());
+            }
+        }
+
+        return $results;
+    }
+
+    public function getWhereIn(string $collection, string $field, array $values): array
+    {
+        if (empty($values)) {
+            return [];
+        }
+
+        // Firestore solo permite hasta 10 valores por consulta 'in'
+        $values = array_slice($values, 0, 10);
+
+        if ($field === 'id') {
+        $query = $this->getFirestore()
+                      ->collection($collection)
+                      ->where(FieldPath::documentId(), 'in', $values)
+                      ->documents();
+        } else {
+            $query = $this->getFirestore()
+                        ->collection($collection)
+                        ->where($field, 'in', $values)
+                        ->documents();
+        }
+
+        $results = [];
+        foreach ($query as $document) {
             if ($document->exists()) {
                 $results[] = array_merge(['id' => $document->id()], $document->data());
             }

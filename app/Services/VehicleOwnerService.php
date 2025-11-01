@@ -3,27 +3,24 @@
 namespace App\Services;
 
 use Exception;
-use App\Models\Mark;
-use App\Http\Requests\MarkRequest;
+use App\Models\User;
+use App\Enums\Role as EnumRole;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\File;
 use App\Http\Requests\PaginateRequest;
-use Illuminate\Support\Facades\Storage;
+use App\Http\Requests\VehicleOwnerRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class MarkService
+class VehicleOwnerService
 {
+    public object $user;
+    public array $phoneFilter = ['phone'];
+    public array $roleFilter = ['role_id'];
+    public array $userFilter = ['name', 'email', 'status', 'phone'];
+    public array $blockRoles = [EnumRole::ADMIN];
 
     protected $firebase;
     protected $pathDomain;
-
-    protected array $filterableFields = [
-        'fuelType',
-        'gear',
-        'hasAC'
-    ];
-
-    public $envService;
 
     public function __construct(FirebaseAuthService $firebase)
     {
@@ -31,12 +28,11 @@ class MarkService
         $this->pathDomain = env('APP_URL');
     }
 
+
     /**
-     * Listar marcas con filtros y paginación
-     *
      * @throws Exception
      */
-    public function list(PaginateRequest $request, bool $isExport = false)
+    public function list(PaginateRequest $request)
     {
         try {
             $requests    = $request->all();
@@ -46,15 +42,25 @@ class MarkService
             $orderType   = $request->get('order_type') ?? 'desc';
             $page        = $request->get('page', 1);
 
-            $documents = collect($this->firebase->getAll('cars'));
+            $documents = collect($this->firebase->getAll('users'));
+
+            // Filtrar solo los usuarios con rol ADMIN
+            $documents = $documents->filter(function ($doc) {
+                return isset($doc['rol']) && $doc['rol'] === 'ADMIN';
+            });
 
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {
                 foreach ($requests as $key => $value) {
-                    if (in_array($key, $this->filterableFields)) {
+                    if (in_array($key, $this->userFilter)) {
+
+                        $key = $key == 'phone' ? 'mobile' : $key;
+
                         if ($key === 'except') {
+                            \Log::debug("EXCEPT");
                             $exceptIds = explode('|', $value);
                             if (in_array($doc['id'], $exceptIds)) {
+                                \Log::debug("IN_ARRAY");
                                 return false;
                             }
                         } elseif ($key === 'item_category_id') {
@@ -92,110 +98,102 @@ class MarkService
             }
 
             return $sorted;
-
         } catch (Exception $exception) {
-            Log::error($exception->getMessage());
+            Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
         }
     }
 
     /**
-     * Crear nueva marca
-     *
      * @throws Exception
      */
-    public function store(MarkRequest $request)
+    public function store(VehicleOwnerRequest $request)
     {
         try {
-
-            if ($request->hasFile('image')) {
-                $path = $request->file('image')->store('marks', 'public');
-            }
-
-            return Mark::create([
-                'name' => $request->name,
-                'description' => $request->description,
-                'image' => $path ?? ""
-            ]);
+            return collect($this->firebase->create('users',[
+                'name'      => $request->name,
+                'email'     => $request->email,
+                'mobile'    => $request->phone,
+                'ccode'     => $request->country_code ?? null,
+                'rol'       => 'ADMIN',
+                'status'    => $request->status,
+                'rdate'     => now()
+            ]));
         } catch (Exception $exception) {
-            Log::error($exception->getMessage());
+            DB::rollBack();
+            Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
         }
     }
 
     /**
-     * Actualizar marca
-     *
      * @throws Exception
      */
-    public function update(MarkRequest $request, Mark $mark)
+    public function update(VehicleOwnerRequest $request, $customer)
     {
         try {
+            $dataUsers = [
+                'name'      => $request->name,
+                'email'     => $request->email,
+                'mobile'    => $request->phone,
+                'ccode'     => $request->country_code ?? null,
+                'rol'       => 'ADMIN',
+                'status'    => $request->status,
+                'rdate'     => now()
+            ];
+            $this->firebase->update('users', $customer, $dataUsers);
 
-            if( $request->hasFile('image') ){
+            $dataUsers['id'] = $customer;
 
-                if( !empty($mark->image) ){
-                    Storage::delete($mark->image);
-                }
-
-                $mark->fill($request->validated());
-
-                $path = $request->file('image')->store('marks', 'public');
-            }
-
-            return tap($mark)->update([
-                'name' => $request->name,
-                'description' => $request->description,
-                'image' => $path ?? $mark->image
-            ]);
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage());
-            throw new Exception($exception->getMessage(), 422);
-        }
-    }
-
-    /**
-     * Eliminar marca
-     *
-     * @throws Exception
-     */
-    public function destroy(Mark $mark): void
-    {
-        try {
-            if (File::exists($mark->image) && !$this->envService->getValue('DEMO')) {
-                File::delete($mark->image);
-            }
-            $mark->delete();
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage());
-            throw new Exception($exception->getMessage(), 422);
-        }
-    }
-
-    /**
-     * Mostrar marca individual
-     *
-     * @throws Exception
-     */
-    public function show($mark)
-    {
-        try {
-
-            $showMarks = $this->firebase->getById('cars', $mark);
-            $dataFeatures = [];
-
-            $values = array_slice($showMarks['features'], 0, 10);
-
-            foreach($values as $value){
-                $dataFeatures[] = $this->firebase->getById('carFeatures', $value);
-            }
+            return collect($dataUsers);
             
-            $showMarks['dataFeatures'] = $dataFeatures;
-
-            return collect($showMarks);
         } catch (Exception $exception) {
-            Log::error($exception->getMessage());
+            DB::rollBack();
+            Log::info($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
         }
     }
+
+    /**
+     * @throws Exception
+     */
+    public function show($customer)
+    {
+        try {
+            if (!in_array(EnumRole::CUSTOMER, $this->blockRoles)) {
+                return $customer;
+            } else {
+                throw new Exception(trans('all.message.permission_denied'), 422);
+            }
+        } catch (Exception $exception) {
+            Log::info($exception->getMessage());
+            throw new Exception($exception->getMessage(), 422);
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function destroy(User $customer)
+    {
+        try {
+            if (!in_array(EnumRole::CUSTOMER, $this->blockRoles) && $customer->id != 2) {
+                if ($customer->hasRole(EnumRole::CUSTOMER)) {
+                    DB::transaction(function () use ($customer) {
+                        $customer->addresses()->delete();
+                        $customer->delete();
+                    });
+                } else {
+                    throw new Exception(trans('all.message.permission_denied'), 422);
+                }
+            } else {
+                throw new Exception(trans('all.message.permission_denied'), 422);
+            }
+        } catch (Exception $exception) {
+            Log::info($exception->getMessage());
+            DB::rollBack();
+            throw new Exception($exception->getMessage(), 422);
+        }
+    }
+
 }

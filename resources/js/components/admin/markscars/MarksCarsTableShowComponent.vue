@@ -191,7 +191,7 @@
                 </div>
 
                 <!-- ====================== CARACTERÍSTICAS ====================== -->
-                <div v-if="activeTab === 'caracteristicas'">
+                <!-- <div v-if="activeTab === 'caracteristicas'">
                     <h3 class="text-lg font-semibold text-[var(--ink)] mb-4">
                         Características disponibles
                     </h3>
@@ -204,7 +204,44 @@
                     <p v-if="allFeatures.length === 0" class="text-center text-[var(--muted-text)] py-8">
                         No hay características disponibles
                     </p>
+                </div> -->
+            
+                <div v-if="activeTab === 'caracteristicas'">
+                    <h3 class="text-lg font-semibold text-[var(--ink)] mb-4">
+                        Características disponibles
+                    </h3>
+
+                    <!-- Si hay características -->
+                    <div v-if="car.dataFeatures.length" 
+                        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        
+                        <div v-for="feature in car.dataFeatures" :key="feature.id"
+                            class="group bg-white rounded-2xl overflow-hidden border border-[var(--border-color)] shadow-sm hover:shadow-lg transition-all duration-300 hover:-translate-y-1 hover:border-[var(--brand)]">
+
+                            <!-- Imagen -->
+                            <div class="aspect-[4/3] bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center p-6 overflow-hidden">
+                                <img
+                                    :src="feature.img || '/images/default-feature.jpg'"
+                                    :alt="feature.title"
+                                    class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-105"
+                                />
+                            </div>
+
+                            <!-- Título -->
+                            <div class="p-4 border-t border-[var(--border-color)]">
+                                <h3 class="text-center text-[var(--ink)] font-semibold text-base">
+                                    {{ feature.title }}
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Si no hay características -->
+                    <p v-else class="text-center text-[var(--muted-text)] py-8">
+                        No hay características disponibles
+                    </p>
                 </div>
+
             </div>
         </div>
     </div>
