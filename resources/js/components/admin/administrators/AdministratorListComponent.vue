@@ -41,8 +41,8 @@
                             }}</label>
                             <vue-select class="db-field-control f-b-custom-select" id="searchStatus"
                                 v-model="props.search.status" :options="[
-                                    { id: enums.statusEnum.ACTIVE, name: $t('label.active') },
-                                    { id: enums.statusEnum.INACTIVE, name: $t('label.inactive') }
+                                    { id: enums.statusAdminEnum.ACTIVE, name: $t('label.active') },
+                                    { id: enums.statusAdminEnum.INACTIVE, name: $t('label.inactive') }
                                 ]" label-by="name" value-by="id" :closeOnSelect="true" :searchable="true"
                                 :clearOnClose="true" placeholder="--" search-placeholder="--" />
                         </div>
@@ -109,7 +109,7 @@
                             <td class="db-table-body-td ">
                                 <span :class="statusClass(administrator.status)">
                                     {{
-                                        enums.statusEnumArray[administrator.status]
+                                        enums.statusAdminEnumArray[administrator.status]
                                     }}
                                 </span>
                             </td>
@@ -147,7 +147,7 @@ import PaginationTextComponent from "../components/pagination/PaginationTextComp
 import PaginationBox from "../components/pagination/PaginationBox";
 import PaginationSMBox from "../components/pagination/PaginationSMBox";
 import appService from "../../../services/appService";
-import statusEnum from "../../../enums/modules/statusEnum";
+import statusAdminEnum from "../../../enums/modules/statusAdminEnum";
 import TableLimitComponent from "../components/TableLimitComponent";
 import SmIconDeleteComponent from "../components/buttons/SmIconDeleteComponent";
 import SmIconViewComponent from "../components/buttons/SmIconViewComponent";
@@ -182,10 +182,10 @@ export default {
                 isActive: false,
             },
             enums: {
-                statusEnum: statusEnum,
-                statusEnumArray: {
-                    [statusEnum.ACTIVE]: this.$t("label.active"),
-                    [statusEnum.INACTIVE]: this.$t("label.inactive"),
+                statusAdminEnum: statusAdminEnum,
+                statusAdminEnumArray: {
+                    [statusAdminEnum.ACTIVE]: this.$t("label.active"),
+                    [statusAdminEnum.INACTIVE]: this.$t("label.inactive"),
                 },
             },
             printLoading: true,
@@ -202,7 +202,7 @@ export default {
                     password_confirmation: "",
                     branch_id: null,
                     country_code: "",
-                    status: statusEnum.ACTIVE,
+                    status: statusAdminEnum.ACTIVE,
                 },
                 search: {
                     paginate: 1,
@@ -226,7 +226,7 @@ export default {
         this.$store.dispatch("branch/lists", {
             order_column: "id",
             order_type: "asc",
-            status: statusEnum.ACTIVE,
+            status: statusAdminEnum.ACTIVE,
         });
         this.$store.dispatch('company/lists').then(companyRes => {
             this.$store.dispatch('countryCode/show', companyRes.data.data.company_country_code).then(res => {
@@ -269,7 +269,7 @@ export default {
             return appService.permissionChecker(e);
         },
         statusClass: function (status) {
-            return appService.statusClass(status);
+            return appService.statusAdminClass(status);
         },
         textShortener: function (text, number = 30) {
             return appService.textShortener(text, number);
