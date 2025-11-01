@@ -17,7 +17,7 @@ class ThemeSetting extends Model implements HasMedia
         if (!empty($this->getFirstMediaUrl('theme-logo'))) {
             return asset($this->getFirstMediaUrl('theme-logo'));
         }
-        return asset('images/theme/logo-holandesa-transparente.png');
+        return asset('images/theme/logo2-airmovil.jpeg');
     }
 
     public function getFaviconLogoAttribute() : string
@@ -25,7 +25,7 @@ class ThemeSetting extends Model implements HasMedia
         if (!empty($this->getFirstMediaUrl('theme-favicon-logo'))) {
             return asset($this->getFirstMediaUrl('theme-favicon-logo'));
         }
-        return asset('images/theme/favicon-holandesa.jpg');
+        return asset('images/theme/logo-airmovil.jpeg');
     }
 
     public function getFooterLogoAttribute() : string
@@ -33,6 +33,6 @@ class ThemeSetting extends Model implements HasMedia
         if (!empty($this->getFirstMediaUrl('theme-footer-logo'))) {
             return asset($this->getFirstMediaUrl('theme-footer-logo'));
         }
-        return asset('images/theme/holandesa-blanco.jpg');
+        return asset('images/theme/logo-airmovil.jpeg');
     }
 }
