@@ -109,7 +109,6 @@ class ReservationsService
 
             foreach($values as $value){
                 $feature = $this->firebase->getById('carFeatures', $value);
-                \Log::info($feature);
                 $dataFeatures[] = $feature['title'] ?? null;
             }
 
