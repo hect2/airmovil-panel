@@ -20,13 +20,13 @@ $(document).ready(function () {
 /* Top bar scrolling close */
 
 /* Frontend header fixed start */
-$(window).on('scroll', function () {
-    if (this.scrollY > 0) {
-        $('.ff-header').addClass('active');
-    } else {
-        $('.ff-header').removeClass('active');
-    }
-});
+// $(window).on('scroll', function () {
+//     if (this.scrollY > 0) {
+//         $('.ff-header').addClass('active');
+//     } else {
+//         $('.ff-header').removeClass('active');
+//     }
+// });
 /* Frontend header fixed close */
 
 /* table filter open & closing */
