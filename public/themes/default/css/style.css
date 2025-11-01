@@ -5872,6 +5872,10 @@ input:checked + div svg {
   padding-bottom: 4rem;
 }
 
+.pb-24 {
+  padding-bottom: 6rem;
+}
+
 .pl-5 {
   padding-left: 1.25rem;
 }
@@ -7518,6 +7522,10 @@ input[type="search"]::-webkit-search-results-decoration {
 
   .xst\:pb-16 {
     padding-bottom: 4rem;
+  }
+
+  .xst\:pb-24 {
+    padding-bottom: 6rem;
   }
 }
 
