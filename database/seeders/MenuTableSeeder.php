@@ -53,6 +53,7 @@ class MenuTableSeeder extends Seeder
                 'updated_at' => now()
 
             ],
+            // Marcas de vehiculo
             [
                 'name'       => 'Marcas',
                 'language'   => 'marcas',
@@ -64,10 +65,22 @@ class MenuTableSeeder extends Seeder
                 'updated_at' => now()
 
             ],
+            // Tipos de vehihculo
             [
                 'name'       => 'Tipos de Carro',
                 'language'   => 'typesVehicles',
                 'url'        => 'types-of-cars',
+                'icon'       => 'lab lab-subscribers',
+                'priority'   => 100,
+                'status'     => 1,
+                'created_at' => now(),
+                'updated_at' => now()
+
+            ],
+            [
+                'name'       => 'Caracteristicas de Vehiculos',
+                'language'   => 'carFeatures',
+                'url'        => 'carFeatures',
                 'icon'       => 'lab lab-subscribers',
                 'priority'   => 100,
                 'status'     => 1,

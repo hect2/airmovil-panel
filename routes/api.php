@@ -79,6 +79,7 @@ use App\Http\Controllers\Admin\NotificationAlertController;
 use App\Http\Controllers\Admin\DeliveryBoyAddressController;
 use App\Http\Controllers\Admin\CreditBalanceReportController;
 use App\Http\Controllers\Admin\AdministratorAddressController;
+use App\Http\Controllers\Admin\CarFeaturesController;
 use App\Http\Controllers\Table\OrderController as TableOrderController;
 use App\Http\Controllers\Frontend\ItemController as FrontendItemController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
@@ -631,6 +632,15 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'localization']
         Route::match(['post', 'put', 'patch'], '/{vehicles}', [TypesVehiclesController::class, 'update']);
         Route::delete('/{vehicles}', [TypesVehiclesController::class, 'destroy']);
         Route::get('/export', [TypesVehiclesController::class, 'export']);
+    });
+
+    Route::prefix('carFeatures')->name('carFeatures.')->group(function () {
+        Route::get('/', [CarFeaturesController::class, 'index']);
+        // Route::get('/show/{carFeature}', [CarFeaturesController::class, 'show']);
+        // Route::post('/', [CarFeaturesController::class, 'store']);
+        // Route::match(['post', 'put', 'patch'], '/{carFeature}', [CarFeaturesController::class, 'update']);
+        // Route::delete('/{carFeature}', [CarFeaturesController::class, 'destroy']);
+        // Route::get('/export', [CarFeaturesController::class, 'export']);
     });
 
     Route::prefix('marks')->name('marks.')->group(function () {

@@ -87,7 +87,8 @@
         "typesVehicles": "Tipos de Vehiculos",
         "polizes": "Registro de Polizas",
         "reservations": "Reservas",
-        "reservations_sales": "Reservas"
+        "reservations_sales": "Reservas",
+        "carFeatures": "Carateristica de vehiculo"
     },
     "label": {
         "previous": "Anterior",

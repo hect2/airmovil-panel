@@ -49,6 +49,11 @@ class CustomerService
 
             $documents = collect($this->firebase->getAll('users'));
 
+            // Filtrar solo los usuarios con rol USER
+            $documents = $documents->filter(function ($doc) {
+                return isset($doc['rol']) && $doc['rol'] === 'USER';
+            });
+
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {
                 foreach ($requests as $key => $value) {
