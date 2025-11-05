@@ -34,6 +34,8 @@ import marksCarsTableRoutes from "./modules/marksCarsTableRoutes";
 import typesVehiclesRoutes from "./modules/typesVehiclesRoutes";
 import polizesRoutes from "./modules/polizesRoutes";
 import reservationsRoutes from "./modules/reservationsRoutes";
+import carFeaturesRoutes from "./modules/carFeaturesRoutes";
+import vehicleOwnerRoutes from "./modules/vehicleOwnerRoutes";
 
 
 const baseRoutes = [
@@ -98,6 +100,8 @@ const routes = baseRoutes.concat(
     typesVehiclesRoutes,
     polizesRoutes,
     reservationsRoutes,
+    carFeaturesRoutes,
+    vehicleOwnerRoutes
 );
 
 const permission = store.getters.authPermission;

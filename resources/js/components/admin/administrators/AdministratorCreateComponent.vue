@@ -61,7 +61,7 @@
                         <div class="db-field-radio-group">
                             <div class="db-field-radio">
                                 <div class="custom-radio">
-                                    <input :value="enums.statusEnum.ACTIVE" v-model="props.form.status" id="active"
+                                    <input :value="enums.statusAdminEnum.ACTIVE" v-model="props.form.status" id="active"
                                         type="radio" class="custom-radio-field" />
                                     <span class="custom-radio-span"></span>
                                 </div>
@@ -71,7 +71,7 @@
                             </div>
                             <div class="db-field-radio">
                                 <div class="custom-radio">
-                                    <input :value="enums.statusEnum.INACTIVE" v-model="props.form.status" type="radio"
+                                    <input :value="enums.statusAdminEnum.INACTIVE" v-model="props.form.status" type="radio"
                                         id="inactive" class="custom-radio-field" />
                                     <span class="custom-radio-span"></span>
                                 </div>
@@ -157,7 +157,7 @@
 <script>
 import SmSidebarModalCreateComponent from "../components/buttons/SmSidebarModalCreateComponent";
 import LoadingComponent from "../components/LoadingComponent";
-import statusEnum from "../../../enums/modules/statusEnum";
+import statusAdminEnum from "../../../enums/modules/statusAdminEnum";
 import alertService from "../../../services/alertService";
 import appService from "../../../services/appService";
 
@@ -174,10 +174,10 @@ export default {
                 isActive: false,
             },
             enums: {
-                statusEnum: statusEnum,
-                statusEnumArray: {
-                    [statusEnum.ACTIVE]: this.$t("label.active"),
-                    [statusEnum.INACTIVE]: this.$t("label.inactive"),
+                statusAdminEnum: statusAdminEnum,
+                statusAdminEnumArray: {
+                    [statusAdminEnum.ACTIVE]: this.$t("label.active"),
+                    [statusAdminEnum.INACTIVE]: this.$t("label.inactive"),
                 },
             },
             errors: {},
@@ -191,7 +191,7 @@ export default {
         this.$store.dispatch("branch/lists", {
             order_column: "id",
             order_type: "asc",
-            status: statusEnum.ACTIVE,
+            status: statusAdminEnum.ACTIVE,
         });
         this.$store.dispatch('company/lists').then(companyRes => {
             this.$store.dispatch('countryCode/show', companyRes.data.data.company_country_code).then(res => {
@@ -243,7 +243,7 @@ export default {
                 password: "",
                 password_confirmation: "",
                 branch_id: this.defaultAccess.branch_id,
-                status: statusEnum.ACTIVE,
+                status: statusAdminEnum.ACTIVE,
                 country_code: this.country_code,
             };
         },
@@ -266,7 +266,7 @@ export default {
                         password: "",
                         password_confirmation: "",
                         branch_id: this.defaultAccess.branch_id,
-                        status: statusEnum.ACTIVE,
+                        status: statusAdminEnum.ACTIVE,
                         country_code: this.country_code,
                     };
                     this.errors = {};

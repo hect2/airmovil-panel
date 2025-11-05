@@ -7,26 +7,23 @@ use Illuminate\Support\Facades\Log;
 use App\Http\Requests\PaginateRequest;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class ReservationsService
+class CarFeaturesService
 {
+    protected array $filterableFields = [
+        'title'
+    ];
 
     protected $firebase;
     protected $pathDomain;
 
-    protected array $filterableFields = [
-        'status',
-        'paymentMethodName',
-        'bookedWithDriver'
-    ];
-
     public function __construct(FirebaseAuthService $firebase)
     {
         $this->firebase = $firebase;
-        $this->pathDomain = env('APP_URL');   
+        $this->pathDomain = env('APP_URL');
     }
 
     /**
-     * Listar marcas con filtros y paginación
+     * Listar tipos de vehículos con filtros y paginación
      *
      * @throws Exception
      */
@@ -40,8 +37,8 @@ class ReservationsService
             $orderType   = $request->get('order_type') ?? 'desc';
             $page        = $request->get('page', 1);
 
-            $documents = collect($this->firebase->getAll('reservations'));
-            // \Log::info($documents);
+            $documents = collect($this->firebase->getAll('carFeatures'));
+
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {
                 foreach ($requests as $key => $value) {
@@ -66,61 +63,30 @@ class ReservationsService
             });
 
             $sorted = $filtered->sortBy([
-                [$orderColumn, $orderType === 'desc' ? SORT_DESC : SORT_ASC],
-            ])->values();
+            [$orderColumn, $orderType === 'desc' ? SORT_DESC : SORT_ASC],
+        ])->values();
 
-            if ( $method === 'paginate' ) {
-                $total = $sorted->count();
-                $items = $sorted->forPage($page, $perPage)->values();
+        if ( $method === 'paginate' ) {
+            $total = $sorted->count();
+            $items = $sorted->forPage($page, $perPage)->values();
 
-                return new LengthAwarePaginator(
-                    $items,
-                    $total,
-                    $perPage,
-                    $page,
-                    [
-                        'path' => request()->url(), // base URL
-                        'query' => request()->query(), // mantiene los parámetros en los links
-                    ]
-                );
-            }
+            return new LengthAwarePaginator(
+                $items,
+                $total,
+                $perPage,
+                $page,
+                [
+                    'path' => request()->url(), // base URL
+                    'query' => request()->query(), // mantiene los parámetros en los links
+                ]
+            );
+        }
 
-            return $sorted;
+        return $sorted;
 
         } catch (Exception $exception) {
             Log::error($exception->getMessage());
             throw new Exception($exception->getMessage(), 422);
         }
     }
-
-    /**
-     * Mostrar tipo de vehículo individual
-     *
-     * @throws Exception
-     */
-    public function show($reservation)
-    {
-        try {
-
-            $reservations = $this->firebase->getById('reservations', $reservation);
-            $dataFeatures = [];
-
-            $values = array_slice($reservations['car']['features'], 0, 10);
-
-            foreach($values as $value){
-                $feature = $this->firebase->getById('carFeatures', $value);
-                $dataFeatures[] = $feature['title'] ?? null;
-            }
-
-            $reservations['car']['features'] = $dataFeatures;
-
-            return collect($reservations);
-
-            return collect($this->firebase->getById('reservations', $reservation));
-        } catch (Exception $exception) {
-            Log::error($exception->getMessage());
-            throw new Exception($exception->getMessage(), 422);
-        }
-    }
-
 }

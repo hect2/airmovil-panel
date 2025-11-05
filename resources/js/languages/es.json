@@ -29,7 +29,10 @@
         "cookies": "Cookies",
         "social_media": "Redes Sociales",
         "license": "Licencia",
-        "administrators": "Administradores",
+        "administrators": "Administrador del Sistema",
+        "vehicleOwner": "Propietario de Vehículo",
+        "vehicleOwners": "Propietario de Vehículo",
+        "owners": "Propietarios",
         "addresses": "Direcciones",
         "push_notifications": "Notificaciones Push",
         "delivery_boys": "Repartidores",
@@ -76,7 +79,7 @@
         "reports": "Reportes",
         "setup": "Configuración",
         "home": "Inicio",
-        "dining_tables": "Categoría de Carro",
+        "dining_tables": "Categoría de Vehiculo",
         "table_orders": "Pedidos de Mesa",
         "subscribers": "Suscriptores",
         "transactions_sales": "Ventas",
@@ -86,7 +89,8 @@
         "typesVehicles": "Tipos de Vehiculos",
         "polizes": "Registro de Polizas",
         "reservations": "Reservas",
-        "reservations_sales": "Reservas"
+        "reservations_sales": "Reservas",
+        "carFeatures": "Carateristica de vehiculo"
     },
     "label": {
         "previous": "Anterior",

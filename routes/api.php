@@ -79,6 +79,7 @@ use App\Http\Controllers\Admin\NotificationAlertController;
 use App\Http\Controllers\Admin\DeliveryBoyAddressController;
 use App\Http\Controllers\Admin\CreditBalanceReportController;
 use App\Http\Controllers\Admin\AdministratorAddressController;
+use App\Http\Controllers\Admin\CarFeaturesController;
 use App\Http\Controllers\Table\OrderController as TableOrderController;
 use App\Http\Controllers\Frontend\ItemController as FrontendItemController;
 use App\Http\Controllers\Frontend\PageController as FrontendPageController;
@@ -88,6 +89,7 @@ use App\Http\Controllers\Frontend\BranchController as FrontendBranchController;
 use App\Http\Controllers\Frontend\CouponController as FrontendCouponController;
 use App\Http\Controllers\Frontend\SliderController as FrontendSliderController;
 use App\Http\Controllers\Admin\TableOrderController as AdminTableOrderController;
+use App\Http\Controllers\Admin\VehicleOwnerController;
 use App\Http\Controllers\Payment\BacController;
 use App\Http\Controllers\Frontend\AddressController as FrontendAddressController;
 use App\Http\Controllers\Frontend\CookiesController as FrontendCookiesController;
@@ -383,6 +385,12 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'localization']
         Route::delete('/address/{customer}/{address}', [CustomerAddressController::class, 'destroy']);
     });
 
+    Route::prefix('vehicleOwners')->name('vehicleOwners.')->group(function () {
+        Route::get('/', [VehicleOwnerController::class, 'index']);
+        Route::post('/', [VehicleOwnerController::class, 'store']);
+        Route::match(['post', 'put', 'patch'], '/{vehicleOwner}', [VehicleOwnerController::class, 'update']);
+    });
+
     Route::prefix('my-order')->name('my-order.')->group(function () {
         Route::get('/show/{user}/{order}', [MyOrderDetailsController::class, 'orderDetails']);
     });
@@ -631,6 +639,15 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'localization']
         Route::match(['post', 'put', 'patch'], '/{vehicles}', [TypesVehiclesController::class, 'update']);
         Route::delete('/{vehicles}', [TypesVehiclesController::class, 'destroy']);
         Route::get('/export', [TypesVehiclesController::class, 'export']);
+    });
+
+    Route::prefix('carFeatures')->name('carFeatures.')->group(function () {
+        Route::get('/', [CarFeaturesController::class, 'index']);
+        // Route::get('/show/{carFeature}', [CarFeaturesController::class, 'show']);
+        // Route::post('/', [CarFeaturesController::class, 'store']);
+        // Route::match(['post', 'put', 'patch'], '/{carFeature}', [CarFeaturesController::class, 'update']);
+        // Route::delete('/{carFeature}', [CarFeaturesController::class, 'destroy']);
+        // Route::get('/export', [CarFeaturesController::class, 'export']);
     });
 
     Route::prefix('marks')->name('marks.')->group(function () {

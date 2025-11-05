@@ -115,7 +115,7 @@ class PolizesService
                 throw new Exception("Ha ocurrido un error 1", 422);
             }
 
-            // $this->validateNit($request->nit, $tokenAuth);
+            $code = $this->validateNit($request->nit, $tokenAuth);
 
             $partsPolize = explode('-', $request->policyNumber);
 
@@ -129,7 +129,7 @@ class PolizesService
                     "insuranceUser" => env('INSUR_USER'),
                     "paymentMethod" => env('PAYMENT_METHOD'),
                     "type" => env('TYPE'),
-                    "contractorNumber" => "12123123",
+                    "contractorNumber" => $code,
                     "encryptedPolicyNumber" => "POLICE-ENCRYPT",
                     "ramo" => $partsPolize[0],
                     "subRamo" => $partsPolize[1],
@@ -160,7 +160,9 @@ class PolizesService
             }
 
             $code = $this->validateNit($request->nit, $tokenAuth);
-            \Log::info($code);
+
+            //$encryptPolicy = $this->encryptPolize($request->policyNumber, $tokenAuth);
+
             $partsPolize = explode('-', $request->policyNumber);
 
             $this->firebase->update('insurancePolicies', $polize, [
@@ -174,7 +176,7 @@ class PolizesService
                 "paymentMethod" => env('PAYMENT_METHOD'),
                 "type" => env('TYPE'),
                 "contractorNumber" => $code,
-                "encryptedPolicyNumber" => "POLICE-ENCRYPT",
+                "encryptedPolicyNumber" => "POLICE-ENCRYPT", //$encryptPolicy,
                 "ramo" => $partsPolize[0],
                 "subRamo" => $partsPolize[1],
                 "office" => $partsPolize[2],
@@ -306,7 +308,7 @@ class PolizesService
             ]);
 
             $data = json_decode($nitResponse->getBody(), true);
-            \Log::info($data);
+
             if (
                 isset($data['code']) && $data['code'] != 200 &&
                 isset($data['recordset']['descripcion']) &&
@@ -343,14 +345,16 @@ class PolizesService
 
             $data = json_decode($responseEncrypt->getBody(), true);
 
-            // if (
-            //     isset($data['code']) && $data['code'] != 200 &&
-            //     isset($data['recordset']['descripcion']) &&
-            //     strtolower($data['recordset']['descripcion']) !== 'activo'
-            // ) {
-            //     throw new Exception("El nit ingresado no es valido", 422);
-            // }
-
+            if (
+                isset($data['code']) && $data['code'] != 200 &&
+                isset($data['recordset']['descripcion']) &&
+                strtolower($data['recordset']['descripcion']) !== 'activo'
+            ) {
+                throw new Exception("El nit ingresado no es valido", 422);
+            }
+            Log::info($data);
+            //?TODO: NECESITO VER COMO VIENE EL PARAMETRO STRING ENCRIPTADO
+            // return $data['recordset'][''] 
 
         } catch (RequestException $exception) {
             throw new Exception("Ha ocurrido un error al conectarse a universales", 422);

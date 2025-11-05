@@ -58,7 +58,7 @@ class CustomerController extends AdminController
 
     public function update(
         CustomerRequest $request,
-        User $customer
+        $customer
     ) : \Illuminate\Http\Response | CustomerResource | \Illuminate\Contracts\Foundation\Application | \Illuminate\Contracts\Routing\ResponseFactory {
         try {
             return new CustomerResource($this->customerService->update($request, $customer));

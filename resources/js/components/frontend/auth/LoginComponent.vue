@@ -1,17 +1,10 @@
 <template>
     <LoadingComponent :props="loading"/>
-    <section class="pt-8 pb-16">
+    <section class="pt-8 pb-24">
         <div class="container max-w-[360px] p-4 mb-6 sm:px-6 shadow-xs rounded-2xl bg-white">
             <h2 class="capitalize mb-6 text-center text-[22px] font-semibold leading-[34px] text-heading">
                 {{ $t('label.welcome_back') }}
             </h2>
-            <div v-if="errors.validation"
-                 class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 mb-5 rounded relative" role="alert">
-                <span class="block sm:inline">{{ errors.validation }}</span>
-                <span class="absolute top-0 bottom-0 right-0 px-4 py-3 cursor-pointer" @click="close">
-                    <i class="lab lab-close-circle-line margin-top-5-px"></i>
-                </span>
-            </div>
             <form @submit.prevent="login">
                 <div class="mb-4">
                     <label for="formEmail" class="text-sm capitalize mb-1 text-heading">{{ $t('label.email') }}</label>
@@ -47,17 +40,6 @@
                         class="w-full h-12 text-center capitalize font-medium rounded-3xl mb-6 text-white bg-[var(--brand)]">
                     {{ $t('button.login') }}
                 </button>
-                <div class="flex items-center justify-center gap-2 mb-4">
-                    <span class="text-xs text-[#6E7191]">{{ $t('message.have_account') }}</span>
-                    <router-link :to="{ name: 'auth.signupPhone' }" class="text-xs font-medium text-primary">
-                        {{ $t('button.signup') }}
-                    </router-link>
-                </div>
-                <!-- <p class="text-sm uppercase text-center mb-3 text-[#6E7191]">{{ $t('label.or') }}</p>
-                <router-link :to="{ name: 'auth.guestLogin' }"
-                             class="w-full h-12 leading-[46px] text-center capitalize font-medium rounded-3xl border text-primary border-primary bg-white">
-                    {{ $t('button.login_as_guest') }}
-                </router-link> -->
             </form>
         </div>
 

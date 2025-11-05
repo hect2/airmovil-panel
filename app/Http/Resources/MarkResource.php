@@ -37,6 +37,7 @@ class MarkResource extends JsonResource
             'driverRentPrice' => $this['driverRentPrice'] ?? null,
             'totalSeats' => $this['totalSeats'] ?? null,
             'features' => $this['features'] ?? [],
+            'dataFeatures' => $this['dataFeatures'] ?? [],
             'fuelType' => $this['fuelType'] ?? null,
             'hasAC' => $this['hasAC'] ?? false,
             'rentPrice' => $this['rentPrice'] ?? null,

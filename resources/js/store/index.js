@@ -95,6 +95,8 @@ import { typesVehicles } from "./modules/typesVehicles";
 import { polizes } from "./modules/polizes";
 import { customerUser } from "./modules/customerUser";
 import { reservations } from "./modules/reservations";
+import { carFeatures } from "./modules/carFeatures";
+import { vehicleOwners } from "./modules/vehicleOwners";
 
 export default new createStore({
     state: {},
@@ -195,6 +197,8 @@ export default new createStore({
         polizes,
         customerUser,
         reservations,
+        carFeatures,
+        vehicleOwners
     },
     plugins: [
         createPersistedState({

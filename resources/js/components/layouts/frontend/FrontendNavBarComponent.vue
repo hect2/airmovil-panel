@@ -4,8 +4,8 @@
         <div class="container flex flex-col lg:flex-row items-center justify-between">
             <div class="w-full flex items-center justify-between gap-5 xl:gap-8 lg:justify-start lg:w-fit">
                 <router-link :to="{ name: 'frontend.home' }">
-                    <!-- <img class="w-32" :src="setting.theme_logo" alt="logo"> -->
-                    AIRMOVIL
+                    <img class="w-32" :src="setting.theme_logo" alt="logo">
+                    <!-- AIRMOVIL -->
                 </router-link>
 
                 <div class="relative dropdown-group" v-if="branches.length > 1">

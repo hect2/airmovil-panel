@@ -4,7 +4,7 @@
 
     <div id="sidebar" class="drawer">
         <div class="drawer-header">
-            <h3 class="drawer-title">{{ $t("menu.customers") }}</h3>
+            <h3 class="drawer-title">{{ $t("menu.vehicleOwner") }}</h3>
             <button class="fa-solid fa-xmark close-btn" @click="reset"></button>
         </div>
         <div class="drawer-body">
@@ -128,7 +128,7 @@ import alertService from "../../../services/alertService";
 import appService from "../../../services/appService";
 
 export default {
-    name: "CustomerCreateComponent",
+    name: "VehicleOwnerCreateComponent",
     components: { SmSidebarModalCreateComponent, LoadingComponent },
     props: ["props"],
     data() {
@@ -179,7 +179,7 @@ export default {
         },
         reset: function () {
             appService.sideDrawerHide();
-            this.$store.dispatch("customer/reset").then().catch();
+            this.$store.dispatch("vehicleOwners/reset").then().catch();
             this.errors = {};
             this.$props.props.form = {
                 name: "",
@@ -193,10 +193,10 @@ export default {
         save: function () {
             try {
 
-                const tempId = this.$store.getters["customer/temp"].temp_id;
+                const tempId = this.$store.getters["vehicleOwners/temp"].temp_id;
                 this.loading.isActive = true;
                 this.$store
-                    .dispatch("customer/save", this.props)
+                    .dispatch("vehicleOwners/save", this.props)
                     .then((res) => {
                         appService.sideDrawerHide();
                         this.loading.isActive = false;

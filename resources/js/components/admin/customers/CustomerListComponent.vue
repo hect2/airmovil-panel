@@ -47,7 +47,7 @@
                             }}</label>
                             <vue-select class="db-field-control f-b-custom-select" id="searchStatus"
                                 v-model="props.search.status"
-                                :options="[{ id: enums.statusEnum.ACTIVE, name: $t('label.active') }, { id: enums.statusEnum.INACTIVE, name: $t('label.inactive') },]"
+                                :options="[{ id: enums.statusCustomerEnum.ACTIVE, name: $t('label.active') }, { id: enums.statusCustomerEnum.INACTIVE, name: $t('label.inactive') },]"
                                 label-by="name" value-by="id" :closeOnSelect="true" :searchable="true" :clearOnClose="true"
                                 placeholder="--" search-placeholder="--" />
                         </div>
@@ -94,18 +94,18 @@
                             </td>
                             <td class="db-table-body-td">
                                 <span :class="statusClass(customer.status)">
-                                    {{ enums.statusEnumArray[customer.status] }}
+                                    {{ enums.statusCustomerEnumArray[customer.status] }}
                                 </span>
                             </td>
                             <td class="db-table-body-td hidden-print"
                                 v-if="permissionChecker('customers_show') || permissionChecker('customers_edit') || permissionChecker('customers_delete')">
                                 <div class="flex justify-start items-center sm:items-start sm:justify-start gap-1.5">
-                                    <SmIconViewComponent :link="'admin.customers.show'" :id="customer.id"
-                                        v-if="permissionChecker('customers_show')" />
+                                    <!-- <SmIconViewComponent :link="'admin.customers.show'" :id="customer.id"
+                                        v-if="permissionChecker('customers_show')" /> -->
                                     <SmIconSidebarModalEditComponent @click="edit(customer)"
                                         v-if="permissionChecker('customers_edit')" />
-                                    <SmIconDeleteComponent @click="destroy(customer.id)"
-                                        v-if="customer.id !== 2 && permissionChecker('customers_delete')" />
+                                    <!-- <SmIconDeleteComponent @click="destroy(customer.id)"
+                                        v-if="customer.id !== 2 && permissionChecker('customers_delete')" /> -->
 
                                 </div>
                             </td>
@@ -132,7 +132,7 @@ import PaginationTextComponent from "../components/pagination/PaginationTextComp
 import PaginationBox from "../components/pagination/PaginationBox";
 import PaginationSMBox from "../components/pagination/PaginationSMBox";
 import appService from "../../../services/appService";
-import statusEnum from "../../../enums/modules/statusEnum";
+import statusCustomerEnum from "../../../enums/modules/statusCustomerEnum";
 import TableLimitComponent from "../components/TableLimitComponent";
 import SmIconViewComponent from "../components/buttons/SmIconViewComponent";
 import SmIconSidebarModalEditComponent from "../components/buttons/SmIconSidebarModalEditComponent";
@@ -166,10 +166,10 @@ export default {
                 isActive: false,
             },
             enums: {
-                statusEnum: statusEnum,
-                statusEnumArray: {
-                    [statusEnum.ACTIVE]: this.$t("label.active"),
-                    [statusEnum.INACTIVE]: this.$t("label.inactive"),
+                statusCustomerEnum: statusCustomerEnum,
+                statusCustomerEnumArray: {
+                    [statusCustomerEnum.ACTIVE]: this.$t("label.active"),
+                    [statusCustomerEnum.INACTIVE]: this.$t("label.inactive"),
                 },
             },
             printLoading: true,
@@ -182,10 +182,8 @@ export default {
                     name: "",
                     email: "",
                     phone: "",
-                    password: "",
-                    password_confirmation: "",
                     country_code: "",
-                    status: statusEnum.ACTIVE,
+                    status: statusCustomerEnum.ACTIVE,
                 },
                 search: {
                     paginate: 1,
@@ -241,7 +239,7 @@ export default {
             return appService.permissionChecker(e);
         },
         statusClass: function (status) {
-            return appService.statusClass(status);
+            return appService.statusCustomerClass(status);
         },
         phoneNumber(e) {
             return appService.phoneNumber(e);
@@ -258,7 +256,6 @@ export default {
             this.props.search.name = "";
             this.props.search.email = "";
             this.props.search.phone = "";
-            this.props.search.branch_id = null;
             this.props.search.status = null;
             this.list();
         },
@@ -286,7 +283,6 @@ export default {
                         name: customer.name,
                         email: customer.email,
                         phone: customer.phone,
-                        password: customer.password,
                         status: customer.status,
                         country_code: this.country_code,
                     };

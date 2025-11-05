@@ -95,7 +95,7 @@
                                 }}</span>
                                 <span class="db-list-item-text w-full sm:w-1/2">
                                     <span :class="statusClass(administrator.status)">{{
-                                        enums.statusEnumArray[administrator.status]
+                                        enums.statusAdminEnumArray[administrator.status]
                                     }}</span>
                                 </span>
                             </div>
@@ -211,7 +211,7 @@
 
 <script>
 import LoadingComponent from "../components/LoadingComponent";
-import statusEnum from "../../../enums/modules/statusEnum";
+import statusAdminEnum from "../../../enums/modules/statusAdminEnum";
 import addressTypeEnum from "../../../enums/modules/addressTypeEnum";
 import alertService from "../../../services/alertService";
 import appService from "../../../services/appService";
@@ -241,11 +241,11 @@ export default {
                 isActive: false,
             },
             enums: {
-                statusEnum: statusEnum,
+                statusAdminEnum: statusAdminEnum,
                 addressTypeEnum: addressTypeEnum,
-                statusEnumArray: {
-                    [statusEnum.ACTIVE]: this.$t("label.active"),
-                    [statusEnum.INACTIVE]: this.$t("label.inactive"),
+                statusAdminEnumArray: {
+                    [statusAdminEnum.ACTIVE]: this.$t("label.active"),
+                    [statusAdminEnum.INACTIVE]: this.$t("label.inactive"),
                 },
                 addressTypeEnumArray: {
                     [addressTypeEnum.WORK]: this.$t("label.work"),

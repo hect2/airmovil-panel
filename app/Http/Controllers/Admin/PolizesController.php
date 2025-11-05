@@ -49,7 +49,6 @@ class PolizesController extends AdminController
     public function store(PolizesRequest $request)
     {
         try {
-            \Log::info($request->all());
             return new PolizesResource($this->polizeService->store($request));
         } catch (Exception $exception) {
             return response(['status' => false, 'message' => $exception->getMessage()], 422);

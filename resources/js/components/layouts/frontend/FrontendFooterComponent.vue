@@ -51,8 +51,8 @@
         </div>
 
         <!-- Onda decorativa -->
-        <div class="relative h-24 overflow-hidden">
-            <svg class="absolute bottom-0 w-full h-full" viewBox="0 0 1440 120" preserveAspectRatio="none">
+        <div class="h-24 overflow-hidden">
+            <svg class="absolute bottom-0 w-full" viewBox="0 0 1440 120" preserveAspectRatio="none">
                 <path d="M0,64 C240,96 480,96 720,64 C960,32 1200,32 1440,64 L1440,120 L0,120 Z" fill="#001233" />
                 <path d="M0,80 C320,48 640,48 960,80 C1120,96 1280,96 1440,80 L1440,120 L0,120 Z" fill="#001233"
                     opacity="0.5" />
