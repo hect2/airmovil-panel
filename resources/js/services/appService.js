@@ -397,7 +397,7 @@ export default {
                             </a>
 
                         ` : ''}
-                        <a href="#" class="voucher-card">
+                        <a href="/admin/reservations?id=${data.id_order}" class="voucher-card">
                             <i class="fa fa-receipt"></i>
                             <span>Ver Orden</span>
                             <i class="fa fa-arrow-right"></i>

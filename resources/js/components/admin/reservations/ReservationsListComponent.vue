@@ -275,6 +275,7 @@ export default {
     },
     data() {
         return {
+            reservationId: null,
             loading: {
                 isActive: false
             },
@@ -340,6 +341,14 @@ export default {
     },
     mounted() {
         this.list();
+        // Obtener el ID de la URL al montar el componente
+        const params = new URLSearchParams(window.location.search);
+        const id = params.get('id');
+        console.log("ID de la URL:", id);
+        if (id) {
+            this.reservationId = id;
+            this.view_from_automatic(id); // Llamar al método para abrir el modal
+        }
     },
     methods: {
         view(reservation) {
@@ -456,6 +465,15 @@ export default {
                 style: 'currency',
                 currency: 'USD'
             }).format(value);
+        },
+        getReservationUrl(reservation) {
+            window.location.href = url;
+
+        },
+        view_from_automatic(id) {
+            this.selectedReservation = id;
+            appService.sideDrawerShow();
+            this.showModal = true;
         },
     }
 }
