@@ -44,6 +44,7 @@ return [
     'bac' => [
         'api_key' => env('BAC_API_KEY', ''),
         'auth_url' => env('BAC_AUTH_URL', ''),
+        'is_three_ds' => env('BAC_IS_THREE_DS', 'false'),
     ],
 
 ];

@@ -157,7 +157,7 @@ class BacController extends Controller
                     'decision'          =>  $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
                     'reasonCode'        =>  $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
                     'requestID'         =>  $response['data']['TransactionIdentifier'],
-                    'authorizationCode' =>  $response['data']['AuthorizationCode'],
+                    'authorizationCode' =>  $response['data']['AuthorizationCode'] ?? '',
                     'error_code'      => $code,
                 ];
 
@@ -165,7 +165,7 @@ class BacController extends Controller
             }
         } catch (\Exception $e) {
             $decision = $e->getMessage();
-            return response()->json(['error' => 'true', 'code' => 400, 'message' => $decision], 400);
+            return response()->json(['error' => 'true', 'code' => 400, 'message' => $decision, 'linea'=> $e->getLine(), 'file' => $e->getFile() ], 400);
         }
     }
 
@@ -237,6 +237,31 @@ class BacController extends Controller
         return response()->json(['message' => 'Procesando reembolso', 'data' => $response['data']], $response['Code']);
     }
 
+    public function void(Request $request)
+    {
+        $float_transaction_uuid = $request->input('float_transaction_uuid');
+
+        $float_transaction = TransactionFloat::where('uuid', $float_transaction_uuid)->first();
+        if (!$float_transaction) {
+            return response()->json(['message' => 'Transacción no encontrada'], 404);
+        }
+
+        $data = [
+            'ExternalIdentifier'        => '',
+            'TransactionIdentifier'     => $float_transaction->request_id,
+        ];
+
+        $response = PaymentBacService::processVoid($data);
+        $data_response = $response['data'];
+
+        $float_transaction->update([
+            'refund_id' => $response['data']['TransactionIdentifier'],
+            'date_refund' => now(),
+        ]);
+
+        return response()->json(['message' => 'Procesando reembolso', 'data' => $response['data']], $response['Code']);
+    }
+
     public function payment(Request $request)
     {
         $capture_uuid = $request->input('capture_uuid');
@@ -281,17 +306,17 @@ class BacController extends Controller
 
     private function processFloating($args): array
     {
+        Log::error('processFloating: ' . json_encode($args));
         $data = $args['data'];
         $total_amount = $data['TotalAmount'];
         $transaction_uuid = $args['transaction_uuid'];
-
         $float_transaction = TransactionFloat::create([
             'uuid' => Str()->uuid(),
             'transaction_uuid' => $transaction_uuid,
             'total' => $total_amount,
             'request_id' => $args['request_id'] ?? '',
         ]);
-
+        $data['OrderIdentifier'] = str_replace('-', '', $float_transaction->uuid);
         $response_auth = PaymentBacService::processAuth($data);
         $float_transaction->update([
             'request_id' => $response_auth['data']['TransactionIdentifier'] ?? '',
@@ -301,6 +326,7 @@ class BacController extends Controller
 
     private function processCapture($args): array
     {
+        $is_three_ds = config('services.bac.is_three_ds');
         $data = $args['data_capture'];
         $total_amount = $args['data_capture']['TotalAmount'];
         $transaction_uuid = $args['transaction_uuid'];
@@ -314,9 +340,10 @@ class BacController extends Controller
         $data_response = $response_capture['data'];
         Log::info('Respuesta de captura', ['response' => $data_response]);
 
-        $spiToken = $data_response['SpiToken'];
+        $spiToken = $data_response['SpiToken'] ?? '';
 
         if ($is_floating) {
+            Log::error('is_floating: ' . json_encode(['response_capture' => $response_capture]));
             $capture_data = PaymentTransactions::create([
                 'uuid' => Str()->uuid(),
                 'transaction_uuid' => $transaction_uuid,
@@ -329,24 +356,24 @@ class BacController extends Controller
                 'total_amount' => $total_amount,
                 'currency_code' => $data_response['CurrencyCode'],
                 'rrn' => $data_response['RRN'],
-                'host_rrn' => $data_response['HostRRN'],
-                'card_brand' => $data_response['CardBrand'],
-                'card_suffix' => $data_response['CardSuffix'],
-                'iso_response_code' => $data_response['IsoResponseCode'],
-                'pan_token' => $data_response['PanToken'],
-                'external_identifier' => $data_response['ExternalIdentifier'],
-                'order_identifier' => $data_response['OrderIdentifier'],
-                'spi_token_encrypted' => Crypt::encryptString($data_response['SpiToken']),
+                'host_rrn' => $data_response['HostRRN'] ?? '',
+                'card_brand' => $data_response['CardBrand'] ?? '',
+                'card_suffix' => $data_response['CardSuffix'] ?? '',
+                'iso_response_code' => $data_response['IsoResponseCode'] ?? '',
+                'pan_token' => $data_response['PanToken'] ?? '',
+                'external_identifier' => $data_response['ExternalIdentifier'] ?? '',
+                'order_identifier' => $data_response['OrderIdentifier'] ?? '',
+                'spi_token_encrypted' => '', // Crypt::encryptString($data_response['SpiToken']),
             ]);
         }
 
 
-        if ($pay) {
+        if ($pay && $is_three_ds) {
             // Procesar el pago inmediatamente después de la captura
             $response_pay = $this->processPay($spiToken, $capture_data);
         }
 
-        return $pay ? $response_pay : $response_capture;
+        return $pay && $is_three_ds ? $response_pay : $response_capture;
     }
 
     private function processPay($spiToken, $paymentTransaction): array

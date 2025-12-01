@@ -49,6 +49,8 @@ class PaymentBacService
             $full_url = $url . '/Refund';
         } elseif ($method == 'payment') {
             $full_url = $url . '/Payment';
+        } elseif ($method == 'void') {
+            $full_url = $url . '/Void';
         } else {
             $full_url = $url;
         }
@@ -61,9 +63,10 @@ class PaymentBacService
      */
     public static function buildPayload(array $data): array
     {
+        $currency_code = $data['CurrencyCode'] == 'GTQ'? '320':$data['CurrencyCode'];
         $payload = [
             'TotalAmount' => $data['TotalAmount'],
-            'CurrencyCode' => $data['CurrencyCode'],
+            'CurrencyCode' => $currency_code,
             'ThreeDSecure' => $data['ThreeDSecure'] ?? false,
             'Source' => $data['Source'],
             'OrderIdentifier' => $data['OrderIdentifier']
@@ -269,6 +272,8 @@ class PaymentBacService
             $application_json = 'application/json';
             $response_client = $client->post($url, [
                 'headers' => [
+                    'PowerTranz-PowerTranzId' => '77701459',
+                    'PowerTranz-PowerTranzPassword' => 'F5qaBzswSME1IniJhDdI1FmRRP0ByZJumTZltMBLzBpiWx4lPLOvK2',
                     'Accept' => $application_json,
                     'Content-Type' => $application_json,
                 ],
@@ -456,6 +461,47 @@ class PaymentBacService
                 'TotalAmount' => $data['TotalAmount'],
                 'TipAmount' => $data['TipAmount'] ?? null,
                 'TaxAmount' => $data['TaxAmount'] ?? null,
+            ];
+
+            // Simulate response for local testing
+            if (env('SIMULATE_RESPONSE', false)) {
+                return self::simulateResponse($method, 200);
+            }
+
+            // Send request with Guzzle
+            return self::send_request($full_url, $payload, $method);
+        } catch (Exception $e) {
+            return [
+                'Code' => '500',
+                'data' => ['Message' => 'Error al conectar con el servicio de pagos.', 'Error' => $e->getMessage()]
+            ];
+        }
+    }
+
+    public static function processVoid(array $data)
+    {
+        try {
+            $method = 'void';
+
+            // Data Validate using Validator
+            $validations = [
+                'TransactionIdentifier' => 'required|string',
+                'ExternalIdentifier' => 'nullable|string',
+            ];
+
+            $errors = self::validatePaymentData($data, $validations);
+
+            if (!empty($errors)) {
+                return $errors;
+            }
+
+            // Build full url
+            $full_url = self::getFullUrl($method);
+
+            // Build payload
+            $payload = [
+                'TransactionIdentifier' => $data['TransactionIdentifier'],
+                'ExternalIdentifier' => $data['ExternalIdentifier'] ?? '',
             ];
 
             // Simulate response for local testing
