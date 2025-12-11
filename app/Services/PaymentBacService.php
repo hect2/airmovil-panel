@@ -378,7 +378,10 @@ class PaymentBacService
             }
 
             // Send request with Guzzle
-            return self::send_request($full_url, $payload, $method);
+
+            $response = self::send_request($full_url, $payload, $method);
+            Log::error('Response  processAuth : '. json_encode($response));
+            return $response;
         } catch (Exception $e) {
             return [
                 'Code' => '500',
@@ -422,7 +425,9 @@ class PaymentBacService
             }
 
             // Send request with Guzzle
-            return self::send_request($full_url, $payload, $method);
+            $response = self::send_request($full_url, $payload, $method);
+            Log::error('Response  processCapture : '. json_encode($response));
+            return $response;
         } catch (Exception $e) {
             return [
                 'Code' => '500',
@@ -458,7 +463,7 @@ class PaymentBacService
             $payload = [
                 'Refund' => $data['Refund'],
                 'TransactionIdentifier' => $data['TransactionIdentifier'] ?? null,
-                'TotalAmount' => $data['TotalAmount'],
+                'TotalAmount' => (float) $data['TotalAmount'],
                 'TipAmount' => $data['TipAmount'] ?? null,
                 'TaxAmount' => $data['TaxAmount'] ?? null,
             ];
@@ -469,7 +474,9 @@ class PaymentBacService
             }
 
             // Send request with Guzzle
-            return self::send_request($full_url, $payload, $method);
+            $response = self::send_request($full_url, $payload, $method);
+            Log::error('Response  processRefund : '. json_encode($response));
+            return $response;
         } catch (Exception $e) {
             return [
                 'Code' => '500',
@@ -510,7 +517,9 @@ class PaymentBacService
             }
 
             // Send request with Guzzle
-            return self::send_request($full_url, $payload, $method);
+            $response = self::send_request($full_url, $payload, $method);
+            Log::error('Response  processRefund : '. json_encode($response));
+            return $response;
         } catch (Exception $e) {
             return [
                 'Code' => '500',
@@ -549,7 +558,9 @@ class PaymentBacService
             }
 
             // Send request with Guzzle
-            return self::send_request($full_url, $payload, $method);
+            $response = self::send_request($full_url, $payload, $method);
+            Log::error('Response  processRefund : '. json_encode($response));
+            return $response;
         } catch (\Throwable $e) {
             return [
                 'Code' => '500',

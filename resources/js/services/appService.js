@@ -445,16 +445,19 @@ export default {
                     ${data.float_transaction.total > data.total_capture ? `
                     <div class="bg-white rounded-xl shadow p-4 flex items-center justify-between gap-4">
                         ${!data.float_transaction.refund_id ? `
+                            ${data.captures.length === 0 ? `
                             <div class="grid grid-cols-1 gap-4 w-full text-gray-700">
                                 <button class="btn-partial-payment px-5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition duration-200">
                                 💳 Cobrar
                                 </button>
                             </div>
-                            <div class="grid grid-cols-1 gap-4 w-full text-gray-700">
-                                <button class="btn-partial-refund px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200">
-                                🔄 Reembolso
-                                </button>
-                            </div>
+                            ` : ''}
+                            ${/*<div class="grid grid-cols-1 gap-4 w-full text-gray-700">
+    <button
+        class="btn-partial-refund px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200">
+        🔄 Reembolso
+    </button>
+</div> */''}
                         `: ''}
                         <div class="grid grid-cols-1 gap-4 w-full text-gray-700">
                             Total ${!data.float_transaction.refund_id ? '' : 'Desembolsado'} : ${data.currency} ${data.float_transaction.total - total_capture}
@@ -482,10 +485,9 @@ export default {
                                                 ${item.transaction_type === 'Capture' ? 'Pagado' :
                                                     item.transaction_type === 'Refund' ? 'Reembolsado' : 'Pendiente'} float_transaction </span>
                                         </div>
-                                    ` : `
-                                        <button class="btn_refund px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200"
-                                        ${!data.float_transaction.refund_id ? '' : 'disabled'}  >🔄 Reembolso</button>
-                                    `}
+                                    ` : `${/* <button
+    class="btn_refund px-5 py-2.5 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-xl shadow-md transition duration-200"
+    ${!data.float_transaction.refund_id ? '' : 'disabled' }>🔄 Reembolso</button> */''}`}
                                 </td>
                             </tr>
                             `).join('')}
@@ -526,8 +528,12 @@ export default {
                                         })
                                             .then((res) => {
                                                 console.log('💳 Reembolso Respuesta:', res);
-                                                VueSimpleAlert.alert(`Reembolso exitoso: GTQ ${total}`, "Éxito", "success");
-                                                this.reloadTransaction(data.uuid); // función que recarga el modal
+                                                if (res.data.Approved) {
+                                                    VueSimpleAlert.alert(`Reembolso exitoso: GTQ ${total}`, "Éxito", "success");
+                                                    this.reloadTransaction(data.uuid); // función que recarga el modal
+                                                } else {
+                                                    VueSimpleAlert.alert("Error al procesar el reembolso", "Oops!", "error");
+                                                }
                                             })
                                             .catch((err) => {
                                                 console.error('💳 Reembolso Error:', err);
@@ -586,8 +592,12 @@ export default {
                                         })
                                             .then((res) => {
                                                 console.log('💳 Reembolso Respuesta:', res);
-                                                VueSimpleAlert.alert(`Reembolso exitoso: GTQ ${capture.total_amount}`, "Éxito", "success");
-                                                this.reloadTransaction(data.uuid); // función que recarga el modal
+                                                if (res.data.Approved) {
+                                                    VueSimpleAlert.alert(`Reembolso exitoso: GTQ ${capture.total_amount}`, "Éxito", "success");
+                                                    this.reloadTransaction(data.uuid); // función que recarga el modal
+                                                } else {
+                                                    VueSimpleAlert.alert("Error al procesar el reembolso", "Oops!", "error");
+                                                }
                                             })
                                             .catch((err) => {
                                                 console.error('💳 Reembolso Error:', err);
