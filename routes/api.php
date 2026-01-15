@@ -388,6 +388,7 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'localization']
     Route::prefix('vehicleOwners')->name('vehicleOwners.')->group(function () {
         Route::get('/', [VehicleOwnerController::class, 'index']);
         Route::post('/', [VehicleOwnerController::class, 'store']);
+        Route::post('/createExternalClient', [VehicleOwnerController::class, 'createExternalClient']);
         Route::match(['post', 'put', 'patch'], '/{vehicleOwner}', [VehicleOwnerController::class, 'update']);
     });
 

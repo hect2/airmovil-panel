@@ -14,6 +14,7 @@ export const vehicleOwners = {
             temp_id: null,
             isEditing: false,
         },
+        createExternalClient: [],
     },
     getters: {
         lists: function (state) {
@@ -33,7 +34,10 @@ export const vehicleOwners = {
         },
         listsUsers: function (state) {
             return state.listsUsers;
-        }
+        },
+        createExternalClient: function(state) {
+            return state.createExternalClient;
+        },
     },
     actions: {
         lists: function (context, payload) {
@@ -55,6 +59,7 @@ export const vehicleOwners = {
             });
         },
         save: function (context, payload) {
+            console.log("SAVE");
             return new Promise((resolve, reject) => {
                 let method = axios.post;
                 let url = '/admin/vehicleOwners';
@@ -128,6 +133,19 @@ export const vehicleOwners = {
                 });
             });
         },
+        createExternalClient: function (context, payload) {
+            console.log('CREATE_EXTERNAL');
+            return new Promise((resolve, reject) => {
+                axios.post(
+                    '/admin/vehicleOwners/createExternalClient',
+                    payload
+                ).then((res) => {
+                    resolve(res);
+                }).catch((err) => {
+                    reject(err);
+                });
+            });
+        },
     },
     mutations: {
         lists: function (state, payload) {
@@ -158,6 +176,9 @@ export const vehicleOwners = {
         },
         listsUsers: function(state, payload) {
             state.listsUsers = payload
+        },
+        createExternalClient: function(state, payload) {
+            state.createExternalClient = payload
         }
     },
 }

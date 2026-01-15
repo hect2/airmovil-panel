@@ -14,7 +14,7 @@
                             <ExcelComponent :method="xls" />
                         </div>
                     </div>
-                    <VehicleOwnerCreateComponent :props="props" v-if="permissionChecker('customers_create')" />
+                    <VehicleOwnerCreateComponent :props="props" v-if="permissionChecker('customers_edit')" />
                 </div>
             </div>
 
@@ -47,7 +47,7 @@
                             }}</label>
                             <vue-select class="db-field-control f-b-custom-select" id="searchStatus"
                                 v-model="props.search.status"
-                                :options="[{ id: enums.statusCustomerEnum.ACTIVE, name: $t('label.active') }, { id: enums.statusCustomerEnum.INACTIVE, name: $t('label.inactive') },]"
+                                :options="[{ id: enums.statusCustomerEnum.ACTIVE, name: $t('label.active') }, { id: enums.statusCustomerEnum.PENDING, name: $t('label.pending') }, { id: enums.statusCustomerEnum.INACTIVE, name: $t('label.inactive') },]"
                                 label-by="name" value-by="id" :closeOnSelect="true" :searchable="true" :clearOnClose="true"
                                 placeholder="--" search-placeholder="--" />
                         </div>
@@ -170,6 +170,7 @@ export default {
                 statusCustomerEnumArray: {
                     [statusCustomerEnum.ACTIVE]: this.$t("label.active"),
                     [statusCustomerEnum.INACTIVE]: this.$t("label.inactive"),
+                    [statusCustomerEnum.PENDING]: this.$t("label.pending"),
                 },
             },
             printLoading: true,
@@ -285,6 +286,18 @@ export default {
                         phone: vehicleOwner.phone,
                         status: vehicleOwner.status,
                         country_code: this.country_code,
+                        nit: vehicleOwner.nit,
+                        lastName: vehicleOwner.lastName,
+                        documentType: vehicleOwner.documentType,
+                        documentId: vehicleOwner.documentId,
+                        birthDate: vehicleOwner.birthDate,
+                        country: vehicleOwner.country,
+                        mobile: vehicleOwner.mobile,
+                        gender: vehicleOwner.gender,
+                        zone: vehicleOwner.zone,
+                        address: vehicleOwner.address,
+                        department: vehicleOwner.department,
+                        municipality: vehicleOwner.municipality,
                     };
                 })
                 .catch((err) => {

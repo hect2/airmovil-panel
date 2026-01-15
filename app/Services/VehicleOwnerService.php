@@ -3,12 +3,15 @@
 namespace App\Services;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
+use GuzzleHttp\Client;
 use App\Enums\Role as EnumRole;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\PaginateRequest;
 use App\Http\Requests\VehicleOwnerRequest;
+use GuzzleHttp\Exception\RequestException;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class VehicleOwnerService
@@ -141,6 +144,11 @@ class VehicleOwnerService
                 'status'    => $request->status,
                 'rdate'     => now()
             ];
+
+            if( !empty($request->contactCode) ){
+                $dataUsers['contactCode'] = $request->contactCode;
+            }
+
             $this->firebase->update('users', $customer, $dataUsers);
 
             $dataUsers['id'] = $customer;
@@ -194,6 +202,165 @@ class VehicleOwnerService
             DB::rollBack();
             throw new Exception($exception->getMessage(), 422);
         }
+    }
+
+    /**
+     *  Autenticacion
+     * 
+     * @throws Exception
+     */
+    public function generateToken(): string
+    {
+
+        try {
+            
+            $client = new Client();
+            $email = env('EMAIL_UNIVERSALES');
+            $password = env('PASSWORD_UNIVERSALES');
+
+            $headers = [
+                'Content-Type' => 'application/json',
+            ];
+
+            $body = [
+                'mail' => $email,
+                'password' => $password
+            ];
+    
+            $loginResponse = $client->post('https://dev.universales.com/api-externas/public/login', [
+                'headers' => $headers,
+                'json' => $body,
+                'http_errors' => false,
+            ]);
+    
+            $loginData = json_decode($loginResponse->getBody(), true);
+
+            if (
+                !isset($loginData['code']) || 
+                $loginData['code'] != 200 ||
+                empty($loginData['recordset']['JWToken'])
+            ) {
+                return "";
+            }
+    
+            $token = $loginData['recordset']['JWToken'];
+            
+            return $token; 
+        } catch (RequestException $exception) {
+            return "";
+        }
+
+
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function createExternalClient(VehicleOwnerRequest $VehicleOwnerRequest)
+    {
+        try {
+            // $token = $this->generateToken();
+
+            // if (empty($token)) {
+            //     throw new Exception(trans('No se pudo autenticar con Universales'), 422);
+            // }
+
+            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZHNAdW5pdmVyc2FwcHMuY29tIiwidXNlcklkIjo5OTI4OSwib3JpZ2luIjoid2ViIiwiZXhwIjoxNzY4NTQyMzkxfQ.P9UQI8ivAaVg8n54r3MTqkul1HzLj6neBrwnNlba0L5D9sgKNHzWKXHtmgQH2jI4OLXqWoEgz-uYNejoqQgixA";
+
+            $payload = [
+                'nit'           => empty($VehicleOwnerRequest->nit) ? 'CF' : $VehicleOwnerRequest->nit,
+                'nombre1'       => $VehicleOwnerRequest->name ?? '',
+                'nombre2'       => '',
+                'apellido1'     => $VehicleOwnerRequest->lastName ?? '',
+                'apellido2'     => '',
+                'tipodoc'       => $VehicleOwnerRequest->documentType ?? '',
+                'doc'           => $VehicleOwnerRequest->documentId ?? '',
+                'fechanac'      => !empty($VehicleOwnerRequest->birthDate)
+                    ? Carbon::parse($VehicleOwnerRequest->birthDate)->format('d/m/Y')
+                    : '',
+                'nacionalidad'  => $VehicleOwnerRequest->country ?? 'GT',
+                'actividad'     => 1,
+                'celular'       => $VehicleOwnerRequest->mobile ?? '',
+                'genero'        => $VehicleOwnerRequest->gender ?? '',
+                'email'         => $VehicleOwnerRequest->email ?? '',
+                'tipoCalle'     => 'AVE',
+                'zona'          => (int) ($VehicleOwnerRequest->zone ?? 1),
+                'direccion'     => $VehicleOwnerRequest->address ?? '',
+                'pais'          => 'GT',
+                'departamento'  => $VehicleOwnerRequest->department ?? '',
+                'municipio'     => $VehicleOwnerRequest->municipality ?? '',
+                'pep'           => 0,
+                'tipoCliente'   => 1,
+            ];
+
+            $client = new Client();
+
+            $response = $client->post(
+                'https://dev.universales.com/api-externas/public/add-contacto',
+                [
+                    'headers' => [
+                        'Content-Type'  => 'application/json',
+                        'Authorization' => 'Bearer ' . $token,
+                    ],
+                    'json' => $payload,
+                    'http_errors' => false,
+                ]
+            );
+
+            $responseData = json_decode($response->getBody(), true);
+
+            if( ($responseData['code'] ?? null) !== 200 || empty($responseData['recordset']['contacto']) ) {
+                $rawMessage = $responseData['msg'] ?? '';
+
+                $cleanMessage = $this->cleanOracleMessage($rawMessage);
+
+                throw new Exception($cleanMessage, 422);
+            }
+
+            if( isset($recordset['respuesta']) && str_contains(strtolower($recordset['respuesta']), 'actualizar') ){
+                throw new Exception($recordset['respuesta'], 422);
+            }
+
+            if (empty($responseData['recordset']['contacto'])) {
+                throw new Exception('Contacto no generado por Universales', 422);
+            }
+
+            $recordset = $responseData['recordset'] ?? [];
+
+            if( isset($recordset['detalle'][0]['CODIGO']) ){
+                return [
+                    'contacto' => $recordset['detalle'][0]['CODIGO'],
+                    'message' => $recordset['respuesta']
+                ];
+            }
+
+            return [
+                'contacto' => $responseData['recordset']['contacto'],
+                'message'  => $responseData['recordset']['respuesta'] ?? 'Contacto creado',
+            ];
+
+        } catch (RequestException $e) {
+            throw new Exception(trans('Error de comunicación con Universales'), 422);
+        }
+    }
+
+    private function cleanOracleMessage(string $message): string
+    {
+
+        if (preg_match('/Nit Invalido\s*!!/i', $message, $matches)) {
+            return 'Nit del usuario inválido';
+        }
+
+        if (preg_match('/DPI INCORRECTO/i', $message, $matches)) {
+            return 'DPI del usuario incorrecto';
+        }
+
+        if (preg_match('/ORA-20\d+:\s*(.+?)(\n|$)/', $message, $matches)) {
+            return trim($matches[1]);
+        }
+
+        // Mensaje generico.
+        return 'Error al crear contacto en Universales';
     }
 
 }

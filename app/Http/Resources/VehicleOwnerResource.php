@@ -24,6 +24,19 @@ class VehicleOwnerResource extends JsonResource
             "status"       => $this['status'],
             "image"        => $this['image'] ?? null,
             "country_code" => $this['ccode'],
+            "nit"          => $this['nit'] ?? null,
+            "lastName"     => $this['lastName'] ?? null,
+            "documentType"      => $this['documentType'] ?? null,
+            "documentId"   => $this['documentId'] ?? null,
+            "birthDate"    => $this['birthDate'] ?? null,
+            "country"      => $this['country'] ?? null,
+            "mobile"       => $this['mobile'] ?? null,
+            "gender"       => $this['gender'] ?? null,
+            "zone"         => $this['zone'] ?? null,
+            "address"      => $this['address'] ?? null,
+            "department"   => $this['department'] ?? null,
+            "municipality" => $this['municipality'] ?? null,
+            "contactCode"  => $this['contactCode'] ?? null,
             "messages"     => ""
         ];
     }

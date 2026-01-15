@@ -60,7 +60,7 @@
                         <div class="db-field-radio-group">
                             <div class="db-field-radio">
                                 <div class="custom-radio">
-                                    <input :value="enums.statusCustomerEnum.ACTIVE" v-model="props.form.status" id="active"
+                                    <input :value="enums.statusCustomerEnum.ACTIVE" v-model="props.form.status" @change="onActivate" id="active"
                                         type="radio" class="custom-radio-field" />
                                     <span class="custom-radio-span"></span>
                                 </div>
@@ -140,6 +140,7 @@ export default {
                 statusCustomerEnum: statusCustomerEnum,
                 statusCustomerEnumArray: {
                     [statusCustomerEnum.ACTIVE]: this.$t("label.active"),
+                    [statusCustomerEnum.PENDING]: this.$t("label.pending"),
                     [statusCustomerEnum.INACTIVE]: this.$t("label.inactive"),
                 },
             },
@@ -153,6 +154,14 @@ export default {
             return { title: this.$t('button.add_customer') };
         }
     },
+    // watch: {
+    //     'props.form.status'(newVal) {
+    //         if (newVal === this.enums.statusCustomerEnum.ACTIVE) {
+    //             console.log("PROPS: ", this.props)
+    //             this.syncExternalClient();
+    //         }
+    //     }
+    // },
     mounted() {
         this.loading.isActive = true;
         this.$store.dispatch('company/lists').then(companyRes => {
@@ -174,6 +183,12 @@ export default {
         });
     },
     methods: {
+        async onActivate() {
+            
+            if (this.props.form.contactCode) return;
+
+            await this.syncExternalClient();
+        },
         phoneNumber(e) {
             return appService.phoneNumber(e);
         },
@@ -187,6 +202,18 @@ export default {
                 phone: "",
                 status: statusCustomerEnum.ACTIVE,
                 country_code: this.country_code,
+                nit: "",
+                lastName: "",
+                documentType: "",
+                documentId: "",
+                birthDate: "",
+                country: "",
+                mobile: "",
+                gender: "",
+                zone: "",
+                address: "",
+                department: "",
+                municipality: "",
             };
         },
 
@@ -220,6 +247,33 @@ export default {
             } catch (err) {
                 this.loading.isActive = false;
                 alertService.error(err);
+            }
+        },
+
+        async syncExternalClient() {
+
+            if (this.loading.isActive) return;
+
+            try {
+                this.loading.isActive = true;
+                console.log("form", this.props.form);
+
+                const res = await this.$store.dispatch(
+                    'vehicleOwners/createExternalClient',
+                    this.props.form
+                );
+
+                this.props.form.contactCode = res.data.contacto;
+
+            } catch (err) {
+                this.props.form.status = this.props.form.status;
+
+                alertService.error(
+                    err.response?.data?.message ||
+                    'Error al crear cliente externo'
+                );
+            } finally {
+                this.loading.isActive = false;
             }
         },
     },
