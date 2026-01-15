@@ -259,13 +259,11 @@ class VehicleOwnerService
     public function createExternalClient(VehicleOwnerRequest $VehicleOwnerRequest)
     {
         try {
-            // $token = $this->generateToken();
+            $token = $this->generateToken();
 
-            // if (empty($token)) {
-            //     throw new Exception(trans('No se pudo autenticar con Universales'), 422);
-            // }
-
-            $token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhZHNAdW5pdmVyc2FwcHMuY29tIiwidXNlcklkIjo5OTI4OSwib3JpZ2luIjoid2ViIiwiZXhwIjoxNzY4NTQyMzkxfQ.P9UQI8ivAaVg8n54r3MTqkul1HzLj6neBrwnNlba0L5D9sgKNHzWKXHtmgQH2jI4OLXqWoEgz-uYNejoqQgixA";
+            if (empty($token)) {
+                throw new Exception(trans('No se pudo autenticar con Universales'), 422);
+            }
 
             $payload = [
                 'nit'           => empty($VehicleOwnerRequest->nit) ? 'CF' : $VehicleOwnerRequest->nit,
