@@ -38,10 +38,10 @@
 
                         <!-- carId -->
                         <div class="form-col-12 sm:form-col-6">
-                            <label for="carId" class="db-field-title required">{{ $t("label.customer") }}</label>
+                            <label for="carId" class="db-field-title required">{{ $t("label.car_model") }}</label>
 
                             <vue-select class="db-field-control f-b-custom-select" id="searchStatus"
-                                v-model="props.form.carId" :options="carBrands" label-by="title" value-by="id" :closeOnSelect="true" :searchable="true"
+                                v-model="props.form.carId" :options="carBrands" label-by="label" value-by="id" :closeOnSelect="true" :searchable="true"
                                 :clearOnClose="true" placeholder="--" search-placeholder="--" />
 
                             <!-- <select class="db-field-control f-b-custom-select" v-model="props.form.carId">
@@ -237,7 +237,12 @@ export default {
             this.$store.dispatch('polizes/listCarBrands', payload)
             .then(res => {
                     this.carBrands = res.data;
-                    console.log('CAR', res.data);
+
+                    this.carBrands = res.data.map(car => ({
+                        ...car,
+                        label: `${car.plate} | ${car.title}`
+                    }));
+
                     if (this.props.form.carId) {
                         this.props.form.carId = String(this.props.form.carId);
                     }

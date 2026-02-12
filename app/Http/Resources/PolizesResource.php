@@ -17,7 +17,7 @@ class PolizesResource extends JsonResource
         return [
             "id" => $this->resource['id'],
             "contractorNumber" => $this->resource['contractorNumber'] ?? "",
-            "customerId" => $this->resource['customerId'] ?? "",
+            "carId" => $this->resource['carId'] ?? "",
             "encryptedPolicyNumber" => $this->resource['encryptedPolicyNumber'] ?? "",
             "insuranceUser" => $this->resource['insuranceUser'] ?? "",
             "isActive" => $this->resource['isActive'] ?? "",
