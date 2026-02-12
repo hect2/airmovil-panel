@@ -39,4 +39,9 @@ class Transactions extends Model
             ->select('description','code','message')
             ->where('language', '=','ES');
     }
+
+    public static function liquidatePendingTransactions()
+    {
+        return $pendingTransactions = self::whereNull('liquidation_uuid')->where('request_status', 'APPROVED')->get();
+    }
 }
