@@ -167,7 +167,7 @@ export default {
                 form: {
                     policyNumber: "",
                     nit: "",
-                    customerId: "",
+                    carId: "",
                     startDate: "",
                     endDate: "",
                     status: ""
@@ -245,7 +245,7 @@ export default {
             this.props.form = {
                 policyNumber: polize.policyNumber,
                 nit: polize.nit,
-                customerId: polize.customerId || '',
+                carId: polize.carId || '',
                 startDate: formatDate(polize.startDate),
                 endDate: formatDate(polize.endDate),
                 status: polize.isActive || ''

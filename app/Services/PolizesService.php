@@ -20,7 +20,8 @@ class PolizesService
     ];
 
     protected array $filterableFieldsUser = [
-        'role'
+        'title',
+        'plate'
     ];
 
     protected $firebase;
@@ -117,12 +118,14 @@ class PolizesService
 
             $code = $this->validateNit($request->nit, $tokenAuth);
 
+            $encryptPolicy = $this->encryptPolize($request->policyNumber, $tokenAuth);
+
             $partsPolize = explode('-', $request->policyNumber);
 
             return collect($this->firebase->create('insurancePolicies', [
                     'policyNumber' => $request->policyNumber,
                     'nit' => $request->nit,
-                    "customerId" => $request->customerId,
+                    "carId" => $request->carId,
                     "isActive" => (boolean)$request->status,
                     "startDate" => Carbon::parse($request->startDate),
                     "endDate" => Carbon::parse($request->endDate),
@@ -130,7 +133,7 @@ class PolizesService
                     "paymentMethod" => env('PAYMENT_METHOD'),
                     "type" => env('TYPE'),
                     "contractorNumber" => $code,
-                    "encryptedPolicyNumber" => "POLICE-ENCRYPT",
+                    "encryptedPolicyNumber" => !empty($encryptPolicy['text']) ? $encryptPolicy['text'] : "",
                     "ramo" => $partsPolize[0],
                     "subRamo" => $partsPolize[1],
                     "office" => $partsPolize[2],
@@ -330,11 +333,11 @@ class PolizesService
      * 
      * @throws Exception
      */
-    public function encryptPolize($polize, $token): void
+    public function encryptPolize($polize, $token)
     {
         try {
 
-            $client = new Client(['timeout' => 5]);
+            $client = new Client();
 
             $responseEncrypt = $client->get("https://dev.universales.com/api-endosos-web/encrypt/{$polize}", [
                 'headers' => [
@@ -342,22 +345,19 @@ class PolizesService
                 ],
                 'http_errors' => false,
             ]);
+            $body = (string) $responseEncrypt->getBody();
+
+            Log::info('RESPONSE BODY:', [
+                'body' => $body
+            ]);
 
             $data = json_decode($responseEncrypt->getBody(), true);
 
-            if (
-                isset($data['code']) && $data['code'] != 200 &&
-                isset($data['recordset']['descripcion']) &&
-                strtolower($data['recordset']['descripcion']) !== 'activo'
-            ) {
-                throw new Exception("El nit ingresado no es valido", 422);
-            }
-            Log::info($data);
-            //?TODO: NECESITO VER COMO VIENE EL PARAMETRO STRING ENCRIPTADO
-            // return $data['recordset'][''] 
+            
+            return $data;
 
         } catch (RequestException $exception) {
-            throw new Exception("Ha ocurrido un error al conectarse a universales", 422);
+            return ['text' => 'Fallo'];
         }
     }
 
@@ -366,7 +366,7 @@ class PolizesService
      *
      * @throws Exception
      */
-    public function listUserAdmin(PaginateRequest $request, bool $isExport = false)
+    public function listCarBrands(PaginateRequest $request, bool $isExport = false)
     {
         try {
             $requests    = $request->all();
@@ -376,7 +376,7 @@ class PolizesService
             $orderType   = $request->get('order_type') ?? 'desc';
             $page        = $request->get('page', 1);
 
-            $filtered = $documents = collect($this->firebase->getAll('users'));
+            $filtered = $documents = collect($this->firebase->getAll('cars'));
 
             // Filtros dinámicos
             $filtered = $documents->filter(function ($doc) use ($requests) {

@@ -26,7 +26,7 @@ class PolizesRequest extends FormRequest
         return [
             'policyNumber' => ['required', 'string'],
             'nit' => ['required', 'string'],
-            "customerId" => ['required', 'string'],
+            "carId" => ['required', 'string'],
             "status" => ['required'],
             "startDate" => ['required'],
             "endDate" => ['required']

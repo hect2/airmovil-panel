@@ -78,12 +78,12 @@ class VehicleOwnerController extends AdminController
     public function createExternalClient(VehicleOwnerRequest $request)
     {
         try {
-            //$result = $this->vehicleOwnerService->createExternalClient($request);
+            $result = $this->vehicleOwnerService->createExternalClient($request);
 
             return response()->json([
                 'status'   => true,
-                'contacto' => "12345",//$result['contacto'],
-                'message'  => "exito",//$result['message'],
+                'contacto' => $result['contacto'],
+                'message'  => $result['message'],
             ], 200);
         } catch (Exception $exception) {
             return response()->json(['status'  => false, 'message' => $exception->getMessage()], 422);

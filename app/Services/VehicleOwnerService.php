@@ -307,10 +307,9 @@ class VehicleOwnerService
 
             $responseData = json_decode($response->getBody(), true);
 
-            if( ($responseData['code'] ?? null) !== 200 || empty($responseData['recordset']['contacto']) ) {
-                $rawMessage = $responseData['msg'] ?? '';
+            if( ($responseData['code'] ?? null) !== 200 ) {
 
-                $cleanMessage = $this->cleanOracleMessage($rawMessage);
+                $cleanMessage = $this->cleanOracleMessage($responseData['msg'] ?? '');
 
                 throw new Exception($cleanMessage, 422);
             }
@@ -319,23 +318,34 @@ class VehicleOwnerService
                 throw new Exception($recordset['respuesta'], 422);
             }
 
-            if (empty($responseData['recordset']['contacto'])) {
-                throw new Exception('Contacto no generado por Universales', 422);
+            $recordset = $responseData['recordset'] ?? [];
+            $respuesta = strtolower($recordset['respuesta'] ?? '');
+
+            if (str_contains($respuesta, 'ya existe contacto')) {
+
+                $codigo = $recordset['detalle'][0]['CODIGO'] ?? null;
+
+                throw new Exception(
+                    $recordset['respuesta'],
+                    422
+                );
             }
 
-            $recordset = $responseData['recordset'] ?? [];
+            if (str_contains($respuesta, 'actualizar')) {
+                throw new Exception(
+                    $recordset['respuesta'],
+                    422
+                );
+            }
 
-            if( isset($recordset['detalle'][0]['CODIGO']) ){
+            if (!empty($recordset['contacto'])) {
                 return [
-                    'contacto' => $recordset['detalle'][0]['CODIGO'],
-                    'message' => $recordset['respuesta']
+                    'contacto' => $recordset['contacto'],
+                    'message'  => $recordset['respuesta'] ?? 'Contacto creado',
                 ];
             }
 
-            return [
-                'contacto' => $responseData['recordset']['contacto'],
-                'message'  => $responseData['recordset']['respuesta'] ?? 'Contacto creado',
-            ];
+            throw new Exception('Contacto no generado por Universales', 422);
 
         } catch (RequestException $e) {
             throw new Exception(trans('Error de comunicación con Universales'), 422);

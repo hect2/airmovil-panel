@@ -36,32 +36,32 @@
                             <small class="db-field-alert" v-if="errors.nit">{{ errors.nit[0] }}</small>
                         </div>
 
-                        <!-- customerId -->
+                        <!-- carId -->
                         <div class="form-col-12 sm:form-col-6">
-                            <label for="customerId" class="db-field-title required">{{ $t("label.customer") }}</label>
+                            <label for="carId" class="db-field-title required">{{ $t("label.customer") }}</label>
 
                             <vue-select class="db-field-control f-b-custom-select" id="searchStatus"
-                                v-model="props.form.customerId" :options="customers" label-by="name" value-by="id" :closeOnSelect="true" :searchable="true"
+                                v-model="props.form.carId" :options="carBrands" label-by="title" value-by="id" :closeOnSelect="true" :searchable="true"
                                 :clearOnClose="true" placeholder="--" search-placeholder="--" />
 
-                            <!-- <select class="db-field-control f-b-custom-select" v-model="props.form.customerId">
-                                <option v-for="customer in customers" :value="customer.id">{{ customer.name }}</option>
+                            <!-- <select class="db-field-control f-b-custom-select" v-model="props.form.carId">
+                                <option v-for="customer in carBrands" :value="customer.id">{{ customer.name }}</option>
                             </select> -->
 
 
-                            <small class="db-field-alert" v-if="errors.customerId">{{ errors.customerId[0] }}</small>
+                            <small class="db-field-alert" v-if="errors.carId">{{ errors.carId[0] }}</small>
                         </div>
 
                         <!-- <div class="form-col-12 sm:form-col-6">
-                            <label for="customerId" class="db-field-title required">{{ $t("label.customerId") }}</label>
+                            <label for="carId" class="db-field-title required">{{ $t("label.carId") }}</label>
                             <input
-                                v-model="props.form.customerId"
-                                :class="errors.customerId ? 'invalid' : ''"
+                                v-model="props.form.carId"
+                                :class="errors.carId ? 'invalid' : ''"
                                 type="text"
-                                id="customerId"
+                                id="carId"
                                 class="db-field-control"
                             >
-                            <small class="db-field-alert" v-if="errors.customerId">{{ errors.customerId[0] }}</small>
+                            <small class="db-field-alert" v-if="errors.carId">{{ errors.carId[0] }}</small>
                         </div> -->
 
                         <!-- Dropdown-->
@@ -168,7 +168,7 @@ export default {
                 }
             },
             errors: {},
-            customers: [],
+            carBrands: [],
             selectedCustomer: null
         }
     },
@@ -178,7 +178,7 @@ export default {
         }
     },
     mounted() {
-        this.getUsers();
+        this.listCarBrands();
     },
     methods: {
         reset() {
@@ -188,7 +188,7 @@ export default {
             this.$props.props.form = {
                 policyNumber: "",
                 nit: "",
-                customerId: "",
+                carId: "",
                 startDate: "",
                 endDate: "",
                 status: ""
@@ -200,7 +200,7 @@ export default {
                 const formData = new FormData();
                 formData.append('policyNumber', this.props.form.policyNumber);
                 formData.append('nit', this.props.form.nit);
-                formData.append('customerId', this.props.form.customerId);
+                formData.append('carId', this.props.form.carId);
                 formData.append('startDate', this.props.form.startDate);
                 formData.append('endDate', this.props.form.endDate);
                 formData.append('status', this.props.form.status);
@@ -215,7 +215,7 @@ export default {
                         // Reset formulario local
                         this.props.form.policyNumber = "";
                         this.props.form.nit = "";
-                        this.props.form.customerId = "";
+                        this.props.form.carId = "";
                         this.props.form.startDate = "";
                         this.props.form.endDate = "";
                         this.props.form.status = "";
@@ -232,18 +232,18 @@ export default {
                 alertService.error(err);
             }
         },
-        getUsers(){
+        listCarBrands(){
             const payload = { page: 1, per_page: 25, rol: 'ADMIN' }; // igual que en el padre
-            this.$store.dispatch('polizes/listsUsers', payload)
+            this.$store.dispatch('polizes/listCarBrands', payload)
             .then(res => {
-                    this.customers = res.data;
-
-                    if (this.props.form.customerId) {
-                        this.props.form.customerId = String(this.props.form.customerId);
+                    this.carBrands = res.data;
+                    console.log('CAR', res.data);
+                    if (this.props.form.carId) {
+                        this.props.form.carId = String(this.props.form.carId);
                     }
 
-                    if(this.props.form.customerId){
-                        const foundUser = this.customers.find(c => c.id == this.props.form.customerId);
+                    if(this.props.form.carId){
+                        const foundUser = this.carBrands.find(c => c.id == this.props.form.carId);
 
                         if (foundUser) this.selectedCustomer = foundUser.id;
                     }
