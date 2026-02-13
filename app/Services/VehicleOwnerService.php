@@ -314,24 +314,23 @@ class VehicleOwnerService
                 throw new Exception($cleanMessage, 422);
             }
 
-            if( isset($recordset['respuesta']) && str_contains(strtolower($recordset['respuesta']), 'actualizar') ){
-                throw new Exception($recordset['respuesta'], 422);
-            }
-
             $recordset = $responseData['recordset'] ?? [];
             $respuesta = strtolower($recordset['respuesta'] ?? '');
 
-            if (str_contains($respuesta, 'ya existe contacto')) {
-
-                $codigo = $recordset['detalle'][0]['CODIGO'] ?? null;
-
-                throw new Exception(
-                    $recordset['respuesta'],
-                    422
-                );
+            if (str_contains($respuesta, 'actualizar')) {
+                throw new Exception("Es necesario enviar un correo a universales solicitando la actualización de datos de éste usuario.",422);
             }
 
-            if (str_contains($respuesta, 'actualizar')) {
+            if( str_contains($respuesta, 'ya existe contacto') ){
+                $codigo = $recordset['detalle'][0]['CODIGO'] ?? null;
+
+                if( !is_null($codigo) ){
+                    return [
+                        'contacto' => $codigo,
+                        'message' => 'Contacto actualizado'
+                    ];
+                }
+
                 throw new Exception(
                     $recordset['respuesta'],
                     422
