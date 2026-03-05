@@ -577,7 +577,8 @@
         "dryver": "Con conductor",
         "typeGasoline": "Tipo de gasolina",
         "ac-sin-ac": "Con/Sin A/C",
-        "Gear": "Transmision"
+        "Gear": "Transmision",
+        "car_model": "Vehiculo"
     },
     "button": {
         "add": "Agregar",

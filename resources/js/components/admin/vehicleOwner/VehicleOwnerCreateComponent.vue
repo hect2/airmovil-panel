@@ -60,7 +60,7 @@
                         <div class="db-field-radio-group">
                             <div class="db-field-radio">
                                 <div class="custom-radio">
-                                    <input :value="enums.statusCustomerEnum.ACTIVE" v-model="props.form.status" @change="onActivate" id="active"
+                                    <input :value="enums.statusCustomerEnum.ACTIVE" v-model="props.form.status" @click="savePreviousStatus" @change="onActivate" id="active"
                                         type="radio" class="custom-radio-field" />
                                     <span class="custom-radio-span"></span>
                                 </div>
@@ -136,6 +136,7 @@ export default {
             loading: {
                 isActive: false,
             },
+            previousStatus: null,
             enums: {
                 statusCustomerEnum: statusCustomerEnum,
                 statusCustomerEnumArray: {
@@ -183,9 +184,13 @@ export default {
         });
     },
     methods: {
+        savePreviousStatus(){
+            this.previousStatus = this.props.form.status;
+        },
         async onActivate() {
             
             if (this.props.form.contactCode) return;
+
 
             await this.syncExternalClient();
         },
@@ -266,7 +271,7 @@ export default {
                 this.props.form.contactCode = res.data.contacto;
 
             } catch (err) {
-                this.props.form.status = this.props.form.status;
+                this.props.form.status = this.previousStatus;
 
                 alertService.error(
                     err.response?.data?.message ||

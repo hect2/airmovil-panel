@@ -74,10 +74,10 @@ class PolizesController extends AdminController
         }
     }
 
-    public function getUsersAdmin(PaginateRequest $request)
+    public function listCarBrands(PaginateRequest $request)
     {
         try {
-            return response()->json($this->polizeService->listUserAdmin($request), 200);
+            return response()->json($this->polizeService->listCarBrands($request), 200);
         } catch (Exception $exception) {
             return response(['status' => false, 'message' => $exception->getMessage()], 422);
         }

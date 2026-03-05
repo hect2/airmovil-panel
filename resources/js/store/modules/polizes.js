@@ -6,7 +6,7 @@ export const polizes = {
     namespaced: true,
     state: {
         lists: [],
-        listsUsers: [],
+        listCarBrands: [],
         page: {},
         pagination: [],
         show: {},
@@ -31,8 +31,8 @@ export const polizes = {
         temp: function (state) {
             return state.temp;
         },
-        listsUsers: function (state) {
-            return state.listsUsers;
+        listCarBrands: function (state) {
+            return state.listCarBrands;
         }
     },
     actions: {
@@ -110,15 +110,15 @@ export const polizes = {
                 });
             });
         },
-        listsUsers: function (context, payload) {
+        listCarBrands: function (context, payload) {
             return new Promise((resolve, reject) => {
-                let url = 'admin/polizes/getUsersAdmin';
+                let url = 'admin/polizes/listCarBrands';
                 if (payload) {
                     url = url + appService.requestHandler(payload);
                 }
                 axios.get(url).then((res) => {
                     if(typeof payload?.vuex === "undefined" || payload.vuex === true) {
-                        context.commit('listsUsers', res.data.data);
+                        context.commit('listCarBrands', res.data.data);
                         context.commit('page', res.data.meta);
                         context.commit('pagination', res.data);
                     }

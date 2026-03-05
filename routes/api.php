@@ -667,7 +667,7 @@ Route::prefix('admin')->name('admin.')->middleware(['installed', 'localization']
         Route::match(['post', 'put', 'patch'], '/{polize}', [PolizesController::class, 'update']);
         Route::delete('/{polize}', [PolizesController::class, 'destroy']);
         Route::get('/export', [PolizesController::class, 'export']);
-        Route::get('/getUsersAdmin', [PolizesController::class, 'getUsersAdmin']);
+        Route::get('/listCarBrands', [PolizesController::class, 'listCarBrands']);
     });
 
     Route::prefix('reservations')->name('reservations.')->group(function(){
