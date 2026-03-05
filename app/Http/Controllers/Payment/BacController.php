@@ -44,34 +44,34 @@ class BacController extends Controller
             $currency_code = $request->input('currency');
 
             $BillingAddress = [
-                'FirstName'     => $client->first_name,
-                'LastName'      => $client->last_name,
-                'EmailAddress'  => $client->email,
-                'PhoneNumber'   => $client->phone,
+                'FirstName' => $client->first_name,
+                'LastName' => $client->last_name,
+                'EmailAddress' => $client->email,
+                'PhoneNumber' => $client->phone,
             ];
 
             $source = [
-                'CardPan'           => $request->card_payment['number_card'],
-                'CardCvv'           => $request->card_payment['cvv_card'],
-                'CardExpiration'    => $request->card_payment['expiration_year'] . $request->card_payment['expiration_month'],
-                'CardholderName'    => $client->name,
+                'CardPan' => $request->card_payment['number_card'],
+                'CardCvv' => $request->card_payment['cvv_card'],
+                'CardExpiration' => $request->card_payment['expiration_year'] . $request->card_payment['expiration_month'],
+                'CardholderName' => $client->name,
             ];
 
             $data = [
-                'TotalAmount'       => $total_amount,
-                'CurrencyCode'      => $currency_code,
-                'ThreeDSecure'      => false,
-                'Source'            => $source,
-                'OrderIdentifier'   => $id_order,
-                'BillingAddress'    => $BillingAddress,
+                'TotalAmount' => $total_amount,
+                'CurrencyCode' => $currency_code,
+                'ThreeDSecure' => false,
+                'Source' => $source,
+                'OrderIdentifier' => $id_order,
+                'BillingAddress' => $BillingAddress,
                 // 'ShippingAddress'   => $request->input('ShippingAddress', null),
             ];
 
             $response_auth = PaymentBacService::processAuth($data);
             $args = [
                 'data_capture' => [
-                    'TotalAmount'               => $total_amount,
-                    'TransactionIdentifier'     => $response_auth['data']['TransactionIdentifier'],
+                    'TotalAmount' => $total_amount,
+                    'TransactionIdentifier' => $response_auth['data']['TransactionIdentifier'],
                 ],
                 'transaction_uuid' => $transactions->uuid,
                 'pay' => true,
@@ -83,11 +83,11 @@ class BacController extends Controller
             if ($status) {
                 $transactions->fill(
                     [
-                        'request_id'            => $response['data']['TransactionIdentifier'] ?? '',
-                        'request_status'        => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
-                        'request_code'          => $response['data']['IsoResponseCode'] ?? '',
-                        'request_auth'          => $response['data']['AuthorizationCode'] ?? '',
-                        'status_transaction'    => $this->getStatus($response['data']['TransactionType']),
+                        'request_id' => $response['data']['TransactionIdentifier'] ?? '',
+                        'request_status' => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
+                        'request_code' => $response['data']['IsoResponseCode'] ?? '',
+                        'request_auth' => $response['data']['AuthorizationCode'] ?? '',
+                        'status_transaction' => $this->getStatus($response['data']['TransactionType']),
                     ]
                 );
                 $transactions->save();
@@ -96,7 +96,7 @@ class BacController extends Controller
 
                 $dateTransaction = $transactions->date_transaction;
                 $date = Carbon::parse($dateTransaction)->format('d-m-Y');
-                $hour =  $dateTransaction->format('g:i A');
+                $hour = $dateTransaction->format('g:i A');
                 $dataVoucher = [
                     // 'merchant'=>    $methodBusiness->merchant,
                     'request_id' => $transactions->request_id,
@@ -110,20 +110,20 @@ class BacController extends Controller
 
                 $transaction = Transactions::where('uuid', $transactions->uuid)->first();
                 $objData = [
-                    'url_voucher'       => $transaction->url_voucher,
-                    'data_voucher'      => $dataVoucher,
-                    'decision'          =>  $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
-                    'reasonCode'        =>  $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
-                    'requestID'         =>  $response['data']['TransactionIdentifier'],
-                    'transactions' =>  $transactions->uuid
+                    'url_voucher' => $transaction->url_voucher,
+                    'data_voucher' => $dataVoucher,
+                    'decision' => $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
+                    'reasonCode' => $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
+                    'requestID' => $response['data']['TransactionIdentifier'],
+                    'transactions' => $transactions->uuid
                 ];
 
                 if ($total_amount_floating != null && $total_amount_floating > 0) {
                     $data_floating = $data;
                     $data_floating['TotalAmount'] = $total_amount_floating;
                     $args = [
-                        'data'              => $data_floating,
-                        'transaction_uuid'  => $transactions->uuid,
+                        'data' => $data_floating,
+                        'transaction_uuid' => $transactions->uuid,
                     ];
                     $payments_captured = $this->processFloating($args);
                     Log::info('Captura automática realizada', ['response' => $payments_captured]);
@@ -133,11 +133,11 @@ class BacController extends Controller
             } else {
                 $transactions->fill(
                     [
-                        'request_id'            => $transactions->request_id,
-                        'request_status'        => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
-                        'request_code'          => $response['data']['IsoResponseCode'] ?? '',
-                        'request_auth'          => $response['data']['AuthorizationCode'] ?? '',
-                        'status_transaction'    => $this->getStatus($response['data']['TransactionType']),
+                        'request_id' => $transactions->request_id,
+                        'request_status' => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
+                        'request_code' => $response['data']['IsoResponseCode'] ?? '',
+                        'request_auth' => $response['data']['AuthorizationCode'] ?? '',
+                        'status_transaction' => $this->getStatus($response['data']['TransactionType']),
                     ]
                 );
                 $transactions->save();
@@ -154,18 +154,18 @@ class BacController extends Controller
                     ->first();
 
                 $data = [
-                    'decision'          =>  $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
-                    'reasonCode'        =>  $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
-                    'requestID'         =>  $response['data']['TransactionIdentifier'],
-                    'authorizationCode' =>  $response['data']['AuthorizationCode'] ?? '',
-                    'error_code'      => $code,
+                    'decision' => $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
+                    'reasonCode' => $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
+                    'requestID' => $response['data']['TransactionIdentifier'],
+                    'authorizationCode' => $response['data']['AuthorizationCode'] ?? '',
+                    'error_code' => $code,
                 ];
 
                 return response()->json(['error' => true, 'code' => 400, 'data' => $data], 400);
             }
         } catch (\Exception $e) {
             $decision = $e->getMessage();
-            return response()->json(['error' => 'true', 'code' => 400, 'message' => $decision, 'linea'=> $e->getLine(), 'file' => $e->getFile() ], 400);
+            return response()->json(['error' => 'true', 'code' => 400, 'message' => $decision, 'linea' => $e->getLine(), 'file' => $e->getFile()], 400);
         }
     }
 
@@ -191,8 +191,8 @@ class BacController extends Controller
 
         $args = [
             'data_capture' => [
-                'TotalAmount'               => $total_amount,
-                'TransactionIdentifier'     => $float_transaction->request_id,
+                'TotalAmount' => $total_amount,
+                'TransactionIdentifier' => $float_transaction->request_id,
             ],
             'transaction_uuid' => $float_transaction->transaction_uuid,
             'pay' => $pay,
@@ -217,9 +217,9 @@ class BacController extends Controller
         }
 
         $data = [
-            'Refund'                    => true,
-            'TransactionIdentifier'     => $paymentTransaction->transaction_identifier,
-            'TotalAmount'               => $paymentTransaction->total_amount,
+            'Refund' => true,
+            'TransactionIdentifier' => $paymentTransaction->transaction_identifier,
+            'TotalAmount' => $paymentTransaction->total_amount,
             // 'TipAmount'                 => $request->input('TipAmount'),
             // 'TaxAmount'                 => $request->input('TaxAmount'),
         ];
@@ -247,8 +247,8 @@ class BacController extends Controller
         }
 
         $data = [
-            'ExternalIdentifier'        => '',
-            'TransactionIdentifier'     => $float_transaction->request_id,
+            'ExternalIdentifier' => '',
+            'TransactionIdentifier' => $float_transaction->request_id,
         ];
 
         $response = PaymentBacService::processVoid($data);
@@ -394,5 +394,71 @@ class BacController extends Controller
         }
 
         return $response;
+    }
+
+    public function process3DS2Authenticate(): array
+    {
+
+        $client = new Client();
+
+        $response = $client->request('POST', 'https://staging.ptranz.com/Api/3DS2/Authenticate', [
+            'headers' => [
+                'accept' => 'application/json',
+                'content-type' => 'application/json',
+                'PowerTranz-PowerTranzId' => config('services.bac.api_id'),
+                'PowerTranz-PowerTranzPassword' => config('services.bac.api_key'),
+            ],
+        ]);
+
+        Log::error('Respuesta de autenticación 3DS2', ['response' => json_decode($response->getBody(), true)]);
+
+        return response()->json([
+            'message' => 'Respuesta de autenticación 3DS2',
+            'data' => json_decode($response->getBody(), true)
+        ], $response->getStatusCode());
+        // $fakeData = [
+        //     'TotalAmount' => 100.50,
+        //     'CurrencyCode' => 'GTQ',
+        //     'OrderIdentifier' => 'ORD-TEST-' . now()->timestamp,
+
+        //     'Source' => [
+        //         'CardPan' => '4111111111111111', // tarjeta test
+        //         'CardCvv' => '123',
+        //         'CardExpiration' => '2512', // YYMM
+        //         'CardholderName' => 'AXEL LOPEZ'
+        //     ],
+
+        //     'BillingAddress' => [
+        //         'FirstName' => 'Axel',
+        //         'LastName' => 'Lopez',
+        //         'Line1' => 'Zona 10',
+        //         'City' => 'Guatemala',
+        //         'State' => 'GT',
+        //         'PostalCode' => '01010',
+        //         'CountryCode' => '320',
+        //         'EmailAddress' => 'axel@test.com',
+        //         'PhoneNumber' => '50255378432'
+        //     ]
+        // ];
+
+        // $response = PaymentBacService::process3DS2Authenticate($fakeData);
+
+        // return $response;
+    }
+
+    public function testAlive()
+    {
+        // $response = PaymentBacService::processAlive();
+         $response = [
+            'Code' => 200,
+            'data' => [
+                'Message' => 'API de BAC está viva'
+            ]
+        ];
+        if ($response['Code'] === '200') {
+            return response()->json(['message' => 'La API de BAC está viva'], 200);
+        } else {
+            return response()->json(['message' => 'La API de BAC no está disponible'], 503);
+        }
     }
 }

@@ -39,23 +39,18 @@ class PaymentBacService
      */
     private static function getFullUrl(string $method): string
     {
-        $full_url = '';
         $url = config('services.bac.auth_url') . '/Api';
-        if ($method == 'auth') {
-            $full_url = $url . '/Auth';
-        } elseif ($method == 'capture') {
-            $full_url = $url . '/Capture';
-        } elseif ($method == 'refund') {
-            $full_url = $url . '/Refund';
-        } elseif ($method == 'payment') {
-            $full_url = $url . '/Payment';
-        } elseif ($method == 'void') {
-            $full_url = $url . '/Void';
-        } else {
-            $full_url = $url;
-        }
 
-        return $full_url;
+        return match ($method) {
+            'auth' => $url . '/Auth',
+            'capture' => $url . '/Capture',
+            'refund' => $url . '/Refund',
+            'payment' => $url . '/Payment',
+            'void' => $url . '/Void',
+            '3ds2_authenticate' => $url . '/3DS2/Authenticate',
+            'alive' => $url . '/Alive',
+            default => $url,
+        };
     }
 
     /**
@@ -63,7 +58,7 @@ class PaymentBacService
      */
     public static function buildPayload(array $data): array
     {
-        $currency_code = $data['CurrencyCode'] == 'GTQ'? '320':$data['CurrencyCode'];
+        $currency_code = $data['CurrencyCode'] == 'GTQ' ? '320' : $data['CurrencyCode'];
         $payload = [
             'TotalAmount' => $data['TotalAmount'],
             'CurrencyCode' => $currency_code,
@@ -148,11 +143,11 @@ class PaymentBacService
                     'EmvIssuerScripts' => null,
                     'EmvResponseCode' => null,
                     'ResponseMessage' => 'Capture successful',
-                    'RiskManagement' => (object)[],
+                    'RiskManagement' => (object) [],
                     'AvsResponseCode' => 'Y',
                     'CvvResponseCode' => 'M',
-                    'ThreeDSecure' => (object)[],
-                    'FraudCheck' => (object)[],
+                    'ThreeDSecure' => (object) [],
+                    'FraudCheck' => (object) [],
                     'CustomData' => 'Simulated Capture Response',
                     'Host' => 'SimHost',
                     'PanToken' => 'tok_8d7s91js',
@@ -272,8 +267,8 @@ class PaymentBacService
             $application_json = 'application/json';
             $response_client = $client->post($url, [
                 'headers' => [
-                    'PowerTranz-PowerTranzId' => '77701459',
-                    'PowerTranz-PowerTranzPassword' => 'F5qaBzswSME1IniJhDdI1FmRRP0ByZJumTZltMBLzBpiWx4lPLOvK2',
+                    'PowerTranz-PowerTranzId' => config('services.bac.api_id'),
+                    'PowerTranz-PowerTranzPassword' => config('services.bac.api_key'),
                     'Accept' => $application_json,
                     'Content-Type' => $application_json,
                 ],
@@ -380,7 +375,7 @@ class PaymentBacService
             // Send request with Guzzle
 
             $response = self::send_request($full_url, $payload, $method);
-            Log::error('Response  processAuth : '. json_encode($response));
+            Log::error('Response  processAuth : ' . json_encode($response));
             return $response;
         } catch (Exception $e) {
             return [
@@ -426,7 +421,7 @@ class PaymentBacService
 
             // Send request with Guzzle
             $response = self::send_request($full_url, $payload, $method);
-            Log::error('Response  processCapture : '. json_encode($response));
+            Log::error('Response  processCapture : ' . json_encode($response));
             return $response;
         } catch (Exception $e) {
             return [
@@ -475,7 +470,7 @@ class PaymentBacService
 
             // Send request with Guzzle
             $response = self::send_request($full_url, $payload, $method);
-            Log::error('Response  processRefund : '. json_encode($response));
+            Log::error('Response  processRefund : ' . json_encode($response));
             return $response;
         } catch (Exception $e) {
             return [
@@ -518,7 +513,7 @@ class PaymentBacService
 
             // Send request with Guzzle
             $response = self::send_request($full_url, $payload, $method);
-            Log::error('Response  processRefund : '. json_encode($response));
+            Log::error('Response  processRefund : ' . json_encode($response));
             return $response;
         } catch (Exception $e) {
             return [
@@ -559,12 +554,125 @@ class PaymentBacService
 
             // Send request with Guzzle
             $response = self::send_request($full_url, $payload, $method);
-            Log::error('Response  processRefund : '. json_encode($response));
+            Log::error('Response  processRefund : ' . json_encode($response));
             return $response;
         } catch (\Throwable $e) {
             return [
                 'Code' => '500',
                 'data' => ['Message' => 'Error al conectar con el servicio de pagos.', 'Error' => $e->getMessage()]
+            ];
+        }
+    }
+
+    public static function process3DS2Authenticate(array $data): array
+    {
+        try {
+            $method = '3ds2_authenticate';
+
+            $validations = [
+                'TotalAmount' => 'required|numeric|min:0.01',
+                'CurrencyCode' => 'required|string|max:3',
+
+                'Source' => 'required|array',
+                'Source.CardPan' => 'required|string|max:19',
+                'Source.CardCvv' => 'required|string|max:4',
+                'Source.CardExpiration' => 'required|string|size:4',
+                'Source.CardholderName' => 'required|string|min:2|max:45',
+
+                'OrderIdentifier' => 'required|string|max:255',
+
+                // 3DS requiere info del cliente
+                'BillingAddress' => 'required|array',
+                'BillingAddress.FirstName' => 'required|string|max:30',
+                'BillingAddress.LastName' => 'required|string|max:30',
+                'BillingAddress.EmailAddress' => 'required|email|max:50',
+                'BillingAddress.PhoneNumber' => 'required|string|max:20',
+            ];
+
+            $errors = self::validatePaymentData($data, $validations);
+            if (!empty($errors)) {
+                return $errors;
+            }
+
+            $full_url = self::getFullUrl($method);
+
+            $payload = [
+                'TotalAmount' => $data['TotalAmount'],
+                'CurrencyCode' => $data['CurrencyCode'] === 'GTQ' ? '320' : $data['CurrencyCode'],
+                'Source' => $data['Source'],
+                'OrderIdentifier' => $data['OrderIdentifier'],
+                'BillingAddress' => $data['BillingAddress'],
+                'ThreeDSecure' => true // 👈 obligatorio
+            ];
+
+            if (env('SIMULATE_RESPONSE', false)) {
+                return [
+                    'Code' => 200,
+                    'data' => [
+                        'RequiresChallenge' => true,
+                        'RedirectUrl' => 'https://acs.bank.com/challenge',
+                        'TransactionIdentifier' => (string) Str::uuid(),
+                        'SpiToken' => Str::random(32),
+                        'ResponseMessage' => '3DS authentication required'
+                    ]
+                ];
+            }
+
+            $response = self::send_request($full_url, $payload, $method);
+
+            Log::info('Response process3DS2Authenticate: ' . json_encode($response));
+
+            return $response;
+
+        } catch (Exception $e) {
+            return [
+                'Code' => '500',
+                'data' => [
+                    'Message' => 'Error en autenticación 3DS2.',
+                    'Error' => $e->getMessage()
+                ]
+            ];
+        }
+    }
+
+    public static function processAlive(): array
+    {
+        try {
+
+            $method = 'alive';
+            $url = self::getFullUrl($method);
+
+            Log::info("Checking PowerTranz API status: {$url}");
+
+            $client = new Client();
+
+            $response_client = $client->get($url, [
+                'headers' => [
+                    'PowerTranz-PowerTranzId' => config('services.bac.api_id'),
+                    'PowerTranz-PowerTranzPassword' => config('services.bac.api_key'),
+                    'Accept' => 'application/json'
+                ]
+            ]);
+
+            $statusCode = $response_client->getStatusCode();
+
+            $response = [
+                'Code' => $statusCode,
+                'data' => json_decode($response_client->getBody()->getContents(), true)
+            ];
+
+            Log::info("PowerTranz Alive Response: " . json_encode($response));
+
+            return $response;
+
+        } catch (Exception $e) {
+
+            return [
+                'Code' => 500,
+                'data' => [
+                    'Message' => 'Error conectando con PowerTranz',
+                    'Error' => $e->getMessage()
+                ]
             ];
         }
     }
