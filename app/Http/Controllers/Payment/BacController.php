@@ -396,69 +396,46 @@ class BacController extends Controller
         return $response;
     }
 
-    public function process3DS2Authenticate(): array
+    public function alive()
     {
+        $response = PaymentBacService::processAlive();
 
-        $client = new Client();
-
-        $response = $client->request('POST', 'https://staging.ptranz.com/Api/3DS2/Authenticate', [
-            'headers' => [
-                'accept' => 'application/json',
-                'content-type' => 'application/json',
-                'PowerTranz-PowerTranzId' => config('services.bac.api_id'),
-                'PowerTranz-PowerTranzPassword' => config('services.bac.api_key'),
-            ],
-        ]);
-
-        Log::error('Respuesta de autenticación 3DS2', ['response' => json_decode($response->getBody(), true)]);
-
-        return response()->json([
-            'message' => 'Respuesta de autenticación 3DS2',
-            'data' => json_decode($response->getBody(), true)
-        ], $response->getStatusCode());
-        // $fakeData = [
-        //     'TotalAmount' => 100.50,
-        //     'CurrencyCode' => 'GTQ',
-        //     'OrderIdentifier' => 'ORD-TEST-' . now()->timestamp,
-
-        //     'Source' => [
-        //         'CardPan' => '4111111111111111', // tarjeta test
-        //         'CardCvv' => '123',
-        //         'CardExpiration' => '2512', // YYMM
-        //         'CardholderName' => 'AXEL LOPEZ'
-        //     ],
-
-        //     'BillingAddress' => [
-        //         'FirstName' => 'Axel',
-        //         'LastName' => 'Lopez',
-        //         'Line1' => 'Zona 10',
-        //         'City' => 'Guatemala',
-        //         'State' => 'GT',
-        //         'PostalCode' => '01010',
-        //         'CountryCode' => '320',
-        //         'EmailAddress' => 'axel@test.com',
-        //         'PhoneNumber' => '50255378432'
-        //     ]
-        // ];
-
-        // $response = PaymentBacService::process3DS2Authenticate($fakeData);
-
-        // return $response;
-    }
-
-    public function testAlive()
-    {
-        // $response = PaymentBacService::processAlive();
-         $response = [
-            'Code' => 200,
-            'data' => [
-                'Message' => 'API de BAC está viva'
-            ]
-        ];
-        if ($response['Code'] === '200') {
+        if ($response['Code'] === 200) {
             return response()->json(['message' => 'La API de BAC está viva'], 200);
         } else {
             return response()->json(['message' => 'La API de BAC no está disponible'], 503);
         }
+    }
+
+    public function handle(Request $request)
+    {
+        $payload = $request->all();
+
+        Log::info('BAC 3DS Webhook recibido', $payload);
+
+        $isoCode = $payload['IsoResponseCode'] ?? null;
+
+        if ($isoCode === '3D0') {
+
+            // Autenticación 3DS exitosa
+            Log::info('3DS autenticado correctamente');
+
+            $transactionId = $payload['TransactionIdentifier'] ?? null;
+
+            // Aquí deberías completar el pago
+            // llamando a /api/spi/Payment
+
+        }
+
+        if ($isoCode === '3D1') {
+
+            // Tarjeta no soporta 3DS
+            Log::warning('Tarjeta no soporta 3DS');
+
+        }
+
+        return response()->json([
+            "status" => "ok"
+        ]);
     }
 }

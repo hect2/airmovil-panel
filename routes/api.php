@@ -815,4 +815,5 @@ Route::prefix('/payments')->group(function () {
     Route::post('/refund', [BacController::class, 'refund']);
     Route::post('/void', [BacController::class, 'void']);
     Route::post('/payment', [BacController::class, 'payment']);
+    Route::post('/webhook/response', [BacController::class, 'handle']);
 });

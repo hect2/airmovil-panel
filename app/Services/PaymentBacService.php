@@ -37,12 +37,12 @@ class PaymentBacService
     /**
      * Valida los campos requeridos del pago
      */
-    private static function getFullUrl(string $method): string
+    private static function getFullUrl(string $method, bool $three_d_secure = false): string
     {
         $url = config('services.bac.auth_url') . '/Api';
 
         return match ($method) {
-            'auth' => $url . '/Auth',
+            'auth' => $url . ($three_d_secure ? '/spi' : '') . '/Auth',
             'capture' => $url . '/Capture',
             'refund' => $url . '/Refund',
             'payment' => $url . '/Payment',
@@ -58,14 +58,19 @@ class PaymentBacService
      */
     public static function buildPayload(array $data): array
     {
+        $is_three_ds_active = $data['ThreeDSecure'] ?? false;
         $currency_code = $data['CurrencyCode'] == 'GTQ' ? '320' : $data['CurrencyCode'];
         $payload = [
             'TotalAmount' => $data['TotalAmount'],
             'CurrencyCode' => $currency_code,
-            'ThreeDSecure' => $data['ThreeDSecure'] ?? false,
+            'ThreeDSecure' => $is_three_ds_active,
             'Source' => $data['Source'],
-            'OrderIdentifier' => $data['OrderIdentifier']
+            'OrderIdentifier' => $data['OrderIdentifier'],
         ];
+
+        if ($is_three_ds_active) {
+            $payload['MerchantResponseUrl'] = "https://airmovil.universapps.com/payment/bac/response";
+        }
 
         if (isset($data['BillingAddress'])) {
             $payload['BillingAddress'] = $data['BillingAddress'];
@@ -320,6 +325,7 @@ class PaymentBacService
             $validations = [
                 'TotalAmount' => 'required|numeric|min:0.01|max:1000000000000000',
                 'CurrencyCode' => 'required|string|min:1|max:3',
+                'ThreeDSecure' => 'sometimes|boolean',
 
                 'Source' => 'required|array',
                 'Source.CardPan' => 'required|string|max:19',
@@ -362,7 +368,7 @@ class PaymentBacService
             }
 
             // Build full url
-            $full_url = self::getFullUrl($method);
+            $full_url = self::getFullUrl($method, $data['ThreeDSecure'] ?? false);
 
             // Build payload
             $payload = self::buildPayload($data);
