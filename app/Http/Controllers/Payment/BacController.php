@@ -8,10 +8,8 @@ use App\Helpers\processTransactions;
 use App\Models\sales\Transactions;
 use Illuminate\Http\Request;
 use App\Services\PaymentBacService;
-use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Crypt;
 use App\Http\Controllers\Controller;
-use App\Models\sales\PaymentMethod;
 use App\Models\sales\PaymentTransactions;
 use App\Models\sales\ResponseCode;
 use App\Models\sales\TransactionFloat;
@@ -29,259 +27,326 @@ class BacController extends Controller
             $client = $clientSales->createClient($request);
             $total_amount_floating = $request->input('total_amount_floating');
 
-
-
             if (!processTransactions::validateTotal($request)) {
                 Log::error('El monto total no coincide con el detalle de la compra');
-                return response()->json(['error' => 'true', 'code' => 400, 'message' => "El monto total no coincide con el detalle de la compra"], 400);
+                return response()->json(['error' => true, 'code' => 400, 'message' => 'El monto total no coincide con el detalle de la compra'], 400);
             }
 
             $processTransactions = new processTransactions();
             $transactions = $processTransactions->crateTransactions($request, $client, $ip, 'bac');
 
-            $id_order = $request->input('order_number');
+            $id_order     = $request->input('order_number');
             $total_amount = $request->input('total_amount');
-            $currency_code = $request->input('currency');
+            $currency     = $request->input('currency');
 
             $BillingAddress = [
-                'FirstName' => $client->first_name,
-                'LastName' => $client->last_name,
+                'FirstName'    => $client->first_name,
+                'LastName'     => $client->last_name,
                 'EmailAddress' => $client->email,
-                'PhoneNumber' => $client->phone,
+                'PhoneNumber'  => $client->phone,
             ];
 
             $source = [
-                'CardPan' => $request->card_payment['number_card'],
-                'CardCvv' => $request->card_payment['cvv_card'],
+                'CardPan'        => $request->card_payment['number_card'],
+                'CardCvv'        => $request->card_payment['cvv_card'],
                 'CardExpiration' => $request->card_payment['expiration_year'] . $request->card_payment['expiration_month'],
                 'CardholderName' => $client->name,
             ];
 
             $data = [
-                'TotalAmount' => $total_amount,
-                'CurrencyCode' => $currency_code,
-                'ThreeDSecure' => false,
-                'Source' => $source,
+                'TotalAmount'     => $total_amount,
+                'CurrencyCode'    => $currency,
+                'ThreeDSecure'    => $request->input('three_ds', false) ? true : false,
+                'Source'          => $source,
                 'OrderIdentifier' => $id_order,
-                'BillingAddress' => $BillingAddress,
-                // 'ShippingAddress'   => $request->input('ShippingAddress', null),
+                'BillingAddress'  => $BillingAddress,
             ];
 
+            // --- PASO 1: Auth SPI ---
             $response_auth = PaymentBacService::processAuth($data);
-            $args = [
-                'data_capture' => [
-                    'TotalAmount' => $total_amount,
-                    'TransactionIdentifier' => $response_auth['data']['TransactionIdentifier'],
-                ],
-                'transaction_uuid' => $transactions->uuid,
-                'pay' => true,
-                'is_floating' => false,
-            ];
-            $response = $this->processCapture($args);
+            $auth_data     = $response_auth['data'] ?? [];
+            $auth_iso      = $auth_data['IsoResponseCode'] ?? '';
 
-            $status = isset($response['data']['Approved']) ? $response['data']['Approved'] : false;
-            if ($status) {
-                $transactions->fill(
-                    [
-                        'request_id' => $response['data']['TransactionIdentifier'] ?? '',
-                        'request_status' => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
-                        'request_code' => $response['data']['IsoResponseCode'] ?? '',
-                        'request_auth' => $response['data']['AuthorizationCode'] ?? '',
-                        'status_transaction' => $this->getStatus($response['data']['TransactionType']),
-                    ]
-                );
+            // Auth fallido (no SP4 ni 00) → cortar aquí, no intentar Capture
+            if ($response_auth['Code'] !== 200 || in_array($auth_iso, ['97', '05', '12'])) {
+                $transactions->fill([
+                    'request_id'         => $auth_data['TransactionIdentifier'] ?? '',
+                    'request_status'     => 'DECLINED',
+                    'request_code'       => $auth_iso,
+                    'status_transaction' => 'Auth',
+                ]);
                 $transactions->save();
-
-                emails::sendEmailPaymentAccept($client, $transactions);
-
-                $dateTransaction = $transactions->date_transaction;
-                $date = Carbon::parse($dateTransaction)->format('d-m-Y');
-                $hour = $dateTransaction->format('g:i A');
-                $dataVoucher = [
-                    // 'merchant'=>    $methodBusiness->merchant,
-                    'request_id' => $transactions->request_id,
-                    'code_payment' => $transactions->identifier_payment,
-                    'date_transaction' => $date,
-                    'hour_transactions' => $hour,
-                    'last_card' => $transactions->value_payment,
-                    'total' => $transactions->total,
-                    'uuid_transaction' => $transactions->uuid,
-                ];
-
-                $transaction = Transactions::where('uuid', $transactions->uuid)->first();
-                $objData = [
-                    'url_voucher' => $transaction->url_voucher,
-                    'data_voucher' => $dataVoucher,
-                    'decision' => $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
-                    'reasonCode' => $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
-                    'requestID' => $response['data']['TransactionIdentifier'],
-                    'transactions' => $transactions->uuid
-                ];
-
-                if ($total_amount_floating != null && $total_amount_floating > 0) {
-                    $data_floating = $data;
-                    $data_floating['TotalAmount'] = $total_amount_floating;
-                    $args = [
-                        'data' => $data_floating,
-                        'transaction_uuid' => $transactions->uuid,
-                    ];
-                    $payments_captured = $this->processFloating($args);
-                    Log::info('Captura automática realizada', ['response' => $payments_captured]);
-                }
-
-                return response()->json(['code' => 200, 'error' => false, 'data' => $objData], 200);
-            } else {
-                $transactions->fill(
-                    [
-                        'request_id' => $transactions->request_id,
-                        'request_status' => $response['data']['Approved'] ? 'APPROVED' : 'DECLINED',
-                        'request_code' => $response['data']['IsoResponseCode'] ?? '',
-                        'request_auth' => $response['data']['AuthorizationCode'] ?? '',
-                        'status_transaction' => $this->getStatus($response['data']['TransactionType']),
-                    ]
-                );
-                $transactions->save();
-
-                $code = ResponseCode::where('code', $response['data']['IsoResponseCode'])->where('code_payment', $transactions->identifier_payment)
-                    ->where('language', 'ES')
-                    ->select(
-                        'code',
-                        'code_payment',
-                        'language',
-                        'description',
-                        'message'
-                    )
-                    ->first();
-
-                $data = [
-                    'decision' => $response['data']['Approved'] ? 'ACCEPT' : 'REJECT',
-                    'reasonCode' => $response['data']['IsoResponseCode'] ?? $response['data']['ResponseMessage'],
-                    'requestID' => $response['data']['TransactionIdentifier'],
-                    'authorizationCode' => $response['data']['AuthorizationCode'] ?? '',
-                    'error_code' => $code,
-                ];
-
-                return response()->json(['error' => true, 'code' => 400, 'data' => $data], 400);
+                return $this->respondError($auth_data, $transactions);
             }
+
+            // SP4 → el usuario debe autenticarse en el iFrame (challenge o frictionless con fingerprint)
+            if ($auth_iso === 'SP4' && !empty($auth_data['RedirectData'])) {
+
+                // Guardamos SpiToken cifrado para recuperarlo en handle() cuando PowerTranz
+                // haga POST a MerchantResponseUrl con el resultado de la autenticación
+                PaymentTransactions::create([
+                    'uuid'                   => Str::uuid(),
+                    'transaction_uuid'       => $transactions->uuid,
+                    'transaction_type'       => 'Auth',
+                    'approved'               => false,
+                    'transaction_identifier' => $auth_data['TransactionIdentifier'] ?? '',
+                    'order_identifier'       => $id_order,
+                    'total_amount'           => $total_amount,
+                    'currency_code'          => $currency,
+                    'iso_response_code'      => $auth_iso,
+                    'spi_token_encrypted'    => Crypt::encryptString($auth_data['SpiToken'] ?? ''),
+                    'external_identifier'    => $transactions->uuid,
+                ]);
+
+                $transactions->fill([
+                    'request_id'         => $auth_data['TransactionIdentifier'] ?? '',
+                    'request_status'     => 'PENDING_3DS',
+                    'request_code'       => $auth_iso,
+                    'status_transaction' => 'Auth',
+                ]);
+                $transactions->save();
+
+                // El frontend debe insertar redirect_data en un iFrame:
+                // <iframe srcdoc="{redirect_data}" width="100%" height="500"></iframe>
+                return response()->json([
+                    'error'            => false,
+                    'code'             => 202,
+                    'requires_3ds'     => true,
+                    'redirect_data'    => $auth_data['RedirectData'],
+                    'transaction_uuid' => $transactions->uuid,
+                    'message'          => 'Inserta redirect_data en un iFrame para completar la autenticación 3DS.',
+                ], 202);
+            }
+
+            // Frictionless directo (IsoResponseCode 00, Approved true) → Capture → Payment
+            if ($auth_iso === '00' && ($auth_data['Approved'] ?? false)) {
+                $capture_args = [
+                    'data_capture' => [
+                        'TotalAmount'           => $total_amount,
+                        'TransactionIdentifier' => $auth_data['TransactionIdentifier'],
+                    ],
+                    'transaction_uuid' => $transactions->uuid,
+                    'pay'              => true,
+                    'is_floating'      => false,
+                    'spi_token'        => $auth_data['SpiToken'] ?? '',
+                ];
+
+                $response = $this->processCapture($capture_args);
+                return $this->buildFinalResponse($response, $transactions, $client, $data, $total_amount_floating);
+            }
+
+            return $this->respondError($auth_data, $transactions);
+
         } catch (\Exception $e) {
-            $decision = $e->getMessage();
-            return response()->json(['error' => 'true', 'code' => 400, 'message' => $decision, 'linea' => $e->getLine(), 'file' => $e->getFile()], 400);
+            Log::error('BacController@auth exception', ['message' => $e->getMessage(), 'line' => $e->getLine()]);
+            return response()->json(['error' => true, 'code' => 500, 'message' => $e->getMessage()], 500);
         }
     }
+
+    /**
+     * POST /payment/bac/response  ← MerchantResponseUrl configurada en PowerTranz
+     *
+     * PowerTranz hace POST aquí con el resultado del challenge 3DS.
+     * Completa el pago con el SpiToken y responde con postMessage al iFrame padre.
+     */
+    public function handle(Request $request)
+    {
+        $payload = $request->all();
+        Log::info('BAC 3DS Callback recibido', ['payload' => $payload]);
+
+        // PowerTranz envía el resultado dentro del campo "Response" como string JSON
+        $response_data = [];
+        if (!empty($payload['Response']) && is_string($payload['Response'])) {
+            $response_data = json_decode($payload['Response'], true) ?? [];
+        }
+
+        try {
+            $isoCode       = $response_data['IsoResponseCode']      ?? $payload['IsoResponseCode']      ?? null;
+            $spiToken      = $response_data['SpiToken']              ?? $payload['SpiToken']              ?? null;
+            $transactionId = $response_data['TransactionIdentifier'] ?? $payload['TransactionIdentifier'] ?? null;
+
+            Log::info('BAC handle parsed', compact('isoCode', 'transactionId'));
+
+            $paymentTransaction = PaymentTransactions::where('transaction_identifier', $transactionId)
+                ->where('transaction_type', 'Auth')
+                ->where('approved', false)
+                ->first();
+
+            if (!$paymentTransaction) {
+                Log::error('BAC handle: PaymentTransaction no encontrado', ['transaction_id' => $transactionId]);
+                return $this->redirectFrontend('error', 'Transacción no encontrada');
+            }
+
+            $transactionUuid = $paymentTransaction->external_identifier;
+            $transactions    = Transactions::where('uuid', $transactionUuid)->first();
+
+            // 3DS fallido — no intentar Payment
+            if (in_array($isoCode, ['3D1', '3D2', 'SP6', 'RP'])) {
+                Log::warning('BAC handle: 3DS fallido', ['iso_code' => $isoCode]);
+                if ($transactions) {
+                    $transactions->fill(['request_status' => 'DECLINED', 'request_code' => $isoCode]);
+                    $transactions->save();
+                }
+                return $this->redirectFrontend('error', 'Autenticación 3DS fallida', $transactionUuid);
+            }
+
+            // Si PowerTranz no envió el SpiToken en el callback, usar el que guardamos cifrado
+            if (empty($spiToken)) {
+                $encrypted = $paymentTransaction->spi_token_encrypted ?? null;
+                $spiToken  = $encrypted ? Crypt::decryptString($encrypted) : null;
+            }
+
+            if (empty($spiToken)) {
+                Log::error('BAC handle: SpiToken no disponible');
+                return $this->redirectFrontend('error', 'SpiToken no disponible', $transactionUuid);
+            }
+
+            // --- PASO 2: completar el pago con el SpiToken ---
+            $response_payment = PaymentBacService::processPayment(['SpiToken' => $spiToken]);
+            $data             = $response_payment['data'] ?? [];
+            $approved         = $data['Approved'] ?? false;
+
+            Log::info('BAC handle: resultado de Payment', ['response' => $response_payment]);
+
+            $paymentTransaction->update([
+                'transaction_type'    => $this->getStatus($data['TransactionType'] ?? 2),
+                'approved'            => $approved,
+                'authorization_code'  => $data['AuthorizationCode'] ?? '',
+                'iso_response_code'   => $data['IsoResponseCode'] ?? '',
+                'pan_token'           => $data['PanToken'] ?? '',
+                'spi_token_encrypted' => '',
+            ]);
+
+            if ($transactions) {
+                $transactions->fill([
+                    'request_id'         => $data['TransactionIdentifier'] ?? $transactionId,
+                    'request_status'     => $approved ? 'APPROVED' : 'DECLINED',
+                    'request_code'       => $data['IsoResponseCode'] ?? '',
+                    'request_auth'       => $data['AuthorizationCode'] ?? '',
+                    'status_transaction' => $this->getStatus($data['TransactionType'] ?? 2),
+                ]);
+                $transactions->save();
+
+                if ($approved) {
+                    try {
+                        $client = (object) [
+                            'first_name' => $paymentTransaction->billingAddress['FirstName'] ?? '',
+                            'last_name'  => $paymentTransaction->billingAddress['LastName'] ?? '',
+                            'email'      => $paymentTransaction->billingAddress['EmailAddress'] ?? '',
+                            'name'       => trim(($paymentTransaction->billingAddress['FirstName'] ?? '') . ' ' . ($paymentTransaction->billingAddress['LastName'] ?? '')),
+                            'phone'      => $paymentTransaction->billingAddress['PhoneNumber'] ?? '',
+                        ];
+                        emails::sendEmailPaymentAccept($client, $transactions);
+                    } catch (\Exception $emailEx) {
+                        Log::warning('No se pudo enviar email post-3DS', ['error' => $emailEx->getMessage()]);
+                    }
+                }
+            }
+
+            return $this->redirectFrontend(
+                $approved ? 'success' : 'error',
+                $approved ? 'Pago aprobado' : ($data['ResponseMessage'] ?? 'Pago rechazado'),
+                $transactionUuid,
+                $data['TransactionIdentifier'] ?? $transactionId
+            );
+
+        } catch (\Exception $e) {
+            Log::error('BAC handle exception', ['message' => $e->getMessage(), 'line' => $e->getLine()]);
+            return $this->redirectFrontend('error', 'Error interno');
+        }
+    }
+
+    // -------------------------------------------------------------------------
+    // ENDPOINTS ADICIONALES
+    // -------------------------------------------------------------------------
 
     public function capture(Request $request)
     {
         $float_transaction_uuid = $request->input('float_transaction_uuid');
-        $total_amount = $request->input('TotalAmount');
-        $pay = $request->input('pay');
+        $total_amount           = $request->input('TotalAmount');
+        $pay                    = $request->input('pay');
 
         $float_transaction = TransactionFloat::where('uuid', $float_transaction_uuid)->first();
-        if (!$float_transaction) {
-            return response()->json(['message' => 'Transacción no encontrada'], 404);
-        }
+        if (!$float_transaction) return response()->json(['message' => 'Transacción no encontrada'], 404);
+        if ($total_amount <= 0) return response()->json(['message' => 'El monto debe ser mayor que cero'], 400);
 
-        if ($total_amount <= 0) {
-            return response()->json(['message' => 'El monto a capturar debe ser mayor que cero'], 400);
-        }
+        $payments_captured = PaymentTransactions::where('transaction_uuid', $float_transaction->transaction_uuid)
+            ->whereNot('transaction_type', 'Refund')->sum('total_amount');
 
-        $payments_captured = PaymentTransactions::where('transaction_uuid', $float_transaction->transaction_uuid)->whereNot('transaction_type', 'Refund')->sum('total_amount');
         if (($payments_captured + $total_amount) > $float_transaction->total) {
-            return response()->json(['message' => 'El monto a capturar excede el monto autorizado'], 400);
+            return response()->json(['message' => 'El monto excede el autorizado'], 400);
         }
 
         $args = [
-            'data_capture' => [
-                'TotalAmount' => $total_amount,
-                'TransactionIdentifier' => $float_transaction->request_id,
-            ],
+            'data_capture'     => ['TotalAmount' => $total_amount, 'TransactionIdentifier' => $float_transaction->request_id],
             'transaction_uuid' => $float_transaction->transaction_uuid,
-            'pay' => $pay,
+            'pay'              => $pay,
+            'is_floating'      => true,
         ];
-        $payments_captured = $this->processCapture($args);
-        Log::info('Captura automática realizada', ['response' => $payments_captured]);
 
+        $result = $this->processCapture($args);
         return response()->json([
-            'message' => 'Procesando captura de pago',
-            'Approved' => $payments_captured['data']['Approved'],
+            'message'          => 'Procesando captura',
+            'Approved'         => $result['data']['Approved'],
             'transaction_uuid' => $float_transaction->transaction_uuid,
-        ], $payments_captured['Code']);
+        ], $result['Code']);
     }
 
     public function refund(Request $request)
     {
-        $capture_uuid = $request->input('capture_uuid');
-
+        $capture_uuid       = $request->input('capture_uuid');
         $paymentTransaction = PaymentTransactions::where('uuid', $capture_uuid)->where('transaction_type', 'Capture')->first();
-        if (!$paymentTransaction) {
-            return response()->json(['message' => 'Captura de Transacción no encontrada'], 404);
-        }
+        if (!$paymentTransaction) return response()->json(['message' => 'Captura no encontrada'], 404);
 
         $data = [
-            'Refund' => true,
+            'Refund'                => true,
             'TransactionIdentifier' => $paymentTransaction->transaction_identifier,
-            'TotalAmount' => $paymentTransaction->total_amount,
-            // 'TipAmount'                 => $request->input('TipAmount'),
-            // 'TaxAmount'                 => $request->input('TaxAmount'),
+            'TotalAmount'           => $paymentTransaction->total_amount,
         ];
 
-        $response = PaymentBacService::processRefund($data);
+        $response      = PaymentBacService::processRefund($data);
         $data_response = $response['data'];
 
         $paymentTransaction->update([
-            'refund_id' => $response['data']['TransactionIdentifier'],
-            'date_refund' => now(),
-            'transaction_type' => $this->getStatus($data_response['TransactionType']),
-            'spi_token_encrypted' => '', // Limpiar el SpiToken almacenado
+            'refund_id'           => $data_response['TransactionIdentifier'] ?? '',
+            'date_refund'         => now(),
+            'transaction_type'    => $this->getStatus($data_response['TransactionType'] ?? 5),
+            'spi_token_encrypted' => '',
         ]);
 
-        return response()->json(['message' => 'Procesando reembolso', 'data' => $response['data']], $response['Code']);
+        return response()->json(['message' => 'Procesando reembolso', 'data' => $data_response], $response['Code']);
     }
 
     public function void(Request $request)
     {
         $float_transaction_uuid = $request->input('float_transaction_uuid');
+        $float_transaction      = TransactionFloat::where('uuid', $float_transaction_uuid)->first();
+        if (!$float_transaction) return response()->json(['message' => 'Transacción no encontrada'], 404);
 
-        $float_transaction = TransactionFloat::where('uuid', $float_transaction_uuid)->first();
-        if (!$float_transaction) {
-            return response()->json(['message' => 'Transacción no encontrada'], 404);
-        }
-
-        $data = [
-            'ExternalIdentifier' => '',
+        $response = PaymentBacService::processVoid([
+            'ExternalIdentifier'    => '',
             'TransactionIdentifier' => $float_transaction->request_id,
-        ];
-
-        $response = PaymentBacService::processVoid($data);
-        $data_response = $response['data'];
+        ]);
 
         $float_transaction->update([
-            'refund_id' => $response['data']['TransactionIdentifier'],
+            'refund_id'   => $response['data']['TransactionIdentifier'] ?? '',
             'date_refund' => now(),
         ]);
 
-        return response()->json(['message' => 'Procesando reembolso', 'data' => $response['data']], $response['Code']);
+        return response()->json(['message' => 'Procesando anulación', 'data' => $response['data']], $response['Code']);
     }
 
     public function payment(Request $request)
     {
-        $capture_uuid = $request->input('capture_uuid');
-
+        $capture_uuid       = $request->input('capture_uuid');
         $paymentTransaction = PaymentTransactions::where('uuid', $capture_uuid)->first();
-        if (!$paymentTransaction) {
-            return response()->json(['message' => 'Captura de Transacción no encontrada'], 404);
-        }
+        if (!$paymentTransaction) return response()->json(['message' => 'Transacción no encontrada'], 404);
 
         $spiToken = Crypt::decryptString($paymentTransaction->spi_token_encrypted);
-        if (!$spiToken) {
-            return response()->json(['message' => 'SpiToken no encontrado'], 404);
-        }
+        if (!$spiToken) return response()->json(['message' => 'SpiToken no encontrado'], 404);
 
         $response = $this->processPay($spiToken, $paymentTransaction);
-
-        return response()->json([
-            'message' => 'Procesando pago',
-            'data' => $response['data']
-        ], $response['Code']);
+        return response()->json(['message' => 'Procesando pago', 'data' => $response['data']], $response['Code']);
     }
 
     public function transactions(Request $request)
@@ -291,151 +356,208 @@ class BacController extends Controller
         return response()->json(['message' => 'Transaccion', 'data' => $data], 200);
     }
 
-    private function getStatus(int $status): string
+    public function alive()
     {
-        $arr_status = [
-            1 => 'Auth',
-            2 => 'Sale',
-            3 => 'Capture',
-            4 => 'Void',
-            5 => 'Refund',
-            6 => 'Credit',
-        ];
-        return $arr_status[$status] ?? 'Unknown';
+        $response = PaymentBacService::processAlive();
+        return $response['Code'] === 200
+            ? response()->json(['message' => 'La API de BAC está viva'], 200)
+            : response()->json(['message' => 'La API de BAC no está disponible'], 503);
     }
 
-    private function processFloating($args): array
-    {
-        Log::error('processFloating: ' . json_encode($args));
-        $data = $args['data'];
-        $total_amount = $data['TotalAmount'];
-        $transaction_uuid = $args['transaction_uuid'];
-        $float_transaction = TransactionFloat::create([
-            'uuid' => Str()->uuid(),
-            'transaction_uuid' => $transaction_uuid,
-            'total' => $total_amount,
-            'request_id' => $args['request_id'] ?? '',
-        ]);
-        $data['OrderIdentifier'] = str_replace('-', '', $float_transaction->uuid);
-        $response_auth = PaymentBacService::processAuth($data);
-        $float_transaction->update([
-            'request_id' => $response_auth['data']['TransactionIdentifier'] ?? '',
-        ]);
-        return $response_auth;
-    }
+    // -------------------------------------------------------------------------
+    // MÉTODOS PRIVADOS
+    // -------------------------------------------------------------------------
 
-    private function processCapture($args): array
+    private function processCapture(array $args): array
     {
-        $is_three_ds = config('services.bac.is_three_ds');
-        $data = $args['data_capture'];
-        $total_amount = $args['data_capture']['TotalAmount'];
+        $is_three_ds      = (bool) config('services.bac.is_three_ds', false);
+        $data             = $args['data_capture'];
+        $total_amount     = $data['TotalAmount'];
         $transaction_uuid = $args['transaction_uuid'];
-        $pay = $args['pay'] ?? false;
-        $is_floating = $args['is_floating'] ?? true;
-        $request_id = $args['request_id'] ?? '';
-        $capture_data = null;
+        $pay              = $args['pay'] ?? false;
+        $is_floating      = $args['is_floating'] ?? true;
+        $spiToken         = $args['spi_token'] ?? '';
+        $capture_data     = null;
 
         $response_capture = PaymentBacService::processCapture($data);
+        $data_response    = $response_capture['data'] ?? [];
 
-        $data_response = $response_capture['data'];
         Log::info('Respuesta de captura', ['response' => $data_response]);
 
-        $spiToken = $data_response['SpiToken'] ?? '';
-
         if ($is_floating) {
-            Log::error('is_floating: ' . json_encode(['response_capture' => $response_capture]));
             $capture_data = PaymentTransactions::create([
-                'uuid' => Str()->uuid(),
-                'transaction_uuid' => $transaction_uuid,
-                'original_trxn_identifier' => $data_response['OriginalTrxnIdentifier'],
-                'transaction_type' => $this->getStatus($data_response['TransactionType']),
-                'approved' => $data_response['Approved'],
-                'authorization_code' => $data_response['AuthorizationCode'],
-
-                'transaction_identifier' => $data_response['TransactionIdentifier'],
-                'total_amount' => $total_amount,
-                'currency_code' => $data_response['CurrencyCode'],
-                'rrn' => $data_response['RRN'],
-                'host_rrn' => $data_response['HostRRN'] ?? '',
-                'card_brand' => $data_response['CardBrand'] ?? '',
-                'card_suffix' => $data_response['CardSuffix'] ?? '',
-                'iso_response_code' => $data_response['IsoResponseCode'] ?? '',
-                'pan_token' => $data_response['PanToken'] ?? '',
-                'external_identifier' => $data_response['ExternalIdentifier'] ?? '',
-                'order_identifier' => $data_response['OrderIdentifier'] ?? '',
-                'spi_token_encrypted' => '', // Crypt::encryptString($data_response['SpiToken']),
+                'uuid'                     => Str::uuid(),
+                'transaction_uuid'         => $transaction_uuid,
+                'original_trxn_identifier' => $data_response['OriginalTrxnIdentifier'] ?? '',
+                'transaction_type'         => $this->getStatus($data_response['TransactionType'] ?? 3),
+                'approved'                 => $data_response['Approved'] ?? false,
+                'authorization_code'       => $data_response['AuthorizationCode'] ?? '',
+                'transaction_identifier'   => $data_response['TransactionIdentifier'] ?? '',
+                'total_amount'             => $total_amount,
+                'currency_code'            => $data_response['CurrencyCode'] ?? '',
+                'rrn'                      => $data_response['RRN'] ?? '',
+                'host_rrn'                 => $data_response['HostRRN'] ?? '',
+                'card_brand'               => $data_response['CardBrand'] ?? '',
+                'card_suffix'              => $data_response['CardSuffix'] ?? '',
+                'iso_response_code'        => $data_response['IsoResponseCode'] ?? '',
+                'pan_token'                => $data_response['PanToken'] ?? '',
+                'external_identifier'      => $data_response['ExternalIdentifier'] ?? '',
+                'order_identifier'         => $data_response['OrderIdentifier'] ?? '',
+                'spi_token_encrypted'      => $spiToken ? Crypt::encryptString($spiToken) : '',
             ]);
         }
 
-
-        if ($pay && $is_three_ds) {
-            // Procesar el pago inmediatamente después de la captura
-            $response_pay = $this->processPay($spiToken, $capture_data);
+        if ($pay && $is_three_ds && !empty($spiToken)) {
+            return $this->processPay($spiToken, $capture_data);
         }
 
-        return $pay && $is_three_ds ? $response_pay : $response_capture;
+        return $response_capture;
     }
 
-    private function processPay($spiToken, $paymentTransaction): array
+    private function processPay(string $spiToken, $paymentTransaction): array
     {
-        $data = [
-            'SpiToken' => $spiToken,
-        ];
-
-        $response = PaymentBacService::processPayment($data);
-        $data_response = $response['data'];
-        $response['data']['pago'] = 'viene de pay';
+        $response      = PaymentBacService::processPayment(['SpiToken' => $spiToken]);
+        $data_response = $response['data'] ?? [];
 
         if (!empty($paymentTransaction)) {
             $paymentTransaction->update([
-                'spi_token_encrypted' => '', // Limpiar el SpiToken almacenado
-                'transaction_type' => $this->getStatus($data_response['TransactionType']),
+                'spi_token_encrypted' => '',
+                'transaction_type'    => $this->getStatus($data_response['TransactionType'] ?? 2),
+                'approved'            => $data_response['Approved'] ?? false,
+                'authorization_code'  => $data_response['AuthorizationCode'] ?? '',
+                'iso_response_code'   => $data_response['IsoResponseCode'] ?? '',
             ]);
         }
 
         return $response;
     }
 
-    public function alive()
+    private function processFloating(array $args): array
     {
-        $response = PaymentBacService::processAlive();
+        $data             = $args['data'];
+        $transaction_uuid = $args['transaction_uuid'];
 
-        if ($response['Code'] === 200) {
-            return response()->json(['message' => 'La API de BAC está viva'], 200);
-        } else {
-            return response()->json(['message' => 'La API de BAC no está disponible'], 503);
-        }
+        $float_transaction = TransactionFloat::create([
+            'uuid'             => Str::uuid(),
+            'transaction_uuid' => $transaction_uuid,
+            'total'            => $data['TotalAmount'],
+            'request_id'       => '',
+        ]);
+
+        $data['OrderIdentifier'] = str_replace('-', '', $float_transaction->uuid);
+        $response_auth = PaymentBacService::processAuth($data);
+
+        $float_transaction->update(['request_id' => $response_auth['data']['TransactionIdentifier'] ?? '']);
+        Log::info('processFloating completado', ['response' => $response_auth]);
+        return $response_auth;
     }
 
-    public function handle(Request $request)
+    private function buildFinalResponse(array $response, $transactions, $client, array $data, $total_amount_floating): \Illuminate\Http\JsonResponse
     {
-        $payload = $request->all();
+        $approved = $response['data']['Approved'] ?? false;
 
-        Log::info('BAC 3DS Webhook recibido', $payload);
+        $transactions->fill([
+            'request_id'         => $response['data']['TransactionIdentifier'] ?? '',
+            'request_status'     => $approved ? 'APPROVED' : 'DECLINED',
+            'request_code'       => $response['data']['IsoResponseCode'] ?? '',
+            'request_auth'       => $response['data']['AuthorizationCode'] ?? '',
+            'status_transaction' => $this->getStatus($response['data']['TransactionType'] ?? 0),
+        ]);
+        $transactions->save();
 
-        $isoCode = $payload['IsoResponseCode'] ?? null;
+        if ($approved) {
+            // emails::sendEmailPaymentAccept($client, $transactions);
 
-        if ($isoCode === '3D0') {
+            if ($total_amount_floating > 0) {
+                $data_floating                = $data;
+                $data_floating['TotalAmount'] = $total_amount_floating;
+                $this->processFloating(['data' => $data_floating, 'transaction_uuid' => $transactions->uuid]);
+            }
 
-            // Autenticación 3DS exitosa
-            Log::info('3DS autenticado correctamente');
+            $dateTransaction = $transactions->date_transaction;
+            $transaction     = Transactions::where('uuid', $transactions->uuid)->first();
 
-            $transactionId = $payload['TransactionIdentifier'] ?? null;
-
-            // Aquí deberías completar el pago
-            // llamando a /api/spi/Payment
-
+            return response()->json([
+                'error' => false,
+                'code'  => 200,
+                'data'  => [
+                    'url_voucher'  => $transaction->url_voucher ?? '',
+                    'data_voucher' => [
+                        'request_id'        => $transactions->request_id,
+                        'code_payment'      => $transactions->identifier_payment,
+                        'date_transaction'  => Carbon::parse($dateTransaction)->format('d-m-Y'),
+                        'hour_transactions' => Carbon::parse($dateTransaction)->format('g:i A'),
+                        'last_card'         => $transactions->value_payment,
+                        'total'             => $transactions->total,
+                        'uuid_transaction'  => $transactions->uuid,
+                    ],
+                    'decision'    => 'ACCEPT',
+                    'reasonCode'  => $response['data']['IsoResponseCode'] ?? '',
+                    'requestID'   => $response['data']['TransactionIdentifier'] ?? '',
+                    'transactions'=> $transactions->uuid,
+                ],
+            ], 200);
         }
 
-        if ($isoCode === '3D1') {
+        return $this->respondError($response['data'], $transactions);
+    }
 
-            // Tarjeta no soporta 3DS
-            Log::warning('Tarjeta no soporta 3DS');
+    private function respondError(array $data, $transactions): \Illuminate\Http\JsonResponse
+    {
+        $isoCode = $data['IsoResponseCode'] ?? '';
 
-        }
+        $code = ResponseCode::where('code', $isoCode)
+            ->where('code_payment', $transactions->identifier_payment ?? '')
+            ->where('language', 'ES')
+            ->select('code', 'code_payment', 'language', 'description', 'message')
+            ->first();
 
         return response()->json([
-            "status" => "ok"
-        ]);
+            'error' => true,
+            'code'  => 400,
+            'data'  => [
+                'decision'          => 'REJECT',
+                'reasonCode'        => $isoCode ?: ($data['ResponseMessage'] ?? ''),
+                'requestID'         => $data['TransactionIdentifier'] ?? '',
+                'authorizationCode' => $data['AuthorizationCode'] ?? '',
+                'error_code'        => $code,
+                'errors'            => $data['Errors'] ?? [],
+            ],
+        ], 400);
+    }
+
+    private function redirectFrontend(
+        string $status,
+        string $message,
+        ?string $transactionUuid = null,
+        ?string $requestId = null
+    ) {
+        $approved = $status === 'success';
+        return response(
+            '<script>
+                window.parent.postMessage({
+                    type: "ptranz_result",
+                    approved: ' . ($approved ? 'true' : 'false') . ',
+                    status: "' . $status . '",
+                    message: "' . addslashes($message) . '",
+                    transaction_uuid: "' . ($transactionUuid ?? '') . '",
+                    request_id: "' . ($requestId ?? '') . '"
+                }, "*");
+            </script>',
+            200,
+            ['Content-Type' => 'text/html']
+        );
+    }
+
+    private function getStatus(int $status): string
+    {
+        return [
+            1 => 'Auth',
+            2 => 'Sale',
+            3 => 'Capture',
+            4 => 'Void',
+            5 => 'Refund',
+            6 => 'Credit',
+        ][$status] ?? 'Unknown';
     }
 }
