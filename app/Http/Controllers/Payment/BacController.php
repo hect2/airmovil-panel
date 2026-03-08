@@ -370,7 +370,7 @@ class BacController extends Controller
 
     private function processCapture(array $args): array
     {
-        $is_three_ds      = (bool) config('services.bac.is_three_ds', false);
+        $is_three_ds      = (bool) false;
         $data             = $args['data_capture'];
         $total_amount     = $data['TotalAmount'];
         $transaction_uuid = $args['transaction_uuid'];
