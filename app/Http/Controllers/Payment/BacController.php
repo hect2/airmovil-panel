@@ -16,12 +16,23 @@ use App\Models\sales\TransactionFloat;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 
 class BacController extends Controller
 {
     public function auth(Request $request)
     {
         try {
+            $validator = Validator::make($request->all(), [
+                'order_number' => 'required|unique:payment_transactions,order_identifier'
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => 'Error de validación',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
             $ip = $request->ip() ?? '192.168.1.1';
             $clientSales = new processClient();
             $client = $clientSales->createClient($request);
@@ -137,7 +148,8 @@ class BacController extends Controller
 
             return $this->respondError($auth_data, $transactions);
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             Log::error('BacController@auth exception', ['message' => $e->getMessage(), 'line' => $e->getLine()]);
             return response()->json(['error' => true, 'code' => 500, 'message' => $e->getMessage()], 500);
         }
@@ -193,7 +205,7 @@ class BacController extends Controller
             // Si PowerTranz no envió el SpiToken en el callback, usar el que guardamos cifrado
             if (empty($spiToken)) {
                 $encrypted = $paymentTransaction->spi_token_encrypted ?? null;
-                $spiToken = $encrypted ? Crypt::decryptString($encrypted) : null;
+                $spiToken = $encrypted ?Crypt::decryptString($encrypted) : null;
             }
 
             if (empty($spiToken)) {
@@ -229,7 +241,7 @@ class BacController extends Controller
 
                 if ($approved) {
                     try {
-                        $client = (object) [
+                        $client = (object)[
                             'first_name' => $paymentTransaction->billingAddress['FirstName'] ?? '',
                             'last_name' => $paymentTransaction->billingAddress['LastName'] ?? '',
                             'email' => $paymentTransaction->billingAddress['EmailAddress'] ?? '',
@@ -237,7 +249,8 @@ class BacController extends Controller
                             'phone' => $paymentTransaction->billingAddress['PhoneNumber'] ?? '',
                         ];
                         emails::sendEmailPaymentAccept($client, $transactions);
-                    } catch (\Exception $emailEx) {
+                    }
+                    catch (\Exception $emailEx) {
                         Log::warning('No se pudo enviar email post-3DS', ['error' => $emailEx->getMessage()]);
                     }
                 }
@@ -250,7 +263,8 @@ class BacController extends Controller
                 $data['TransactionIdentifier'] ?? $transactionId
             );
 
-        } catch (\Exception $e) {
+        }
+        catch (\Exception $e) {
             Log::error('BAC handle exception', ['message' => $e->getMessage(), 'line' => $e->getLine()]);
             return $this->redirectFrontend('error', 'Error interno');
         }
@@ -376,7 +390,7 @@ class BacController extends Controller
 
     private function processCapture(array $args): array
     {
-        $is_three_ds = (bool) false;
+        $is_three_ds = (bool)false;
         $data = $args['data_capture'];
         $total_amount = $data['TotalAmount'];
         $transaction_uuid = $args['transaction_uuid'];
@@ -409,7 +423,7 @@ class BacController extends Controller
                 'pan_token' => $data_response['PanToken'] ?? '',
                 'external_identifier' => $data_response['ExternalIdentifier'] ?? '',
                 'order_identifier' => $data_response['OrderIdentifier'] ?? '',
-                'spi_token_encrypted' => $spiToken ? Crypt::encryptString($spiToken) : '',
+                'spi_token_encrypted' => $spiToken ?Crypt::encryptString($spiToken) : '',
             ]);
         }
 
@@ -537,7 +551,8 @@ class BacController extends Controller
         string $message,
         ?string $transactionUuid = null,
         ?string $requestId = null
-    ) {
+        )
+    {
         $approved = $status === 'success';
         return response(
             '<script>
@@ -551,7 +566,7 @@ class BacController extends Controller
                 }, "*");
             </script>',
             200,
-            ['Content-Type' => 'text/html']
+        ['Content-Type' => 'text/html']
         );
     }
 
@@ -581,7 +596,7 @@ class BacController extends Controller
         }
 
         // El status final siempre vive en request_status del registro principal
-        $status = $transaction->request_status;   // APPROVED | DECLINED | PENDING_3DS
+        $status = $transaction->request_status; // APPROVED | DECLINED | PENDING_3DS
         $approved = $status === 'APPROVED';
 
         return response()->json([
@@ -589,7 +604,7 @@ class BacController extends Controller
             'code' => 200,
             'data' => [
                 'transaction_uuid' => $transaction->uuid,
-                'status' => $status,           // APPROVED | DECLINED | PENDING_3DS
+                'status' => $status, // APPROVED | DECLINED | PENDING_3DS
                 'approved' => $approved,
                 'request_code' => $transaction->request_code,
                 'request_id' => $transaction->request_id,
