@@ -53,6 +53,7 @@ class PaymentBacService
         return match ($method) {
             'auth'    => $base . ($three_d_secure ? '/spi' : '') . '/Auth',
             'payment' => $base . '/spi/Payment',  // segundo paso SPI 3DS (doc oficial)
+            'sale'    => $base . '/spi/Sale',  // segundo paso SPI 3DS (doc oficial)
             'capture' => $base . '/Capture',
             'refund'  => $base . '/Refund',
             'void'    => $base . '/Void',
