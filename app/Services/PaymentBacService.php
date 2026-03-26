@@ -466,7 +466,7 @@ class PaymentBacService
     public static function processPayment(array $data): array
     {
         try {
-            $method = 'payment';
+            $method = 'sale';
 
             $errors = self::validatePaymentData($data, [
                 'SpiToken' => 'required|string|min:1',

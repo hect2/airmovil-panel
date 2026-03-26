@@ -107,6 +107,9 @@ class BacController extends Controller
                     'iso_response_code' => $auth_iso,
                     'spi_token_encrypted' => Crypt::encryptString($auth_data['SpiToken'] ?? ''),
                     'external_identifier' => $transactions->uuid,
+
+                    'total_amount_floating' => $total_amount_floating,
+                    'auth_data_encrypted'   => Crypt::encryptString(json_encode($auth_data)),
                 ]);
 
                 $transactions->fill([
@@ -252,6 +255,32 @@ class BacController extends Controller
                     }
                     catch (\Exception $emailEx) {
                         Log::warning('No se pudo enviar email post-3DS', ['error' => $emailEx->getMessage()]);
+                    }
+
+                    $floatingAmount = $paymentTransaction->total_amount_floating ?? 0;
+
+                    if ($floatingAmount > 0) {
+                        try {
+                            $authDataRaw = Crypt::decryptString($paymentTransaction->auth_data_encrypted);
+                            $authData = json_decode($authDataRaw, true);
+
+                            $dataFloating = [
+                                'TotalAmount' => $floatingAmount,
+                                'CurrencyCode' => $paymentTransaction->currency_code,
+                                'Source' => $authData['Source'] ?? [],
+                                'BillingAddress' => $authData['BillingAddress'] ?? [],
+                                'OrderIdentifier' => $paymentTransaction->order_identifier . '_float',
+                                'ThreeDSecure' => false,
+                            ];
+
+                            $this->processFloating([
+                                'data' => $dataFloating,
+                                'transaction_uuid' => $transactionUuid,
+                            ]);
+                        }
+                        catch (\Exception $floatEx) {
+                            Log::warning('No se pudo procesar flotante post-3DS', ['error' => $floatEx->getMessage()]);
+                        }
                     }
                 }
             }
