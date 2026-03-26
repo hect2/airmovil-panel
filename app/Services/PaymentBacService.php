@@ -352,7 +352,7 @@ class PaymentBacService
     public static function processAuth(array $data): array
     {
         try {
-            $method = 'auth';
+            $method = 'sale';
             $is3ds  = (bool) ($data['ThreeDSecure'] ?? false);
 
             $validations = [
@@ -467,7 +467,7 @@ class PaymentBacService
     public static function processPayment(array $data): array
     {
         try {
-            $method = 'sale';
+            $method = 'payment';
 
             $errors = self::validatePaymentData($data, [
                 'SpiToken' => 'required|string|min:1',
