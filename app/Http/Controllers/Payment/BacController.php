@@ -259,29 +259,29 @@ class BacController extends Controller
 
                     $floatingAmount = $paymentTransaction->total_amount_floating ?? 0;
 
-                    if ($floatingAmount > 0) {
-                        try {
-                            $authDataRaw = Crypt::decryptString($paymentTransaction->auth_data_encrypted);
-                            $authData = json_decode($authDataRaw, true);
+                    // if ($floatingAmount > 0) {
+                    //     try {
+                    //         $authDataRaw = Crypt::decryptString($paymentTransaction->auth_data_encrypted);
+                    //         $authData = json_decode($authDataRaw, true);
 
-                            $dataFloating = [
-                                'TotalAmount' => $floatingAmount,
-                                'CurrencyCode' => $paymentTransaction->currency_code,
-                                'Source' => $authData['Source'] ?? [],
-                                'BillingAddress' => $authData['BillingAddress'] ?? [],
-                                'OrderIdentifier' => $paymentTransaction->order_identifier . '_float',
-                                'ThreeDSecure' => false,
-                            ];
+                    //         $dataFloating = [
+                    //             'TotalAmount' => $floatingAmount,
+                    //             'CurrencyCode' => $paymentTransaction->currency_code,
+                    //             'Source' => $authData['Source'] ?? [],
+                    //             'BillingAddress' => $authData['BillingAddress'] ?? [],
+                    //             'OrderIdentifier' => $paymentTransaction->order_identifier . '_float',
+                    //             'ThreeDSecure' => false,
+                    //         ];
 
-                            $this->processFloating([
-                                'data' => $dataFloating,
-                                'transaction_uuid' => $transactionUuid,
-                            ]);
-                        }
-                        catch (\Exception $floatEx) {
-                            Log::warning('No se pudo procesar flotante post-3DS', ['error' => $floatEx->getMessage()]);
-                        }
-                    }
+                    //         $this->processFloating([
+                    //             'data' => $dataFloating,
+                    //             'transaction_uuid' => $transactionUuid,
+                    //         ]);
+                    //     }
+                    //     catch (\Exception $floatEx) {
+                    //         Log::warning('No se pudo procesar flotante post-3DS', ['error' => $floatEx->getMessage()]);
+                    //     }
+                    // }
                 }
             }
 
@@ -517,11 +517,11 @@ class BacController extends Controller
         if ($approved) {
             // emails::sendEmailPaymentAccept($client, $transactions);
 
-            if ($total_amount_floating > 0) {
-                $data_floating = $data;
-                $data_floating['TotalAmount'] = $total_amount_floating;
-                $this->processFloating(['data' => $data_floating, 'transaction_uuid' => $transactions->uuid]);
-            }
+            // if ($total_amount_floating > 0) {
+            //     $data_floating = $data;
+            //     $data_floating['TotalAmount'] = $total_amount_floating;
+            //     $this->processFloating(['data' => $data_floating, 'transaction_uuid' => $transactions->uuid]);
+            // }
 
             $dateTransaction = $transactions->date_transaction;
             $transaction = Transactions::where('uuid', $transactions->uuid)->first();
